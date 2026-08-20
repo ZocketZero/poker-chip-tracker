@@ -59,7 +59,7 @@ export const TableView: React.FC<TableViewProps> = ({
         <div className="absolute inset-1.5 sm:inset-2.5 rounded-[92px] sm:rounded-[142px] border border-dashed border-amber-900/40 pointer-events-none" />
 
         {/* Table Felt (Deep Emerald Casino Green) */}
-        <div className="w-full h-full rounded-[82px] sm:rounded-[132px] bg-gradient-to-b from-[#094129] via-[#062b1b] to-[#041a10] shadow-[inset_0_0_90px_rgba(0,0,0,0.85)] border-2 border-emerald-400/20 relative overflow-hidden flex items-center justify-center">
+        <div className="w-full h-full rounded-[82px] sm:rounded-[132px] bg-gradient-to-b from-[#094129] via-[#062b1b] to-[#041a10] shadow-[inset_0_0_90px_rgba(0,0,0,0.85)] border-2 border-emerald-400/20 relative overflow-visible flex items-center justify-center">
           
           {/* Subtle Spotlight on Center Felt */}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.18)_0%,transparent_70%)] pointer-events-none" />
@@ -122,7 +122,9 @@ export const TableView: React.FC<TableViewProps> = ({
                 style={betPos}
                 className="absolute -translate-x-1/2 -translate-y-1/2 z-20 transition-all duration-300"
               >
-                <ChipStack amount={player.currentBet} size="sm" />
+              <div className="scale-75 sm:scale-90 md:scale-100 origin-center">
+                <ChipStack amount={player.currentBet} size="sm" showLabel={false} maxChipsShown={3} />
+              </div>
               </div>
             );
           })}
@@ -212,6 +214,12 @@ export const TableView: React.FC<TableViewProps> = ({
                     <div className="text-[11px] sm:text-xs font-extrabold font-mono text-amber-300 mt-0.5">
                       {formatChips(player.stack)}
                     </div>
+
+                    {tableState.isHandInProgress && (player.currentBet > 0 || player.totalInvestedThisHand > 0) && (
+                      <div className="text-[9px] sm:text-[10px] font-bold font-mono text-emerald-400 bg-emerald-950/80 px-1.5 py-0.5 rounded-full border border-emerald-500/30 mt-1 shadow-sm whitespace-nowrap">
+                        Bet: {formatChips(player.currentBet || player.totalInvestedThisHand)}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <button
