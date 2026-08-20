@@ -60,6 +60,20 @@ export function useP2PPoker() {
     localPlayerIdRef.current = localPlayerId;
   }, [localPlayerId]);
 
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (isConnected) {
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isConnected]);
+
   // Broadcast state to all connected peers & local BroadcastChannel
   const broadcastState = useCallback((newState: TableState) => {
     tableStateRef.current = newState;
