@@ -5,6 +5,7 @@ import { ActionControls } from './components/ActionControls';
 import { HostPanel } from './components/HostPanel';
 import { GameLog } from './components/GameLog';
 import { PotCalculatorModal } from './components/PotCalculatorModal';
+import { WinnerCelebration } from './components/WinnerCelebration';
 import { formatChips } from './utils/pokerRules';
 import {
   Coins,
@@ -352,6 +353,9 @@ export function App() {
           <GameLog logs={tableState.logs} />
         </div>
       </div>
+
+      {/* Winner Celebration Banner & Confetti */}
+      <WinnerCelebration tableState={tableState} />
 
       {/* Side Pot & Calculations Detail Modal */}
       {showCalculator && (

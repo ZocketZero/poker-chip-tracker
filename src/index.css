@@ -65,3 +65,61 @@ body {
   animation: float-chip 3s ease-in-out infinite;
 }
 
+@keyframes winner-glow {
+  0%, 100% {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.7), inset 0 0 15px rgba(245, 158, 11, 0.4);
+    border-color: rgba(251, 191, 36, 1);
+    transform: scale(1.03);
+  }
+  50% {
+    box-shadow: 0 0 45px rgba(234, 179, 8, 0.9), inset 0 0 25px rgba(245, 158, 11, 0.6);
+    border-color: rgba(254, 240, 138, 1);
+    transform: scale(1.045);
+  }
+}
+
+.animate-winner {
+  animation: winner-glow 1.4s ease-in-out infinite;
+}
+
+@keyframes victory-bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.1);
+  }
+}
+
+.animate-victory {
+  animation: victory-bounce 1s cubic-bezier(0.28, 0.84, 0.42, 1) infinite;
+}
+
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.6) translateY(-20px);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.06) translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-pop-in {
+  animation: pop-in 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+}
+

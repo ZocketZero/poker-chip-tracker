@@ -327,6 +327,14 @@ export function useP2PPoker() {
             current.sidePots = [];
             current.isHandInProgress = false;
             current.currentTurnSeat = null;
+            current.lastWinner = {
+              winnerNames: [winner.name],
+              winnerSeatIndexes: [winner.seatIndex],
+              amount: totalPotCollected,
+              handNumber: current.handNumber,
+              timestamp: Date.now(),
+              reason: 'fold',
+            };
             current.logs = [winLog, ...current.logs.slice(0, 49)];
 
             broadcastState(current);
@@ -403,6 +411,14 @@ export function useP2PPoker() {
           current.sidePots = [];
           current.isHandInProgress = false;
           current.currentTurnSeat = null;
+          current.lastWinner = {
+            winnerNames: winners.map((w) => w.name),
+            winnerSeatIndexes: winners.map((w) => w.seatIndex),
+            amount: totalPot,
+            handNumber: current.handNumber,
+            timestamp: Date.now(),
+            reason: 'showdown',
+          };
           current.logs = [winLog, ...current.logs.slice(0, 49)];
 
           broadcastState(current);
@@ -658,6 +674,7 @@ export function useP2PPoker() {
     current.street = 'preflop';
     current.handNumber += 1;
     current.isHandInProgress = true;
+    current.lastWinner = null;
 
     // Preflop first action:
     // In Heads-up: Dealer / SB acts first preflop!

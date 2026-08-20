@@ -2,7 +2,7 @@ import React from 'react';
 import type { TableState, Player } from '../types/poker';
 import { ChipStack } from './ChipStack';
 import { formatChips } from '../utils/pokerRules';
-import { User, WifiOff, Crown, Plus, Coins, Check, X, Flame, ArrowUpRight } from 'lucide-react';
+import { User, WifiOff, Crown, Plus, Coins, Check, X, Flame, ArrowUpRight, Trophy } from 'lucide-react';
 
 interface TableViewProps {
   tableState: TableState;
@@ -98,6 +98,10 @@ export const TableView: React.FC<TableViewProps> = ({
           const isDealer = tableState.dealerSeat === seatIdx;
           const isSB = tableState.sbSeat === seatIdx;
           const isBB = tableState.bbSeat === seatIdx;
+          const isWinner = !!(tableState.lastWinner && tableState.lastWinner.winnerSeatIndexes.includes(seatIdx));
+          const shareWon = isWinner && tableState.lastWinner
+            ? Math.floor(tableState.lastWinner.amount / tableState.lastWinner.winnerSeatIndexes.length)
+            : 0;
 
           if (!player) {
             return (
@@ -124,7 +128,9 @@ export const TableView: React.FC<TableViewProps> = ({
               key={`seat-${seatIdx}`}
               onClick={() => onPlayerClick?.(player)}
               className={`relative flex flex-col justify-between p-2.5 sm:p-3.5 rounded-2xl cursor-pointer transition-all duration-200 backdrop-blur-xl border ${
-                isTurn
+                isWinner
+                  ? 'bg-gradient-to-b from-amber-950/90 via-slate-900 to-amber-950/90 border-amber-300 shadow-[0_0_35px_rgba(245,158,11,0.6)] ring-2 ring-amber-400 animate-winner z-20 scale-[1.03]'
+                  : isTurn
                   ? 'bg-slate-900/95 border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.4)] ring-1 ring-amber-400 animate-turn scale-[1.02]'
                   : player.hasFolded
                   ? 'bg-slate-950/60 border-slate-800/80 opacity-40 grayscale'
@@ -163,15 +169,19 @@ export const TableView: React.FC<TableViewProps> = ({
                 <div className="relative shrink-0">
                   <div
                     className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white font-bold text-sm border shadow-inner ${
-                      isLocal
+                      isWinner
+                        ? 'bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-300 border-yellow-200 text-slate-950'
+                        : isLocal
                         ? 'bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 border-cyan-300'
                         : 'bg-gradient-to-tr from-slate-700 to-slate-800 border-slate-500'
                     }`}
                   >
-                    {player.isHost && (
+                    {isWinner ? (
+                      <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-slate-950 stroke-[2.5] animate-victory" />
+                    ) : player.isHost ? (
                       <Crown className="w-3.5 h-3.5 absolute -top-1.5 -left-1 text-amber-300 fill-amber-300 drop-shadow" />
-                    )}
-                    <User className="w-4 h-4 sm:w-5 sm:h-5" />
+                    ) : null}
+                    {!isWinner && <User className="w-4 h-4 sm:w-5 sm:h-5" />}
                   </div>
 
                   {!player.connected && (
@@ -191,7 +201,12 @@ export const TableView: React.FC<TableViewProps> = ({
                     )}
                   </div>
 
-                  {player.hasFolded ? (
+                  {isWinner ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-400/80 shadow-md animate-pulse">
+                      <Trophy className="w-2.5 h-2.5 text-amber-400 shrink-0" />
+                      WINNER (+{formatChips(shareWon)})
+                    </span>
+                  ) : player.hasFolded ? (
                     <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-400 bg-rose-950/80 px-1.5 py-0.5 rounded border border-rose-500/40 shadow-sm">
                       <X className="w-2.5 h-2.5" />
                       Folded

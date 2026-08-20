@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import type { TableState } from '../types/poker';
 import { formatChips } from '../utils/pokerRules';
 import { Play, FastForward, Award, PlusCircle, Settings, ShieldCheck, Sparkles } from 'lucide-react';
-import confetti from 'canvas-confetti';
 
 interface HostPanelProps {
   tableState: TableState;
@@ -55,14 +54,6 @@ export const HostPanel: React.FC<HostPanelProps> = ({
 
   const handleConfirmAward = () => {
     if (selectedWinners.length === 0) return;
-    try {
-      confetti({
-        particleCount: 100,
-        spread: 80,
-        origin: { y: 0.6 },
-      });
-    } catch (e) {}
-
     onAwardPot(selectedWinners, customPotAmount || totalPot);
     setShowAwardModal(false);
   };

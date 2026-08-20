@@ -40,6 +40,15 @@ export interface GameHistoryItem {
   type: 'action' | 'street' | 'winner' | 'system';
 }
 
+export interface WinnerInfo {
+  winnerNames: string[];
+  winnerSeatIndexes: number[];
+  amount: number;
+  handNumber: number;
+  timestamp: number;
+  reason?: 'fold' | 'showdown';
+}
+
 export interface TableState {
   roomId: string;
   hostId: string;
@@ -58,6 +67,7 @@ export interface TableState {
   isHandInProgress: boolean;
   settings: GameSettings;
   logs: GameHistoryItem[];
+  lastWinner?: WinnerInfo | null;
 }
 
 export type PeerMessage =
