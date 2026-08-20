@@ -94,7 +94,13 @@ export const TableView: React.FC<TableViewProps> = ({
         {Array.from({ length: totalSeats }).map((_, seatIdx) => {
           const player = playersBySeat[seatIdx];
           const isLocal = player?.id === localPlayerId;
-          const isTurn = tableState.currentTurnSeat === seatIdx;
+          const isTurn =
+            tableState.isHandInProgress &&
+            tableState.currentTurnSeat === seatIdx &&
+            !!player &&
+            !player.hasFolded &&
+            !player.isAllIn &&
+            player.stack > 0;
           const isDealer = tableState.dealerSeat === seatIdx;
           const isSB = tableState.sbSeat === seatIdx;
           const isBB = tableState.bbSeat === seatIdx;

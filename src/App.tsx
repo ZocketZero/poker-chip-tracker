@@ -52,7 +52,10 @@ export function App() {
   const localPlayer = tableState.players[localPlayerId];
   const isMyTurn =
     tableState.isHandInProgress &&
-    localPlayer &&
+    !!localPlayer &&
+    !localPlayer.hasFolded &&
+    !localPlayer.isAllIn &&
+    localPlayer.stack > 0 &&
     tableState.currentTurnSeat === localPlayer.seatIndex;
 
   const handleCopyRoomId = () => {

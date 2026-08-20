@@ -130,7 +130,11 @@ export function useP2PPoker() {
     };
     current.logs = [logItem, ...current.logs.slice(0, 49)];
 
-    if (nextStreet === 'showdown') {
+    const canAct = Object.values(current.players).filter(
+      (p) => p.isActive && !p.hasFolded && !p.isAllIn && p.stack > 0
+    );
+
+    if (nextStreet === 'showdown' || canAct.length <= 1) {
       current.currentTurnSeat = null;
     } else {
       current.currentTurnSeat = getNextActiveSeat(current, current.dealerSeat, false);
@@ -610,13 +614,15 @@ export function useP2PPoker() {
     current.dealerSeat = nextDealer;
 
     Object.keys(current.players).forEach((id) => {
+      const p = current.players[id];
+      const hasChips = p.isActive && p.stack > 0;
       current.players[id] = {
-        ...current.players[id],
+        ...p,
         currentBet: 0,
         totalInvestedThisHand: 0,
-        hasFolded: false,
+        hasFolded: !hasChips,
         isAllIn: false,
-        hasActedThisStreet: false,
+        hasActedThisStreet: !hasChips,
         lastAction: undefined,
       };
     });
@@ -629,8 +635,8 @@ export function useP2PPoker() {
       sbSeat = nextDealer;
       bbSeat = activeSeatIndexes.find((s) => s !== sbSeat) ?? sbSeat;
     } else {
-      sbSeat = getNextActiveSeat(current, nextDealer, true) ?? nextDealer;
-      bbSeat = getNextActiveSeat(current, sbSeat, true) ?? sbSeat;
+      sbSeat = getNextActiveSeat(current, nextDealer, false) ?? nextDealer;
+      bbSeat = getNextActiveSeat(current, sbSeat, false) ?? sbSeat;
     }
 
     current.sbSeat = sbSeat;
@@ -639,7 +645,7 @@ export function useP2PPoker() {
     const sbPlayer = Object.values(current.players).find((p) => p.seatIndex === sbSeat);
     const bbPlayer = Object.values(current.players).find((p) => p.seatIndex === bbSeat);
 
-    if (sbPlayer) {
+    if (sbPlayer && sbPlayer.stack > 0) {
       const sbAmount = Math.min(current.settings.smallBlind, sbPlayer.stack);
       sbPlayer.stack -= sbAmount;
       sbPlayer.currentBet = sbAmount;
@@ -647,7 +653,7 @@ export function useP2PPoker() {
       if (sbPlayer.stack === 0) sbPlayer.isAllIn = true;
     }
 
-    if (bbPlayer) {
+    if (bbPlayer && bbPlayer.stack > 0) {
       const bbAmount = Math.min(current.settings.bigBlind, bbPlayer.stack);
       bbPlayer.stack -= bbAmount;
       bbPlayer.currentBet = bbAmount;
@@ -677,12 +683,23 @@ export function useP2PPoker() {
     current.lastWinner = null;
 
     // Preflop first action:
-    // In Heads-up: Dealer / SB acts first preflop!
-    // In 3+ players: Player after BB (UTG) acts first!
-    if (activePlayers.length === 2) {
-      current.currentTurnSeat = sbSeat;
+    // Only players who are NOT all-in and have chips behind can act!
+    const canAct = Object.values(current.players).filter(
+      (p) => p.isActive && !p.hasFolded && !p.isAllIn && p.stack > 0
+    );
+
+    if (canAct.length <= 1) {
+      current.currentTurnSeat = null;
+    } else if (activePlayers.length === 2) {
+      if (sbPlayer && !sbPlayer.isAllIn && sbPlayer.stack > 0) {
+        current.currentTurnSeat = sbSeat;
+      } else if (bbPlayer && !bbPlayer.isAllIn && bbPlayer.stack > 0) {
+        current.currentTurnSeat = bbSeat;
+      } else {
+        current.currentTurnSeat = null;
+      }
     } else {
-      const utgSeat = getNextActiveSeat(current, bbSeat, false) ?? getNextActiveSeat(current, bbSeat, true);
+      const utgSeat = getNextActiveSeat(current, bbSeat, false);
       current.currentTurnSeat = utgSeat;
     }
 

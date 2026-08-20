@@ -33,20 +33,30 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
     setRaiseAmount(minRaiseTarget);
   }, [minRaiseTarget, currentHigh]);
 
-  if (player.hasFolded) {
+  if (player.hasFolded || (!tableState.isHandInProgress && player.stack === 0)) {
     return (
       <div className="bg-slate-950/80 backdrop-blur-md border border-slate-800 rounded-2xl p-4 text-center text-slate-400 font-medium flex items-center justify-center gap-2 shadow-lg">
         <ShieldAlert className="w-4 h-4 text-slate-500" />
-        <span>You have folded for this hand. Waiting for the next round...</span>
+        <span>
+          {player.stack === 0
+            ? 'You have 0 chips left. Ask the Host to add chips / rebuy to participate.'
+            : 'You have folded for this hand. Waiting for the next round...'}
+        </span>
       </div>
     );
   }
 
-  if (player.isAllIn) {
+  if (player.isAllIn || player.stack === 0) {
     return (
       <div className="bg-gradient-to-r from-amber-950/50 via-slate-950/80 to-rose-950/50 backdrop-blur-md border border-amber-500/40 rounded-2xl p-4 text-center text-amber-300 font-bold flex items-center justify-center gap-2 shadow-xl">
         <Flame className="w-5 h-5 text-amber-400 animate-bounce" />
-        <span>You are <strong className="text-amber-200">ALL-IN</strong> with {formatChips(player.totalInvestedThisHand)} chips committed!</span>
+        <span>
+          {player.totalInvestedThisHand > 0 ? (
+            <>You are <strong className="text-amber-200">ALL-IN</strong> with {formatChips(player.totalInvestedThisHand)} chips committed!</>
+          ) : (
+            <>You have <strong className="text-amber-200">0 CHIPS</strong> remaining. Rebuy to play.</>
+          )}
+        </span>
       </div>
     );
   }
