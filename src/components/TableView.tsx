@@ -2,7 +2,7 @@ import React from 'react';
 import type { TableState, Player } from '../types/poker';
 import { ChipStack } from './ChipStack';
 import { formatChips } from '../utils/pokerRules';
-import { User, WifiOff, Crown, Plus, Coins } from 'lucide-react';
+import { User, WifiOff, Crown, Plus, Coins, Check, X, Flame, ArrowUpRight } from 'lucide-react';
 
 interface TableViewProps {
   tableState: TableState;
@@ -192,15 +192,34 @@ export const TableView: React.FC<TableViewProps> = ({
                   </div>
 
                   {player.hasFolded ? (
-                    <span className="text-[10px] font-semibold text-rose-400">Folded</span>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-400 bg-rose-950/80 px-1.5 py-0.5 rounded border border-rose-500/40 shadow-sm">
+                      <X className="w-2.5 h-2.5" />
+                      Folded
+                    </span>
                   ) : player.isAllIn ? (
-                    <span className="text-[10px] font-black text-amber-300 bg-amber-950/80 px-1.5 py-0.2 rounded border border-amber-600/50 animate-pulse inline-block">
+                    <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-600/50 animate-pulse shadow-sm">
+                      <Flame className="w-2.5 h-2.5 text-amber-400" />
                       ALL-IN
                     </span>
                   ) : isTurn ? (
-                    <span className="text-[10px] font-black text-amber-300 flex items-center gap-1">
+                    <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-500/50 shadow-sm">
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping inline-block" />
                       Acting...
+                    </span>
+                  ) : player.lastAction === 'check' ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-500/40 shadow-sm">
+                      <Check className="w-2.5 h-2.5 text-emerald-400" />
+                      Checked
+                    </span>
+                  ) : player.lastAction === 'call' ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-300 bg-blue-950/80 px-1.5 py-0.5 rounded border border-blue-500/40 shadow-sm">
+                      <Check className="w-2.5 h-2.5 text-blue-400" />
+                      Called
+                    </span>
+                  ) : player.lastAction === 'raise' ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-500/40 shadow-sm">
+                      <ArrowUpRight className="w-2.5 h-2.5 text-amber-400" />
+                      Raised
                     </span>
                   ) : (
                     <span className="text-[10px] text-slate-400 font-medium">In Hand</span>

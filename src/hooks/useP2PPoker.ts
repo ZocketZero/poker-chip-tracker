@@ -98,10 +98,12 @@ export function useP2PPoker() {
     current.pot += Object.values(current.players).reduce((s, p) => s + p.currentBet, 0);
 
     Object.keys(current.players).forEach((id) => {
+      const p = current.players[id];
       current.players[id] = {
-        ...current.players[id],
+        ...p,
         currentBet: 0,
         hasActedThisStreet: false,
+        lastAction: p.hasFolded ? 'fold' : undefined,
       };
     });
 
@@ -226,10 +228,12 @@ export function useP2PPoker() {
 
           if (action === 'fold') {
             player.hasFolded = true;
+            player.lastAction = 'fold';
             player.hasActedThisStreet = true;
             actionLog = `${player.name} folded.`;
           } else if (action === 'check') {
             if (toCall > 0) return;
+            player.lastAction = 'check';
             player.hasActedThisStreet = true;
             actionLog = `${player.name} checked.`;
           } else if (action === 'call') {
@@ -239,6 +243,7 @@ export function useP2PPoker() {
             player.totalInvestedThisHand += callAmount;
             player.hasActedThisStreet = true;
             if (player.stack === 0) player.isAllIn = true;
+            player.lastAction = player.isAllIn ? 'all-in' : 'call';
             actionLog = `${player.name} called ${callAmount} chips.`;
           } else if (action === 'raise' || action === 'all-in') {
             let totalBetTarget = msg.amount || (currentHigh + current.minRaise);
@@ -259,6 +264,7 @@ export function useP2PPoker() {
             player.totalInvestedThisHand += actualAdd;
             player.hasActedThisStreet = true;
             if (player.stack === 0) player.isAllIn = true;
+            player.lastAction = player.isAllIn ? 'all-in' : 'raise';
 
             current.currentHighBet = player.currentBet;
 
@@ -312,6 +318,7 @@ export function useP2PPoker() {
                 hasFolded: false,
                 isAllIn: false,
                 hasActedThisStreet: false,
+                lastAction: undefined,
               };
             });
 
@@ -387,6 +394,7 @@ export function useP2PPoker() {
               hasFolded: false,
               isAllIn: false,
               hasActedThisStreet: false,
+              lastAction: undefined,
             };
           });
 
@@ -577,6 +585,7 @@ export function useP2PPoker() {
         hasFolded: false,
         isAllIn: false,
         hasActedThisStreet: false,
+        lastAction: undefined,
       };
     });
 

@@ -16,6 +16,7 @@ export interface Player {
   seatIndex: number;      // Position around table (0 - 9)
   isHost: boolean;
   connected: boolean;
+  lastAction?: PlayerActionType | null;
 }
 
 export interface SidePot {
