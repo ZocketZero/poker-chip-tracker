@@ -202,9 +202,9 @@ export const TableView: React.FC<TableViewProps> = ({
                     </div>
 
                     {/* Current bet badge */}
-                    {tableState.isHandInProgress && (player.currentBet > 0 || player.totalInvestedThisHand > 0) && (
+                    {tableState.isHandInProgress && player.currentBet > 0 && (
                       <div className="text-[6px] sm:text-[8px] font-bold font-mono text-emerald-300 bg-emerald-950/90 px-0.5 sm:px-1 py-0.5 rounded-full border border-emerald-500/40 mt-0.5 shadow-sm whitespace-nowrap">
-                        {formatChips(player.currentBet || player.totalInvestedThisHand)}
+                        {formatChips(player.currentBet)}
                       </div>
                     )}
                   </div>
