@@ -34,6 +34,14 @@ export const HostPanel: React.FC<HostPanelProps> = ({
   const [sb, setSb] = useState(tableState.settings.smallBlind);
   const [bb, setBb] = useState(tableState.settings.bigBlind);
   const [ante, setAnte] = useState(tableState.settings.ante);
+  const [tableSize, setTableSize] = useState(tableState.settings.tableSize || 8);
+
+  React.useEffect(() => {
+    setSb(tableState.settings.smallBlind);
+    setBb(tableState.settings.bigBlind);
+    setAnte(tableState.settings.ante);
+    setTableSize(tableState.settings.tableSize || 8);
+  }, [tableState.settings]);
 
   const activePlayers = Object.values(tableState.players).filter((p) => p.isActive);
   const totalPot = tableState.pot + tableState.communityBets;
@@ -272,6 +280,36 @@ export const HostPanel: React.FC<HostPanelProps> = ({
 
             <div className="space-y-3">
               <div>
+                <label className="text-xs text-slate-400 block mb-1">Max Players (Seats: 2 - 10)</label>
+                <div className="grid grid-cols-5 gap-1.5 mb-2">
+                  {[2, 4, 6, 8, 10].map((num) => (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => setTableSize(num)}
+                      className={`py-1.5 text-xs font-mono font-bold rounded-lg border transition-all cursor-pointer ${
+                        tableSize === num
+                          ? 'bg-amber-500/20 border-amber-400 text-amber-300'
+                          : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {num} Seats
+                    </button>
+                  ))}
+                </div>
+                <select
+                  value={tableSize}
+                  onChange={(e) => setTableSize(Number(e.target.value))}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono font-bold text-slate-100 focus:outline-none focus:border-amber-400"
+                >
+                  {Array.from({ length: 9 }, (_, i) => i + 2).map((num) => (
+                    <option key={num} value={num}>
+                      {num} Seats ({num} Max Players)
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
                 <label className="text-xs text-slate-400 block mb-1">Small Blind</label>
                 <input
                   type="number"
@@ -309,7 +347,7 @@ export const HostPanel: React.FC<HostPanelProps> = ({
               </button>
               <button
                 onClick={() => {
-                  onUpdateSettings({ smallBlind: sb, bigBlind: bb, ante });
+                  onUpdateSettings({ smallBlind: sb, bigBlind: bb, ante, tableSize });
                   setShowSettingsModal(false);
                 }}
                 className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow cursor-pointer"

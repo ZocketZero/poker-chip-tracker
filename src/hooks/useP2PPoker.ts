@@ -495,6 +495,22 @@ export function useP2PPoker() {
 
         case 'HOST_UPDATE_SETTINGS': {
           current.settings = { ...current.settings, ...msg.settings };
+          if (msg.settings.tableSize) {
+            const newSize = msg.settings.tableSize;
+            Object.values(current.players).forEach((p) => {
+              if (p.seatIndex >= newSize) {
+                const available = findFirstAvailableSeat(current);
+                p.seatIndex = available;
+              }
+            });
+          }
+          const logItem = {
+            id: Math.random().toString(36).substring(2, 9),
+            timestamp: Date.now(),
+            text: `⚙️ Table settings updated (Seats: ${current.settings.tableSize}, Blinds: ${current.settings.smallBlind}/${current.settings.bigBlind}).`,
+            type: 'system' as const,
+          };
+          current.logs = [logItem, ...current.logs.slice(0, 49)];
           broadcastState(current);
           break;
         }
@@ -892,7 +908,7 @@ export function useP2PPoker() {
     [isConnected]
   );
 
-  const startSoloTable = useCallback((hostName: string = 'Dealer & Player 1') => {
+  const startSoloTable = useCallback((hostName: string = 'Dealer & Player 1', playerCount: number = 3, tableSize: number = 8) => {
     setIsHost(true);
     setIsConnected(true);
     const mockId = 'local-player-1';
@@ -900,7 +916,10 @@ export function useP2PPoker() {
     localPlayerIdRef.current = mockId;
     setPeerId('offline-mode');
 
-    const bot1: Player = {
+    const botNames = ['Alice', 'Bob', 'Charlie', 'David', 'Eve', 'Frank', 'Grace', 'Heidi', 'Ivan'];
+    const playersObj: Record<string, Player> = {};
+
+    const hostPlayer: Player = {
       id: mockId,
       name: hostName,
       stack: 1000,
@@ -914,47 +933,42 @@ export function useP2PPoker() {
       isHost: true,
       connected: true,
     };
+    playersObj[mockId] = hostPlayer;
 
-    const bot2: Player = {
-      id: 'local-bot-2',
-      name: 'Alice (Seat 2)',
-      stack: 1000,
-      currentBet: 0,
-      totalInvestedThisHand: 0,
-      isActive: true,
-      hasFolded: false,
-      isAllIn: false,
-      hasActedThisStreet: false,
-      seatIndex: 1,
-      isHost: false,
-      connected: true,
-    };
-
-    const bot3: Player = {
-      id: 'local-bot-3',
-      name: 'Bob (Seat 3)',
-      stack: 1000,
-      currentBet: 0,
-      totalInvestedThisHand: 0,
-      isActive: true,
-      hasFolded: false,
-      isAllIn: false,
-      hasActedThisStreet: false,
-      seatIndex: 2,
-      isHost: false,
-      connected: true,
-    };
+    const actualCount = Math.min(tableSize, Math.max(2, playerCount));
+    for (let i = 1; i < actualCount; i++) {
+      const bId = `local-bot-${i + 1}`;
+      const name = `${botNames[(i - 1) % botNames.length]} (Seat ${i + 1})`;
+      playersObj[bId] = {
+        id: bId,
+        name,
+        stack: 1000,
+        currentBet: 0,
+        totalInvestedThisHand: 0,
+        isActive: true,
+        hasFolded: false,
+        isAllIn: false,
+        hasActedThisStreet: false,
+        seatIndex: i,
+        isHost: false,
+        connected: true,
+      };
+    }
 
     const initial: TableState = {
       ...INITIAL_TABLE_STATE,
       roomId: 'OFFLINE-TABLE',
       hostId: mockId,
-      players: { [mockId]: bot1, 'local-bot-2': bot2, 'local-bot-3': bot3 },
+      players: playersObj,
+      settings: {
+        ...INITIAL_TABLE_STATE.settings,
+        tableSize: Math.max(actualCount, tableSize),
+      },
       logs: [
         {
           id: '1',
           timestamp: Date.now(),
-          text: 'Practice Table started with 3 seated players (Single Device / Offline Mode).',
+          text: `Practice Table started with ${actualCount} seated players (${Math.max(actualCount, tableSize)} max seats).`,
           type: 'system',
         },
       ],

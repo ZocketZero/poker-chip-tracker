@@ -36,6 +36,8 @@ export function App() {
   const [roomIdInput, setRoomIdInput] = useState<string>('');
   const [customHostId, setCustomHostId] = useState<string>('');
   const [initialBuyIn, setInitialBuyIn] = useState<number>(1000);
+  const [tableSize, setTableSize] = useState<number>(8);
+  const [practicePlayerCount, setPracticePlayerCount] = useState<number>(3);
   const [copiedCode, setCopiedCode] = useState<boolean>(false);
   const [showCalculator, setShowCalculator] = useState<boolean>(false);
 
@@ -125,6 +127,18 @@ export function App() {
                   />
                 </div>
                 <div>
+                  <label className="text-[11px] text-slate-400 block mb-1 font-semibold">Max Players (Seats)</label>
+                  <select
+                    value={tableSize}
+                    onChange={(e) => setTableSize(Number(e.target.value))}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono font-bold text-amber-300 shadow-inner"
+                  >
+                    {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                      <option key={num} value={num}>{num} Seats</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-span-2">
                   <label className="text-[11px] text-slate-400 block mb-1 font-semibold">Room Code (optional)</label>
                   <input
                     type="text"
@@ -139,11 +153,11 @@ export function App() {
               <button
                 disabled={isConnecting}
                 onClick={() =>
-                  hostRoom(playerName, customHostId || undefined, { initialBuyIn })
+                  hostRoom(playerName, customHostId || undefined, { initialBuyIn, tableSize })
                 }
                 className="w-full py-3.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 active:scale-98 text-slate-950 font-black rounded-xl text-xs sm:text-sm shadow-[0_4px_20px_rgba(245,158,11,0.35)] transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer border border-amber-300/50"
               >
-                {isConnecting ? 'Creating Room...' : 'Create P2P Table & Share Code'}
+                {isConnecting ? 'Creating Room...' : `Create ${tableSize}-Player Table & Share Code`}
               </button>
             </div>
 
@@ -172,13 +186,31 @@ export function App() {
             </div>
 
             {/* Offline Practice / Single Device Mode */}
-            <button
-              onClick={() => startSoloTable(playerName || 'Host')}
-              className="w-full py-3 bg-slate-900/60 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border border-slate-800 transition-all cursor-pointer shadow-sm"
-            >
-              <Play className="w-3.5 h-3.5 text-emerald-400" />
-              Practice Table (Single Device Mode)
-            </button>
+            <div className="bg-slate-900/60 border border-slate-800/80 p-3.5 rounded-2xl space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                  <Play className="w-3.5 h-3.5 text-emerald-400" /> Practice Table (Single Device)
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <label className="text-[10px] text-slate-500 font-semibold">Players:</label>
+                  <select
+                    value={practicePlayerCount}
+                    onChange={(e) => setPracticePlayerCount(Number(e.target.value))}
+                    className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-0.5 text-xs font-mono font-bold text-emerald-400"
+                  >
+                    {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                      <option key={n} value={n}>{n} Players</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <button
+                onClick={() => startSoloTable(playerName || 'Host', practicePlayerCount, Math.max(practicePlayerCount, 8))}
+                className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm border border-slate-700"
+              >
+                Start Practice Hand ({practicePlayerCount} Players)
+              </button>
+            </div>
           </div>
         </div>
       </div>
