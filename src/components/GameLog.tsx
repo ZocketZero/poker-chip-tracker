@@ -21,7 +21,7 @@ export const GameLog: React.FC<GameLogProps> = ({ logs }) => {
   };
 
   return (
-    <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 h-48 flex flex-col backdrop-blur-xl shadow-xl">
+    <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 sm:p-3.5 h-32 sm:h-48 flex flex-col backdrop-blur-xl shadow-xl">
       <div className="flex items-center justify-between text-xs font-extrabold text-slate-300 pb-2 border-b border-slate-800/80 shrink-0">
         <div className="flex items-center gap-1.5">
           <History className="w-3.5 h-3.5 text-amber-400" />

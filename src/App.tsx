@@ -188,49 +188,50 @@ export function App() {
   return (
     <div className="min-h-screen bg-[#060911] text-slate-100 flex flex-col justify-between p-2 sm:p-4 max-w-7xl mx-auto select-none">
       {/* Top Navbar */}
-      <header className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 px-4 py-2.5 rounded-2xl backdrop-blur-xl mb-2 shadow-xl ring-1 ring-white/5">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
+      <header className="flex items-center justify-between gap-2 bg-slate-900/90 border border-slate-800 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl backdrop-blur-xl mb-2 shadow-xl ring-1 ring-white/5">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             <div className="p-1.5 bg-amber-500/10 rounded-xl border border-amber-500/30">
-              <Coins className="w-5 h-5 text-amber-400" />
+              <Coins className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
             </div>
-            <span className="font-serif-poker font-black text-sm tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-400">
+            <span className="font-serif-poker font-black text-xs sm:text-sm tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-400 hidden sm:block">
               POKER CHIP HUB
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 px-3 py-1 rounded-xl shadow-inner">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Room:</span>
-            <span className="text-xs font-mono font-black text-amber-300">
+          <div className="flex items-center gap-1 bg-slate-950 border border-slate-800 px-2 sm:px-3 py-1 rounded-xl shadow-inner min-w-0">
+            <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider shrink-0">#</span>
+            <span className="text-xs font-mono font-black text-amber-300 truncate max-w-[80px] sm:max-w-none">
               {tableState.roomId}
             </span>
             <button
               onClick={handleCopyRoomId}
-              className="text-slate-400 hover:text-amber-300 ml-1 p-1 rounded hover:bg-slate-800 transition-colors cursor-pointer"
+              className="text-slate-400 hover:text-amber-300 ml-0.5 p-0.5 rounded hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
               title="Copy Room ID"
             >
-              {copiedCode ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              {copiedCode ? <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400" /> : <Copy className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
             </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <button
             onClick={() => setShowCalculator(true)}
-            className="flex items-center gap-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/40 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm hover:scale-102 active:scale-98"
+            className="flex items-center gap-1 sm:gap-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95"
           >
             <Calculator className="w-3.5 h-3.5" />
-            <span>Pot Math ({formatChips(tableState.pot + tableState.communityBets)})</span>
+            <span className="hidden sm:block">Pot Math</span>
+            <span className="font-mono text-amber-200 text-[10px]">({formatChips(tableState.pot + tableState.communityBets)})</span>
           </button>
 
-          <div className="text-xs text-slate-300 font-bold flex items-center gap-1.5 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 shadow-inner">
+          <div className="text-xs text-slate-300 font-bold flex items-center gap-1 bg-slate-950 px-2 sm:px-3 py-1.5 rounded-xl border border-slate-800 shadow-inner">
             <Users className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="font-mono">{Object.values(tableState.players).length} Seated</span>
+            <span className="font-mono">{Object.values(tableState.players).length}</span>
           </div>
 
           <button
             onClick={() => window.location.reload()}
-            className="text-slate-400 hover:text-rose-400 p-2 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+            className="text-slate-400 hover:text-rose-400 p-1.5 sm:p-2 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
             title="Leave Table"
           >
             <LogOut className="w-4 h-4" />
@@ -255,9 +256,9 @@ export function App() {
       </main>
 
       {/* Bottom Controls Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mt-2">
-        {/* Left Column: Player Action Controls */}
-        <div className="lg:col-span-5 flex flex-col justify-end">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-3 mt-1 sm:mt-2">
+        {/* Action Controls — most important on mobile, show first */}
+        <div className="lg:col-span-5 order-1 flex flex-col justify-end">
           {localPlayer ? (
             <ActionControls
               player={localPlayer}
@@ -272,14 +273,14 @@ export function App() {
               }}
             />
           ) : (
-            <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl text-center text-xs text-slate-400">
-              You are currently spectating. Click an empty seat to sit.
+            <div className="bg-slate-900/80 border border-slate-800 p-3 sm:p-4 rounded-2xl text-center text-xs text-slate-400">
+              You are spectating. Click an empty seat to sit.
             </div>
           )}
         </div>
 
-        {/* Middle Column: Host / Dealer Operations */}
-        <div className="lg:col-span-4 flex flex-col justify-end z-50">
+        {/* Host / Dealer Operations */}
+        <div className="lg:col-span-4 order-2 flex flex-col justify-end z-50">
           {isHost ? (
             <HostPanel
               tableState={tableState}
@@ -307,15 +308,15 @@ export function App() {
               }
             />
           ) : (
-            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-center text-center text-xs text-slate-400 h-full">
-              <div className="font-bold text-slate-300 mb-1">Peer Connected</div>
-              <div>The host is managing dealer operations and pot distribution.</div>
+            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-3 sm:p-4 flex flex-col justify-center text-center text-xs text-slate-400">
+              <div className="font-bold text-slate-300 mb-0.5">Peer Connected</div>
+              <div>Host is managing dealer operations.</div>
             </div>
           )}
         </div>
 
-        {/* Right Column: Table History Log */}
-        <div className="lg:col-span-3">
+        {/* Game Log — collapsed height on mobile */}
+        <div className="lg:col-span-3 order-3">
           <GameLog logs={tableState.logs} />
         </div>
       </div>

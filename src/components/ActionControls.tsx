@@ -101,17 +101,17 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-3">
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-2 sm:mb-3">
         {/* FOLD Button */}
         <button
           disabled={!isMyTurn}
           onClick={() => onAction('fold')}
-          className="relative group overflow-hidden flex flex-col items-center justify-center p-3 rounded-xl font-black bg-gradient-to-b from-rose-600 via-rose-700 to-rose-900 hover:from-rose-500 hover:to-rose-800 active:scale-95 text-white shadow-[0_4px_15px_rgba(225,29,72,0.35)] border border-rose-500/40 transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+          className="relative group overflow-hidden flex flex-col items-center justify-center py-3.5 sm:p-3 rounded-xl font-black bg-gradient-to-b from-rose-600 via-rose-700 to-rose-900 hover:from-rose-500 hover:to-rose-800 active:scale-95 text-white shadow-[0_4px_15px_rgba(225,29,72,0.35)] border border-rose-500/40 transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer min-h-[64px] sm:min-h-0"
         >
           <div className="absolute inset-x-0 top-0 h-1/2 bg-white/10 pointer-events-none rounded-t-xl" />
-          <X className="w-5 h-5 mb-0.5 group-hover:rotate-90 transition-transform duration-200" />
-          <span className="text-sm tracking-wider">FOLD</span>
-          <span className="text-[9px] text-rose-200 font-medium opacity-80">Surrender</span>
+          <X className="w-5 h-5 sm:w-5 sm:h-5 mb-0.5 group-hover:rotate-90 transition-transform duration-200" />
+          <span className="text-sm sm:text-sm tracking-wider">FOLD</span>
+          <span className="text-[9px] text-rose-200 font-medium opacity-80 hidden sm:block">Surrender</span>
         </button>
 
         {/* CHECK or CALL Button */}
@@ -119,23 +119,23 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
           <button
             disabled={!isMyTurn}
             onClick={() => onAction('check')}
-            className="relative group overflow-hidden flex flex-col items-center justify-center p-3 rounded-xl font-black bg-gradient-to-b from-emerald-600 via-emerald-700 to-emerald-900 hover:from-emerald-500 hover:to-emerald-800 active:scale-95 text-white shadow-[0_4px_15px_rgba(16,185,129,0.35)] border border-emerald-500/40 transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+            className="relative group overflow-hidden flex flex-col items-center justify-center py-3.5 sm:p-3 rounded-xl font-black bg-gradient-to-b from-emerald-600 via-emerald-700 to-emerald-900 hover:from-emerald-500 hover:to-emerald-800 active:scale-95 text-white shadow-[0_4px_15px_rgba(16,185,129,0.35)] border border-emerald-500/40 transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer min-h-[64px] sm:min-h-0"
           >
             <div className="absolute inset-x-0 top-0 h-1/2 bg-white/10 pointer-events-none rounded-t-xl" />
             <Check className="w-5 h-5 mb-0.5 group-hover:scale-110 transition-transform" />
             <span className="text-sm tracking-wider">CHECK</span>
-            <span className="text-[9px] text-emerald-200 font-medium opacity-80">Free / Pass</span>
+            <span className="text-[9px] text-emerald-200 font-medium opacity-80 hidden sm:block">Free / Pass</span>
           </button>
         ) : (
           <button
             disabled={!isMyTurn}
             onClick={() => onAction('call')}
-            className="relative group overflow-hidden flex flex-col items-center justify-center p-3 rounded-xl font-black bg-gradient-to-b from-blue-600 via-blue-700 to-blue-900 hover:from-blue-500 hover:to-blue-800 active:scale-95 text-white shadow-[0_4px_15px_rgba(37,99,235,0.35)] border border-blue-500/40 transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+            className="relative group overflow-hidden flex flex-col items-center justify-center py-3.5 sm:p-3 rounded-xl font-black bg-gradient-to-b from-blue-600 via-blue-700 to-blue-900 hover:from-blue-500 hover:to-blue-800 active:scale-95 text-white shadow-[0_4px_15px_rgba(37,99,235,0.35)] border border-blue-500/40 transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer min-h-[64px] sm:min-h-0"
           >
             <div className="absolute inset-x-0 top-0 h-1/2 bg-white/10 pointer-events-none rounded-t-xl" />
             <Check className="w-5 h-5 mb-0.5" />
-            <span className="text-xs sm:text-sm tracking-wider font-mono">CALL {formatChips(Math.min(toCall, player.stack))}</span>
-            <span className="text-[9px] text-blue-200 font-medium opacity-80">Match Bet</span>
+            <span className="text-xs sm:text-sm tracking-wider font-mono">CALL</span>
+            <span className="text-[10px] sm:text-xs font-mono font-bold text-blue-100">{formatChips(Math.min(toCall, player.stack))}</span>
           </button>
         )}
 
@@ -149,61 +149,61 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
               onAction('raise', raiseAmount);
             }
           }}
-          className="relative group overflow-hidden flex flex-col items-center justify-center p-3 rounded-xl font-black bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 active:scale-95 text-slate-950 shadow-[0_4px_20px_rgba(245,158,11,0.4)] border border-amber-300/60 transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+          className="relative group overflow-hidden flex flex-col items-center justify-center py-3.5 sm:p-3 rounded-xl font-black bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 active:scale-95 text-slate-950 shadow-[0_4px_20px_rgba(245,158,11,0.4)] border border-amber-300/60 transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer min-h-[64px] sm:min-h-0"
         >
           <div className="absolute inset-x-0 top-0 h-1/2 bg-white/20 pointer-events-none rounded-t-xl" />
           <ArrowUpRight className="w-5 h-5 mb-0.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-          <span className="text-xs sm:text-sm tracking-wider font-mono font-black">
-            {raiseAmount >= maxRaiseTarget ? 'ALL-IN 🔥' : `RAISE ${formatChips(raiseAmount)}`}
+          <span className="text-xs tracking-wider font-mono font-black">
+            {raiseAmount >= maxRaiseTarget ? 'ALL-IN 🔥' : 'RAISE'}
           </span>
-          <span className="text-[9px] text-slate-900 font-bold opacity-80">
-            Total Committed
+          <span className="text-[10px] font-mono font-black text-slate-800 leading-none">
+            {raiseAmount >= maxRaiseTarget ? formatChips(maxRaiseTarget) : formatChips(raiseAmount)}
           </span>
         </button>
       </div>
 
       {isMyTurn && player.stack > toCall && (
-        <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-2.5 shadow-inner">
-          <div className="flex flex-wrap items-center gap-1.5 justify-between">
+        <div className="bg-slate-950/80 p-2.5 sm:p-3 rounded-xl border border-slate-800 space-y-2 sm:space-y-2.5 shadow-inner">
+          <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center gap-1.5 justify-between">
             <button
               onClick={() => setPresetRaise(2.5, 'bb')}
-              className="px-2.5 py-1 text-xs font-mono font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all cursor-pointer"
+              className="py-2 sm:py-1 px-1 sm:px-2.5 text-xs font-mono font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all cursor-pointer"
             >
               2.5 BB
             </button>
             <button
               onClick={() => setPresetRaise(3, 'bb')}
-              className="px-2.5 py-1 text-xs font-mono font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all cursor-pointer"
+              className="py-2 sm:py-1 px-1 sm:px-2.5 text-xs font-mono font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all cursor-pointer"
             >
               3 BB
             </button>
             <button
               onClick={() => setPresetRaise(0.5, 'pot')}
-              className="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 text-amber-300 hover:text-amber-200 border border-slate-700 transition-all cursor-pointer"
+              className="py-2 sm:py-1 px-1 sm:px-2.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 text-amber-300 hover:text-amber-200 border border-slate-700 transition-all cursor-pointer"
             >
               ½ Pot
             </button>
             <button
               onClick={() => setPresetRaise(0.75, 'pot')}
-              className="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 text-amber-300 hover:text-amber-200 border border-slate-700 transition-all cursor-pointer"
+              className="py-2 sm:py-1 px-1 sm:px-2.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 text-amber-300 hover:text-amber-200 border border-slate-700 transition-all cursor-pointer"
             >
               ¾ Pot
             </button>
             <button
               onClick={() => setPresetRaise(1.0, 'pot')}
-              className="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 text-amber-300 hover:text-amber-200 border border-slate-700 transition-all cursor-pointer"
+              className="py-2 sm:py-1 px-1 sm:px-2.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 text-amber-300 hover:text-amber-200 border border-slate-700 transition-all cursor-pointer"
             >
               Pot
             </button>
             <button
               onClick={() => setRaiseAmount(maxRaiseTarget)}
-              className="px-2.5 py-1 text-xs font-black rounded-lg bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white shadow-sm transition-all cursor-pointer"
+              className="py-2 sm:py-1 px-1 sm:px-2.5 text-xs font-black rounded-lg bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white shadow-sm transition-all cursor-pointer"
             >
               ALL-IN
             </button>
           </div>
 
-          <div className="flex items-center gap-3 pt-1">
+          <div className="flex items-center gap-2 sm:gap-3 pt-0.5">
             <input
               type="range"
               min={minRaiseTarget}
@@ -211,9 +211,9 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
               step={tableState.settings.smallBlind || 1}
               value={raiseAmount}
               onChange={(e) => setRaiseAmount(Number(e.target.value))}
-              className="w-full accent-amber-400 cursor-pointer h-2 bg-slate-800 rounded-lg appearance-none"
+              className="w-full accent-amber-400 cursor-pointer h-3 sm:h-2 bg-slate-800 rounded-lg appearance-none"
             />
-            <div className="w-28">
+            <div className="w-24 sm:w-28 shrink-0">
               <input
                 type="number"
                 min={minRaiseTarget}
@@ -223,7 +223,7 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
                   const val = Number(e.target.value);
                   setRaiseAmount(Math.max(minRaiseTarget, Math.min(maxRaiseTarget, val)));
                 }}
-                className="w-full bg-slate-900 border border-amber-500/50 rounded-lg px-2.5 py-1 text-right text-xs font-mono font-extrabold text-amber-300 focus:outline-none focus:border-amber-400 shadow-inner"
+                className="w-full bg-slate-900 border border-amber-500/50 rounded-lg px-2 sm:px-2.5 py-1.5 sm:py-1 text-right text-xs font-mono font-extrabold text-amber-300 focus:outline-none focus:border-amber-400 shadow-inner"
               />
             </div>
           </div>
