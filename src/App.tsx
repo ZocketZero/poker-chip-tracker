@@ -45,12 +45,20 @@ export function App() {
   const [copiedCode, setCopiedCode] = useState<boolean>(false);
   const [showCalculator, setShowCalculator] = useState<boolean>(false);
 
+  function randomName(): string {
+    const names = ['Maverick', 'Ace', 'Joker', 'BluffKing', 'Viper', 'Diamond', 'Shark'];
+    return names[Math.floor(Math.random() * names.length)]
+
+  }
+
+
   useEffect(() => {
     if (!playerName) {
-      const names = ['Maverick', 'Ace', 'Joker', 'BluffKing', 'Viper', 'Diamond', 'Shark'];
-      setPlayerName(names[Math.floor(Math.random() * names.length)]);
+      setPlayerName(randomName());
     }
-  }, [playerName]);
+  }, []);
+
+
 
   const localPlayer = tableState.players[localPlayerId];
   const isMyTurn =
@@ -165,7 +173,7 @@ export function App() {
               <button
                 disabled={isConnecting}
                 onClick={() =>
-                  hostRoom(playerName, customHostId || undefined, { initialBuyIn, tableSize })
+                  hostRoom(playerName.length == 0 ? randomName() : playerName, customHostId || undefined, { initialBuyIn, tableSize })
                 }
                 className="w-full py-3.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 active:scale-98 text-slate-950 font-black rounded-xl text-xs sm:text-sm shadow-[0_4px_20px_rgba(245,158,11,0.35)] transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer border border-amber-300/50"
               >
