@@ -17,11 +17,16 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [language, setLanguageState] = useState<Language>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved === 'en' || saved === 'th') {
+      if (saved === 'en' || saved === 'th' || saved === 'ja') {
         return saved;
       }
-      if (typeof navigator !== 'undefined' && navigator.language && navigator.language.startsWith('th')) {
-        return 'th';
+      if (typeof navigator !== 'undefined' && navigator.language) {
+        if (navigator.language.startsWith('ja')) {
+          return 'ja';
+        }
+        if (navigator.language.startsWith('th')) {
+          return 'th';
+        }
       }
     } catch {
       // ignore localStorage errors
@@ -39,7 +44,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const toggleLanguage = () => {
-    setLanguage(language === 'th' ? 'en' : 'th');
+    setLanguage(language === 'th' ? 'en' : language === 'en' ? 'ja' : 'th');
   };
 
   const t = useMemo(() => {

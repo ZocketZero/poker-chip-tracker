@@ -232,7 +232,7 @@ export function App() {
   return (
     <div className="min-h-screen bg-[#060911] text-slate-100 flex flex-col justify-between p-2 sm:p-4 max-w-7xl mx-auto select-none">
       {/* Top Navbar */}
-      <header className="flex items-center justify-between gap-2 bg-slate-900/90 border border-slate-800 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl backdrop-blur-xl mb-2 shadow-xl ring-1 ring-white/5">
+      <header className="z-50 flex items-center justify-between gap-2 bg-slate-900/90 border border-slate-800 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl backdrop-blur-xl mb-2 shadow-xl ring-1 ring-white/5">
         <div className="flex items-center gap-2 min-w-0">
           <div className="flex items-center gap-1.5 shrink-0">
             <div className="p-1.5 bg-amber-500/10 rounded-xl border border-amber-500/30">

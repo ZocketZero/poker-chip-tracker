@@ -1,4 +1,4 @@
-export type Language = 'en' | 'th';
+export type Language = 'en' | 'th' | 'ja';
 
 export const translations = {
   en: {
@@ -288,6 +288,150 @@ export const translations = {
 
     // Language Toggle
     switchLanguage: 'เปลี่ยนภาษา',
+  },
+  ja: {
+    // Header & Brand
+    appTitle: 'POKER CHIP HUB',
+    appSubtitle: 'リアルタイムP2Pチップカウンター＆サイドポット計算ツール。アカウント登録不要。',
+    potMath: 'ポット計算',
+    leaveTable: 'テーブルを離れる',
+    copyRoomId: 'ルームIDをコピー',
+    roomCode: 'ルームコード',
+    playersCount: 'プレイヤー',
+
+    // Lobby / Landing
+    playerNickname: 'プレイヤー名',
+    nicknamePlaceholder: '例: Maverick',
+    hostNewTable: '新しいテーブルを作成 (Host)',
+    dealerTable: 'ディーラーテーブル',
+    buyInChips: 'バイインチップ',
+    maxPlayers: '最大プレイヤー数 (席数)',
+    seatsCount: '{count} 席',
+    roomCodeOptional: 'ルームコード (任意)',
+    roomCodePlaceholder: '例: poker-night',
+    createTableBtn: '{count}人テーブルを作成してコードを共有',
+    creatingRoom: 'ルーム作成中...',
+    joinExistingTable: '既存のテーブルに参加',
+    enterRoomCodePlaceholder: 'ホストのルームコードを入力...',
+    joinBtn: '参加',
+    practiceModeTitle: '練習テーブル (1台でプレイ)',
+    practicePlayers: 'プレイヤー数:',
+    startPracticeBtn: '練習ハンドを開始 ({count}人)',
+    connectionError: 'エラー:',
+
+    // Table View
+    roundStage: 'ラウンドステージ',
+    handNumber: 'ハンド #{number}',
+    totalPot: 'トータルポット',
+    sidePots: 'サイドポット:',
+    mainPot: 'メイン',
+    sidePotN: 'サイド {index}',
+    emptySeat: 'シート {number}',
+    clickToSit: 'クリックして着席',
+    seatNumber: 'シート {number}',
+    youBadge: '(あなた)',
+    winnerBadge: '勝者 (+{amount})',
+    foldedBadge: 'フォールド',
+    allInBadge: 'オールイン',
+    actingBadge: 'アクション中...',
+    checkedBadge: 'チェック',
+    calledBadge: 'コール',
+    raisedBadge: 'レイズ',
+    inHandBadge: 'プレイ中',
+    stackLabel: 'スタック',
+    betLabel: 'ベット',
+    spectatingNotice: '観戦中です。空いているシートをクリックして着席してください。',
+
+    // Streets
+    streetReady: '準備完了',
+    streetPreflop: 'プリフロップ (Preflop)',
+    streetFlop: 'フロップ (Flop)',
+    streetTurn: 'ターン (Turn)',
+    streetRiver: 'リバー (River)',
+    streetShowdown: 'ショーダウン (Showdown)',
+
+    // Action Controls
+    yourTurn: '★ あなたのアクション順です ★',
+    toCall: 'コール額:',
+    waitingForTurn: '他のプレイヤーのアクションを待っています...',
+    foldedMessage: 'このハンドはフォールドしました。次のラウンドをお待ちください...',
+    zeroChipsMessage: 'チップが0になりました。ホストにリバイ/追加を依頼してください。',
+    allInCommitted: 'オールインしました！(ベット額: {chips})',
+    zeroChipsRebuy: 'チップ残高が0です。リバイして参加してください。',
+    actionFold: 'フォールド (FOLD)',
+    actionSurrender: '降参',
+    actionCheck: 'チェック (CHECK)',
+    actionCheckSub: 'パス / 無料',
+    actionCall: 'コール (CALL)',
+    actionRaise: 'レイズ (RAISE)',
+    actionAllInBtn: 'オールイン 🔥',
+    halfPot: '½ ポット',
+    threeQuarterPot: '¾ ポット',
+    fullPot: 'ポット',
+
+    // Host Panel
+    dealerHostTitle: 'ディーラー / ホスト',
+    chipsBtn: 'チップ追加',
+    blindsBtn: 'ブラインド',
+    dealNewHand: '新しいハンドを配る ({sb}/{bb})',
+    nextStreet: '次のストリートへ',
+    awardPotBtn: 'ポットを進呈 ({amount})',
+    peerConnected: '接続完了',
+    hostManaging: 'ホストがディーラー操作を管理しています。',
+
+    // Award Pot Modal
+    awardModalTitle: '勝者を選択してポットを進呈',
+    awardModalDesc: 'ポット {amount} チップを獲得者に分配します。',
+    selectedWinner: '✓ 選択中',
+    clickToPickWinner: 'クリックして選択',
+    cancel: 'キャンセル',
+    confirmPayout: '配分を確定する',
+    foldedTag: '(フォールド済)',
+
+    // Rebuy Modal
+    rebuyModalTitle: 'チップ追加 (リバイ / 補充)',
+    targetPlayer: '対象プレイヤー',
+    selectPlayerPlaceholder: '補充するプレイヤーを選択',
+    amountToAdd: '追加チップ額',
+    applyRebuy: 'リバイを適用',
+
+    // Blinds & Settings Modal
+    tableSettingsTitle: 'ブラインド・テーブル設定',
+    maxPlayersSetting: '最大プレイヤー数 (2〜10席)',
+    maxPlayersOption: '{count} 席 (最大 {count} プレイヤー)',
+    smallBlindLabel: 'スモールブラインド (SB)',
+    bigBlindLabel: 'ビッグブラインド (BB)',
+    anteLabel: 'アンティ (プレイヤーごと)',
+    saveSettings: '設定を保存',
+
+    // Pot Calculator Modal
+    calculatorTitle: 'リアルタイム ポット＆サイドポット計算',
+    calculatorSubtitle: 'オールイン発生時の正確なサイドポット分割',
+    currentBetLabel: '現在の最高ベット額',
+    potBreakdown: 'ポットの内訳',
+    potsCount: '({count} ポット)',
+    potsCountPlural: '({count} ポット)',
+    noChipsInPot: 'ポットにチップがありません。',
+    mainPotTitle: '🏆 メインポット',
+    sidePotTitle: '🎯 サイドポット #{index}',
+    chipsUnit: 'チップ',
+    eligibleLabel: '獲得権利者:',
+    noneAllFolded: 'なし (全員フォールド)',
+    playerContributions: 'プレイヤー別ベット額',
+    closeCalculator: '閉じる',
+
+    // Winner Celebration
+    handWinnerTitle: 'ハンド #{number} 勝者',
+    awardedLabel: '獲得額',
+    dismiss: '閉じる',
+
+    // Game Log
+    handHistoryTitle: 'ハンド履歴＆アクティビティ',
+    eventsCount: '{count} 件',
+    noActivityRecorded: 'まだアクション履歴がありません。',
+
+    // Language Toggle
+    switchLanguage: '言語切替',
   },
 };
 
