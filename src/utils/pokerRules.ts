@@ -90,7 +90,7 @@ export function awardPot(
     }
 
     const share = Math.floor(pot.amount / winningPool.length);
-    let remainder = pot.amount % winningPool.length;
+    const remainder = pot.amount % winningPool.length;
 
     winningPool.forEach((wId) => {
       payouts[wId] = (payouts[wId] || 0) + share;

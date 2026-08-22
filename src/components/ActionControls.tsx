@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Player, TableState, PlayerActionType } from '../types/poker';
 import { formatChips } from '../utils/pokerRules';
+import { useLanguage } from '../i18n/LanguageContext';
 import { Flame, ArrowUpRight, Check, X, ShieldAlert } from 'lucide-react';
 
 interface ActionControlsProps {
@@ -16,6 +17,7 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
   onAction,
   isMyTurn,
 }) => {
+  const { t } = useLanguage();
   const currentHigh = tableState.currentHighBet;
   const toCall = currentHigh - player.currentBet;
   const canCheck = toCall === 0;
@@ -39,8 +41,8 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
         <ShieldAlert className="w-4 h-4 text-slate-500" />
         <span>
           {player.stack === 0
-            ? 'You have 0 chips left. Ask the Host to add chips / rebuy to participate.'
-            : 'You have folded for this hand. Waiting for the next round...'}
+            ? t('zeroChipsMessage')
+            : t('foldedMessage')}
         </span>
       </div>
     );
@@ -52,9 +54,9 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
         <Flame className="w-5 h-5 text-amber-400 animate-bounce" />
         <span>
           {player.totalInvestedThisHand > 0 ? (
-            <>You are <strong className="text-amber-200">ALL-IN</strong> with {formatChips(player.totalInvestedThisHand)} chips committed!</>
+            t('allInCommitted', { chips: formatChips(player.totalInvestedThisHand) })
           ) : (
-            <>You have <strong className="text-amber-200">0 CHIPS</strong> remaining. Rebuy to play.</>
+            t('zeroChipsRebuy')
           )}
         </span>
       </div>
@@ -86,10 +88,10 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
         <div className="text-xs font-semibold text-slate-400 mb-2 flex items-center justify-between">
           <span className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-slate-600 animate-pulse" />
-            Waiting for other players to act...
+            {t('waitingForTurn')}
           </span>
           <span className="text-slate-400 font-mono text-xs">
-            Stack: <strong className="text-amber-300 font-bold">{formatChips(player.stack)}</strong>
+            {t('stackLabel')}: <strong className="text-amber-300 font-bold">{formatChips(player.stack)}</strong>
           </span>
         </div>
       )}
@@ -102,11 +104,11 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
               <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
             </span>
             <span className="text-xs sm:text-sm font-extrabold text-amber-300 uppercase tracking-widest flex items-center gap-1">
-              ★ YOUR TURN TO ACT ★
+              {t('yourTurn')}
             </span>
           </div>
           <div className="text-xs text-slate-300">
-            To Call: <strong className="text-amber-400 font-mono font-bold text-sm">{formatChips(Math.min(toCall, player.stack))}</strong>
+            {t('toCall')} <strong className="text-amber-400 font-mono font-bold text-sm">{formatChips(Math.min(toCall, player.stack))}</strong>
           </div>
         </div>
       )}
@@ -120,8 +122,8 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
         >
           <div className="absolute inset-x-0 top-0 h-1/2 bg-white/10 pointer-events-none rounded-t-xl" />
           <X className="w-5 h-5 sm:w-5 sm:h-5 mb-0.5 group-hover:rotate-90 transition-transform duration-200" />
-          <span className="text-sm sm:text-sm tracking-wider">FOLD</span>
-          <span className="text-[9px] text-rose-200 font-medium opacity-80 hidden sm:block">Surrender</span>
+          <span className="text-sm sm:text-sm tracking-wider">{t('actionFold')}</span>
+          <span className="text-[9px] text-rose-200 font-medium opacity-80 hidden sm:block">{t('actionSurrender')}</span>
         </button>
 
         {/* CHECK or CALL Button */}
@@ -133,8 +135,8 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
           >
             <div className="absolute inset-x-0 top-0 h-1/2 bg-white/10 pointer-events-none rounded-t-xl" />
             <Check className="w-5 h-5 mb-0.5 group-hover:scale-110 transition-transform" />
-            <span className="text-sm tracking-wider">CHECK</span>
-            <span className="text-[9px] text-emerald-200 font-medium opacity-80 hidden sm:block">Free / Pass</span>
+            <span className="text-sm tracking-wider">{t('actionCheck')}</span>
+            <span className="text-[9px] text-emerald-200 font-medium opacity-80 hidden sm:block">{t('actionCheckSub')}</span>
           </button>
         ) : (
           <button
@@ -144,7 +146,7 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
           >
             <div className="absolute inset-x-0 top-0 h-1/2 bg-white/10 pointer-events-none rounded-t-xl" />
             <Check className="w-5 h-5 mb-0.5" />
-            <span className="text-xs sm:text-sm tracking-wider font-mono">CALL</span>
+            <span className="text-xs sm:text-sm tracking-wider font-mono">{t('actionCall')}</span>
             <span className="text-[10px] sm:text-xs font-mono font-bold text-blue-100">{formatChips(Math.min(toCall, player.stack))}</span>
           </button>
         )}
@@ -164,7 +166,7 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
           <div className="absolute inset-x-0 top-0 h-1/2 bg-white/20 pointer-events-none rounded-t-xl" />
           <ArrowUpRight className="w-5 h-5 mb-0.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           <span className="text-xs tracking-wider font-mono font-black">
-            {raiseAmount >= maxRaiseTarget ? 'ALL-IN 🔥' : 'RAISE'}
+            {raiseAmount >= maxRaiseTarget ? t('actionAllInBtn') : t('actionRaise')}
           </span>
           <span className="text-[10px] font-mono font-black text-slate-800 leading-none">
             {raiseAmount >= maxRaiseTarget ? formatChips(maxRaiseTarget) : formatChips(raiseAmount)}
@@ -191,25 +193,25 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
               onClick={() => setPresetRaise(0.5, 'pot')}
               className="py-2 sm:py-1 px-1 sm:px-2.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 text-amber-300 hover:text-amber-200 border border-slate-700 transition-all cursor-pointer"
             >
-              ½ Pot
+              {t('halfPot')}
             </button>
             <button
               onClick={() => setPresetRaise(0.75, 'pot')}
               className="py-2 sm:py-1 px-1 sm:px-2.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 text-amber-300 hover:text-amber-200 border border-slate-700 transition-all cursor-pointer"
             >
-              ¾ Pot
+              {t('threeQuarterPot')}
             </button>
             <button
               onClick={() => setPresetRaise(1.0, 'pot')}
               className="py-2 sm:py-1 px-1 sm:px-2.5 text-xs font-bold rounded-lg bg-slate-800/80 hover:bg-slate-700 text-amber-300 hover:text-amber-200 border border-slate-700 transition-all cursor-pointer"
             >
-              Pot
+              {t('fullPot')}
             </button>
             <button
               onClick={() => setRaiseAmount(maxRaiseTarget)}
               className="py-2 sm:py-1 px-1 sm:px-2.5 text-xs font-black rounded-lg bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white shadow-sm transition-all cursor-pointer"
             >
-              ALL-IN
+              {t('allInBadge')}
             </button>
           </div>
 

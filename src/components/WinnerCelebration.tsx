@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { TableState } from '../types/poker';
 import { formatChips } from '../utils/pokerRules';
+import { useLanguage } from '../i18n/LanguageContext';
 import { Trophy, Sparkles, X, Coins } from 'lucide-react';
 
 interface WinnerCelebrationProps {
@@ -8,6 +9,7 @@ interface WinnerCelebrationProps {
 }
 
 export const WinnerCelebration: React.FC<WinnerCelebrationProps> = ({ tableState }) => {
+  const { t } = useLanguage();
   const lastWinner = tableState.lastWinner;
   const [visible, setVisible] = useState(false);
   const [lastHandSeen, setLastHandSeen] = useState<number | null>(null);
@@ -42,7 +44,7 @@ export const WinnerCelebration: React.FC<WinnerCelebrationProps> = ({ tableState
             <div>
               <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black uppercase tracking-widest text-amber-300">
                 <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                <span>Hand #{lastWinner.handNumber} Winner</span>
+                <span>{t('handWinnerTitle', { number: lastWinner.handNumber })}</span>
               </div>
               <div className="text-base sm:text-lg font-black text-white truncate max-w-[200px] sm:max-w-[260px] drop-shadow">
                 {lastWinner.winnerNames.join(' & ')}
@@ -53,7 +55,7 @@ export const WinnerCelebration: React.FC<WinnerCelebrationProps> = ({ tableState
           <div className="flex items-center gap-2">
             <div className="text-right">
               <span className="text-[9px] uppercase tracking-wider text-amber-200/80 font-bold block">
-                Awarded
+                {t('awardedLabel')}
               </span>
               <span className="text-sm sm:text-lg font-mono font-black text-amber-300 flex items-center gap-1 bg-amber-950/80 px-2 sm:px-2.5 py-0.5 rounded-lg border border-amber-500/50 shadow-inner">
                 <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
@@ -64,7 +66,7 @@ export const WinnerCelebration: React.FC<WinnerCelebrationProps> = ({ tableState
             <button
               onClick={() => setVisible(false)}
               className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer shrink-0 ml-1"
-              title="Dismiss"
+              title={t('dismiss')}
             >
               <X className="w-4 h-4" />
             </button>

@@ -2,6 +2,7 @@ import React from 'react';
 import type { TableState, Player } from '../types/poker';
 import { ChipStack } from './ChipStack';
 import { formatChips } from '../utils/pokerRules';
+import { useLanguage } from '../i18n/LanguageContext';
 import { User, WifiOff, Crown, Plus, Coins, Check, X, Flame, ArrowUpRight, Trophy } from 'lucide-react';
 
 interface TableViewProps {
@@ -17,6 +18,7 @@ export const TableView: React.FC<TableViewProps> = ({
   onSeatClick,
   onPlayerClick,
 }) => {
+  const { t } = useLanguage();
   const totalSeats = tableState.settings.tableSize || 8;
   const playersBySeat: Record<number, Player> = {};
 
@@ -25,6 +27,17 @@ export const TableView: React.FC<TableViewProps> = ({
   });
 
   const totalPot = tableState.pot + tableState.communityBets;
+
+  const getStreetLabel = (street: string) => {
+    switch (street) {
+      case 'preflop': return t('streetPreflop');
+      case 'flop': return t('streetFlop');
+      case 'turn': return t('streetTurn');
+      case 'river': return t('streetRiver');
+      case 'showdown': return t('streetShowdown');
+      default: return t('streetReady');
+    }
+  };
 
   return (
     <div className="w-full select-none flex flex-col gap-2.5 sm:gap-3.5 p-1 sm:p-2">
@@ -37,14 +50,14 @@ export const TableView: React.FC<TableViewProps> = ({
         <div className="flex items-center gap-2 sm:gap-3 z-10">
           <div className="flex flex-col">
             <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400">
-              Round Stage
+              {t('roundStage')}
             </span>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-emerald-300 bg-emerald-950/90 px-2.5 py-1 rounded-lg border border-emerald-500/40 shadow-sm">
-                {tableState.isHandInProgress ? tableState.street : 'Ready'}
+                {tableState.isHandInProgress ? getStreetLabel(tableState.street) : t('streetReady')}
               </span>
               <span className="text-[11px] font-mono text-slate-400 bg-slate-950/80 px-2 py-1 rounded-lg border border-slate-800">
-                Hand #{tableState.handNumber}
+                {t('handNumber', { number: tableState.handNumber })}
               </span>
             </div>
           </div>
@@ -64,7 +77,7 @@ export const TableView: React.FC<TableViewProps> = ({
             </div>
             <div>
               <div className="text-[9px] sm:text-[10px] text-amber-200/90 font-bold uppercase tracking-widest leading-none">
-                Total Pot
+                {t('totalPot')}
               </div>
               <div className="text-lg sm:text-2xl font-black text-amber-300 font-mono tracking-tight leading-tight drop-shadow-[0_2px_10px_rgba(245,158,11,0.5)]">
                 {formatChips(totalPot)}
@@ -76,13 +89,13 @@ export const TableView: React.FC<TableViewProps> = ({
         {/* Side Pots display if any */}
         {tableState.sidePots.length > 1 && (
           <div className="w-full flex gap-1.5 flex-wrap pt-1 border-t border-slate-800/80 z-10">
-            <span className="text-[10px] font-bold text-slate-400 self-center mr-1">Side Pots:</span>
+            <span className="text-[10px] font-bold text-slate-400 self-center mr-1">{t('sidePots')}</span>
             {tableState.sidePots.map((sp, idx) => (
               <span
                 key={idx}
                 className="bg-slate-950/90 text-[10px] sm:text-xs font-mono font-bold text-amber-300 px-2 py-0.5 rounded-lg border border-amber-500/40 shadow-sm"
               >
-                {idx === 0 ? 'Main' : `Side ${idx}`}: {formatChips(sp.amount)}
+                {idx === 0 ? t('mainPot') : t('sidePotN', { index: idx })}: {formatChips(sp.amount)}
               </span>
             ))}
           </div>
@@ -120,10 +133,10 @@ export const TableView: React.FC<TableViewProps> = ({
                   <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 </div>
                 <span className="text-xs font-bold text-slate-400 group-hover:text-amber-300 transition-colors">
-                  Seat {seatIdx + 1}
+                  {t('seatNumber', { number: seatIdx + 1 })}
                 </span>
                 <span className="text-[10px] text-slate-600 group-hover:text-slate-400 font-medium">
-                  Click to Sit
+                  {t('clickToSit')}
                 </span>
               </button>
             );
@@ -148,7 +161,7 @@ export const TableView: React.FC<TableViewProps> = ({
               {/* Header inside Card: Seat # & Badges */}
               <div className="flex items-center justify-between gap-1 mb-2">
                 <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-950/80 px-2 py-0.5 rounded-md border border-slate-800">
-                  Seat {seatIdx + 1}
+                  {t('seatNumber', { number: seatIdx + 1 })}
                 </span>
 
                 <div className="flex items-center gap-1">
@@ -203,47 +216,47 @@ export const TableView: React.FC<TableViewProps> = ({
                       {player.name}
                     </span>
                     {isLocal && (
-                      <span className="text-[9px] font-extrabold text-cyan-400 shrink-0">(You)</span>
+                      <span className="text-[9px] font-extrabold text-cyan-400 shrink-0">{t('youBadge')}</span>
                     )}
                   </div>
 
                   {isWinner ? (
                     <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-400/80 shadow-md animate-pulse">
                       <Trophy className="w-2.5 h-2.5 text-amber-400 shrink-0" />
-                      WINNER (+{formatChips(shareWon)})
+                      {t('winnerBadge', { amount: formatChips(shareWon) })}
                     </span>
                   ) : player.hasFolded ? (
                     <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-400 bg-rose-950/80 px-1.5 py-0.5 rounded border border-rose-500/40 shadow-sm">
                       <X className="w-2.5 h-2.5" />
-                      Folded
+                      {t('foldedBadge')}
                     </span>
                   ) : player.isAllIn ? (
                     <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-600/50 animate-pulse shadow-sm">
                       <Flame className="w-2.5 h-2.5 text-amber-400" />
-                      ALL-IN
+                      {t('allInBadge')}
                     </span>
                   ) : isTurn ? (
                     <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-500/50 shadow-sm">
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping inline-block" />
-                      Acting...
+                      {t('actingBadge')}
                     </span>
                   ) : player.lastAction === 'check' ? (
                     <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-500/40 shadow-sm">
                       <Check className="w-2.5 h-2.5 text-emerald-400" />
-                      Checked
+                      {t('checkedBadge')}
                     </span>
                   ) : player.lastAction === 'call' ? (
                     <span className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-300 bg-blue-950/80 px-1.5 py-0.5 rounded border border-blue-500/40 shadow-sm">
                       <Check className="w-2.5 h-2.5 text-blue-400" />
-                      Called
+                      {t('calledBadge')}
                     </span>
                   ) : player.lastAction === 'raise' ? (
                     <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-500/40 shadow-sm">
                       <ArrowUpRight className="w-2.5 h-2.5 text-amber-400" />
-                      Raised
+                      {t('raisedBadge')}
                     </span>
                   ) : (
-                    <span className="text-[10px] text-slate-400 font-medium">In Hand</span>
+                    <span className="text-[10px] text-slate-400 font-medium">{t('inHandBadge')}</span>
                   )}
                 </div>
               </div>
@@ -251,7 +264,7 @@ export const TableView: React.FC<TableViewProps> = ({
               {/* Player Chips & Current Bet Footer */}
               <div className="mt-2 pt-2 border-t border-slate-800/80 flex items-center justify-between gap-1 text-xs">
                 <div>
-                  <span className="text-[9px] uppercase font-bold text-slate-500 block leading-none">Stack</span>
+                  <span className="text-[9px] uppercase font-bold text-slate-500 block leading-none">{t('stackLabel')}</span>
                   <span className="font-mono font-black text-amber-300 text-xs sm:text-sm">
                     {formatChips(player.stack)}
                   </span>
@@ -259,7 +272,7 @@ export const TableView: React.FC<TableViewProps> = ({
 
                 {tableState.isHandInProgress && player.currentBet > 0 && (
                   <div className="text-right">
-                    <span className="text-[9px] uppercase font-bold text-emerald-400 block leading-none">Bet</span>
+                    <span className="text-[9px] uppercase font-bold text-emerald-400 block leading-none">{t('betLabel')}</span>
                     <span className="font-mono font-black text-emerald-300 text-xs sm:text-sm bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-500/40 inline-block">
                       {formatChips(player.currentBet)}
                     </span>

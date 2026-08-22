@@ -1,6 +1,7 @@
 import React from 'react';
 import type { TableState } from '../types/poker';
 import { formatChips } from '../utils/pokerRules';
+import { useLanguage } from '../i18n/LanguageContext';
 import { Calculator, X, Coins, ShieldCheck } from 'lucide-react';
 
 interface PotCalculatorModalProps {
@@ -12,6 +13,7 @@ export const PotCalculatorModal: React.FC<PotCalculatorModalProps> = ({
   tableState,
   onClose,
 }) => {
+  const { t } = useLanguage();
   const totalPot = tableState.pot + tableState.communityBets;
 
   return (
@@ -24,9 +26,9 @@ export const PotCalculatorModal: React.FC<PotCalculatorModalProps> = ({
             </div>
             <div>
               <h3 className="text-base font-extrabold text-amber-200">
-                Live Pot & Side-Pot Calculations
+                {t('calculatorTitle')}
               </h3>
-              <p className="text-xs text-slate-400">Accurate side-pot splits for all-in scenarios</p>
+              <p className="text-xs text-slate-400">{t('calculatorSubtitle')}</p>
             </div>
           </div>
           <button
@@ -40,7 +42,7 @@ export const PotCalculatorModal: React.FC<PotCalculatorModalProps> = ({
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-slate-950/80 p-3.5 rounded-xl border border-amber-500/30 shadow-inner">
             <div className="text-xs text-amber-200/80 font-bold uppercase tracking-wider flex items-center gap-1.5 mb-1">
-              <Coins className="w-3.5 h-3.5 text-amber-400" /> Total Pot
+              <Coins className="w-3.5 h-3.5 text-amber-400" /> {t('totalPot')}
             </div>
             <div className="text-2xl font-black text-amber-300 font-mono tracking-tight">
               {formatChips(totalPot)}
@@ -48,7 +50,7 @@ export const PotCalculatorModal: React.FC<PotCalculatorModalProps> = ({
           </div>
           <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 shadow-inner">
             <div className="text-xs text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5 mb-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Current Bet
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> {t('currentBetLabel')}
             </div>
             <div className="text-2xl font-black text-emerald-400 font-mono tracking-tight">
               {formatChips(tableState.currentHighBet)}
@@ -58,13 +60,17 @@ export const PotCalculatorModal: React.FC<PotCalculatorModalProps> = ({
 
         <div>
           <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center justify-between">
-            <span>Pot Breakdown</span>
-            <span className="text-amber-400 font-mono">({tableState.sidePots.length || 1} Pot)</span>
+            <span>{t('potBreakdown')}</span>
+            <span className="text-amber-400 font-mono">
+              {tableState.sidePots.length > 1
+                ? t('potsCountPlural', { count: tableState.sidePots.length })
+                : t('potsCount', { count: tableState.sidePots.length || 1 })}
+            </span>
           </h4>
 
           {tableState.sidePots.length === 0 ? (
             <div className="text-xs text-slate-500 italic p-3.5 bg-slate-950/80 rounded-xl border border-slate-800 text-center">
-              No chips in the pot yet.
+              {t('noChipsInPot')}
             </div>
           ) : (
             <div className="space-y-2 max-h-44 overflow-y-auto pr-1">
@@ -80,14 +86,14 @@ export const PotCalculatorModal: React.FC<PotCalculatorModalProps> = ({
                   >
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-extrabold text-amber-300">
-                        {idx === 0 ? '🏆 Main Pot' : `🎯 Side Pot #${idx}`}
+                        {idx === 0 ? t('mainPotTitle') : t('sidePotTitle', { index: idx })}
                       </span>
                       <span className="font-mono font-black text-amber-400 text-sm">
-                        {formatChips(pot.amount)} chips
+                        {formatChips(pot.amount)} {t('chipsUnit')}
                       </span>
                     </div>
                     <div className="text-[11px] text-slate-400">
-                      <strong className="text-slate-300">Eligible:</strong> {eligibleNames || 'None (all folded)'}
+                      <strong className="text-slate-300">{t('eligibleLabel')}</strong> {eligibleNames || t('noneAllFolded')}
                     </div>
                   </div>
                 );
@@ -98,7 +104,7 @@ export const PotCalculatorModal: React.FC<PotCalculatorModalProps> = ({
 
         <div>
           <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">
-            Player Contributions
+            {t('playerContributions')}
           </h4>
           <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
             {Object.values(tableState.players).map((p) => (
@@ -110,12 +116,12 @@ export const PotCalculatorModal: React.FC<PotCalculatorModalProps> = ({
                   <span className="font-bold text-slate-200">{p.name}</span>
                   {p.hasFolded && (
                     <span className="text-[10px] bg-rose-950/80 border border-rose-800/50 text-rose-300 px-1.5 py-0.2 rounded font-semibold">
-                      Folded
+                      {t('foldedBadge')}
                     </span>
                   )}
                   {p.isAllIn && (
                     <span className="text-[10px] bg-amber-950/80 border border-amber-600/50 text-amber-300 px-1.5 py-0.2 rounded font-black">
-                      ALL-IN
+                      {t('allInBadge')}
                     </span>
                   )}
                 </div>
@@ -123,7 +129,7 @@ export const PotCalculatorModal: React.FC<PotCalculatorModalProps> = ({
                   <span className="text-amber-300 font-black">
                     {formatChips(p.totalInvestedThisHand)}
                   </span>
-                  <span className="text-[10px] text-slate-500 ml-1">chips</span>
+                  <span className="text-[10px] text-slate-500 ml-1">{t('chipsUnit')}</span>
                 </div>
               </div>
             ))}
@@ -134,7 +140,7 @@ export const PotCalculatorModal: React.FC<PotCalculatorModalProps> = ({
           onClick={onClose}
           className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-colors cursor-pointer"
         >
-          Close Calculator
+          {t('closeCalculator')}
         </button>
       </div>
     </div>
