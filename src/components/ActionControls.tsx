@@ -168,7 +168,7 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
           <span className="text-xs tracking-wider font-mono font-black">
             {raiseAmount >= maxRaiseTarget ? t('actionAllInBtn') : t('actionRaise')}
           </span>
-          <span className="text-[10px] font-mono font-black text-slate-800 leading-none">
+          <span className="text-[20px] font-mono font-black text-slate-800 leading-none">
             {raiseAmount >= maxRaiseTarget ? formatChips(maxRaiseTarget) : formatChips(raiseAmount)}
           </span>
         </button>
