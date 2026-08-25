@@ -147,7 +147,7 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
             <div className="absolute inset-x-0 top-0 h-1/2 bg-white/10 pointer-events-none rounded-t-xl" />
             <Check className="w-5 h-5 mb-0.5" />
             <span className="text-xs sm:text-sm tracking-wider font-mono">{t('actionCall')}</span>
-            <span className="text-[10px] sm:text-xs font-mono font-bold text-blue-100">{formatChips(Math.min(toCall, player.stack))}</span>
+            <span className="text-[20px] font-mono font-bold text-blue-100">{formatChips(Math.min(toCall, player.stack))}</span>
           </button>
         )}
 
