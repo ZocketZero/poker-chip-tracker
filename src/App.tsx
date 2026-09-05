@@ -6,6 +6,7 @@ import { HostPanel } from './components/HostPanel';
 import { GameLog } from './components/GameLog';
 import { PotCalculatorModal } from './components/PotCalculatorModal';
 import { WinnerCelebration } from './components/WinnerCelebration';
+import { StreetAnnouncement } from './components/StreetAnnouncement';
 import { LanguageToggle } from './components/LanguageToggle';
 import { useLanguage } from './i18n/LanguageContext';
 import { formatChips } from './utils/pokerRules';
@@ -374,6 +375,9 @@ export function App() {
           <GameLog logs={tableState.logs} />
         </div>
       </div>
+
+      {/* Stage / Street Transition Announcement Banner */}
+      <StreetAnnouncement tableState={tableState} />
 
       {/* Winner Celebration Banner & Confetti */}
       <WinnerCelebration tableState={tableState} />

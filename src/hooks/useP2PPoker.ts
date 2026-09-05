@@ -25,6 +25,7 @@ export const INITIAL_TABLE_STATE: TableState = {
     ante: 0,
     initialBuyIn: 1000,
     autoProgressTurn: false,
+    showStreetAnnouncements: true,
     tableSize: 8,
   },
   logs: [],

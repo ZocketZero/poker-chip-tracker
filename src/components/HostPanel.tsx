@@ -37,6 +37,7 @@ export const HostPanel: React.FC<HostPanelProps> = ({
   const [ante, setAnte] = useState(tableState.settings.ante);
   const [tableSize, setTableSize] = useState(tableState.settings.tableSize || 8);
   const [autoProgressTurn, setAutoProgressTurn] = useState(tableState.settings.autoProgressTurn ?? false);
+  const [showStreetAnnouncements, setShowStreetAnnouncements] = useState(tableState.settings.showStreetAnnouncements ?? true);
 
   React.useEffect(() => {
     setSb(tableState.settings.smallBlind);
@@ -44,6 +45,7 @@ export const HostPanel: React.FC<HostPanelProps> = ({
     setAnte(tableState.settings.ante);
     setTableSize(tableState.settings.tableSize || 8);
     setAutoProgressTurn(tableState.settings.autoProgressTurn ?? false);
+    setShowStreetAnnouncements(tableState.settings.showStreetAnnouncements ?? true);
   }, [tableState.settings]);
 
   const activePlayers = Object.values(tableState.players).filter((p) => p.isActive);
@@ -375,6 +377,19 @@ export const HostPanel: React.FC<HostPanelProps> = ({
                   className="w-4 h-4 accent-amber-400 cursor-pointer shrink-0 ml-2"
                 />
               </div>
+
+              <div className="flex items-center justify-between p-3 bg-slate-950 border border-slate-800 rounded-xl mt-2">
+                <div>
+                  <label className="text-xs font-bold text-slate-200 block">{t('showAnnouncementsLabel')}</label>
+                  <span className="text-[10px] text-slate-400 block leading-tight">{t('showAnnouncementsDesc')}</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={showStreetAnnouncements}
+                  onChange={(e) => setShowStreetAnnouncements(e.target.checked)}
+                  className="w-4 h-4 accent-amber-400 cursor-pointer shrink-0 ml-2"
+                />
+              </div>
             </div>
 
             <div className="flex gap-2 pt-2">
@@ -386,7 +401,7 @@ export const HostPanel: React.FC<HostPanelProps> = ({
               </button>
               <button
                 onClick={() => {
-                  onUpdateSettings({ smallBlind: sb, bigBlind: bb, ante, tableSize, autoProgressTurn });
+                  onUpdateSettings({ smallBlind: sb, bigBlind: bb, ante, tableSize, autoProgressTurn, showStreetAnnouncements });
                   setShowSettingsModal(false);
                 }}
                 className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow cursor-pointer"

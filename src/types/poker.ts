@@ -30,6 +30,7 @@ export interface GameSettings {
   ante: number;
   initialBuyIn: number;
   autoProgressTurn: boolean;
+  showStreetAnnouncements: boolean;
   tableSize: number; // Max seats (e.g. 6 or 9)
 }
 
