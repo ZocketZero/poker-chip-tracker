@@ -361,6 +361,12 @@ export function App() {
                   settings: sett,
                 })
               }
+              onKickPlayer={(pId) =>
+                sendToHost({
+                  type: 'HOST_KICK_PLAYER',
+                  playerId: pId,
+                })
+              }
             />
           ) : (
             <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-3 sm:p-4 flex flex-col justify-center text-center text-xs text-slate-400">

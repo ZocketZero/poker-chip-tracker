@@ -81,6 +81,7 @@ export type PeerMessage =
   | { type: 'HOST_REBUY'; playerId: string; amount: number }
   | { type: 'HOST_UPDATE_SETTINGS'; settings: Partial<GameSettings> }
   | { type: 'HOST_FORCE_SEAT'; playerId: string; seatIndex: number }
+  | { type: 'HOST_KICK_PLAYER'; playerId: string }
   | { type: 'REQUEST_SEAT'; playerId: string; seatIndex: number; name?: string }
   | { type: 'SIT_OUT_TOGGLE'; playerId: string }
   | { type: 'PING' }

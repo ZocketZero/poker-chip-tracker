@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { TableState } from '../types/poker';
 import { formatChips } from '../utils/pokerRules';
 import { useLanguage } from '../i18n/LanguageContext';
-import { Play, FastForward, Award, PlusCircle, Settings, ShieldCheck, Sparkles, Check } from 'lucide-react';
+import { Play, FastForward, Award, PlusCircle, Settings, ShieldCheck, Sparkles, Check, UserX, AlertTriangle } from 'lucide-react';
 
 interface HostPanelProps {
   tableState: TableState;
@@ -11,6 +11,7 @@ interface HostPanelProps {
   onAwardPot: (winnerSeatIndexes: number[], customAmount?: number) => void;
   onRebuy: (playerId: string, amount: number) => void;
   onUpdateSettings: (settings: Partial<TableState['settings']>) => void;
+  onKickPlayer?: (playerId: string) => void;
 }
 
 export const HostPanel: React.FC<HostPanelProps> = ({
@@ -20,11 +21,14 @@ export const HostPanel: React.FC<HostPanelProps> = ({
   onAwardPot,
   onRebuy,
   onUpdateSettings,
+  onKickPlayer,
 }) => {
   const { t } = useLanguage();
   const [showAwardModal, setShowAwardModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showRebuyModal, setShowRebuyModal] = useState(false);
+  const [showKickModal, setShowKickModal] = useState(false);
+  const [playerToKick, setPlayerToKick] = useState<{ id: string; name: string } | null>(null);
 
   const [selectedWinners, setSelectedWinners] = useState<number[]>([]);
   const [customPotAmount, setCustomPotAmount] = useState<number>(0);
@@ -89,20 +93,27 @@ export const HostPanel: React.FC<HostPanelProps> = ({
           <span className="text-xs font-mono text-slate-400">{t('handNumber', { number: tableState.handNumber })}</span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <button
+            onClick={() => setShowKickModal(true)}
+            className="text-xs font-bold flex items-center gap-1 bg-slate-800/80 hover:bg-rose-950/80 text-rose-300 border border-rose-500/30 px-2 sm:px-2.5 py-1 rounded-lg transition-all cursor-pointer shadow-sm"
+          >
+            <UserX className="w-3.5 h-3.5 text-rose-400" />
+            <span>{t('kickPlayerBtn')}</span>
+          </button>
           <button
             onClick={() => setShowRebuyModal(true)}
-            className="text-xs font-bold flex items-center gap-1.5 bg-slate-800/80 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-lg transition-all cursor-pointer shadow-sm"
+            className="text-xs font-bold flex items-center gap-1 bg-slate-800/80 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 px-2 sm:px-2.5 py-1 rounded-lg transition-all cursor-pointer shadow-sm"
           >
             <PlusCircle className="w-3.5 h-3.5 text-emerald-400" />
-            {t('chipsBtn')}
+            <span>{t('chipsBtn')}</span>
           </button>
           <button
             onClick={() => setShowSettingsModal(true)}
-            className="text-xs font-bold flex items-center gap-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-lg transition-all cursor-pointer shadow-sm"
+            className="text-xs font-bold flex items-center gap-1 bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 px-2 sm:px-2.5 py-1 rounded-lg transition-all cursor-pointer shadow-sm"
           >
             <Settings className="w-3.5 h-3.5 text-amber-400" />
-            {t('blindsBtn')}
+            <span>{t('blindsBtn')}</span>
           </button>
         </div>
       </div>
@@ -407,6 +418,87 @@ export const HostPanel: React.FC<HostPanelProps> = ({
                 className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow cursor-pointer"
               >
                 {t('saveSettings')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showKickModal && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-rose-500/50 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
+            <div>
+              <h3 className="text-base font-bold text-rose-300 flex items-center gap-2">
+                <UserX className="w-5 h-5 text-rose-400" />
+                {t('kickPlayerTitle')}
+              </h3>
+            </div>
+
+            {playerToKick ? (
+              <div className="space-y-3 bg-rose-950/40 border border-rose-500/30 p-4 rounded-xl">
+                <div className="flex items-center gap-2 text-rose-200 text-xs font-semibold">
+                  <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                  <span>{t('kickPlayerConfirm', { name: playerToKick.name })}</span>
+                </div>
+                <div className="flex gap-2 pt-2">
+                  <button
+                    onClick={() => setPlayerToKick(null)}
+                    className="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer"
+                  >
+                    {t('cancel')}
+                  </button>
+                  <button
+                    onClick={() => {
+                      onKickPlayer?.(playerToKick.id);
+                      setPlayerToKick(null);
+                    }}
+                    className="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow cursor-pointer"
+                  >
+                    {t('kickPlayerBtn')}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                {Object.values(tableState.players)
+                  .filter((p) => p.id !== tableState.hostId)
+                  .map((p) => (
+                    <div
+                      key={p.id}
+                      className="w-full flex items-center justify-between p-3 rounded-xl border bg-slate-950/80 border-slate-800 text-slate-200"
+                    >
+                      <div>
+                        <div className="font-bold text-sm">{p.name}</div>
+                        <div className="text-xs text-slate-400 font-mono">
+                          {t('seatNumber', { number: p.seatIndex + 1 })} • {formatChips(p.stack)} {t('chipsUnit')}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setPlayerToKick({ id: p.id, name: p.name })}
+                        className="px-3 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/40 text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                      >
+                        <UserX className="w-3.5 h-3.5" />
+                        {t('kickPlayerBtn')}
+                      </button>
+                    </div>
+                  ))}
+                {Object.values(tableState.players).filter((p) => p.id !== tableState.hostId).length === 0 && (
+                  <div className="text-center py-6 text-xs text-slate-500">
+                    No other players connected to table.
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex justify-end pt-2 border-t border-slate-800">
+              <button
+                onClick={() => {
+                  setShowKickModal(false);
+                  setPlayerToKick(null);
+                }}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer"
+              >
+                {t('cancel')}
               </button>
             </div>
           </div>

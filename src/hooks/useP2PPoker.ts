@@ -481,6 +481,40 @@ export function useP2PPoker() {
           break;
         }
 
+        case 'HOST_KICK_PLAYER': {
+          const { playerId } = msg;
+          if (current.players[playerId] && playerId !== current.hostId) {
+            const kickedPlayer = current.players[playerId];
+
+            if (current.isHandInProgress && current.currentTurnSeat === kickedPlayer.seatIndex) {
+              const nextSeat = getNextActiveSeat(current, kickedPlayer.seatIndex, false);
+              current.currentTurnSeat = nextSeat;
+            }
+
+            delete current.players[playerId];
+
+            Object.entries(peerToPlayerMapRef.current).forEach(([connPeer, pId]) => {
+              if (pId === playerId && connectionsRef.current[connPeer]) {
+                try {
+                  connectionsRef.current[connPeer].close();
+                } catch (e) {
+                  console.warn('Error closing kicked peer connection', e);
+                }
+              }
+            });
+
+            const logItem = {
+              id: Math.random().toString(36).substring(2, 9),
+              timestamp: Date.now(),
+              text: `🚫 ${kickedPlayer.name} was kicked from the table by Host.`,
+              type: 'system' as const,
+            };
+            current.logs = [logItem, ...current.logs.slice(0, 49)];
+            broadcastState(current);
+          }
+          break;
+        }
+
         case 'HOST_FORCE_SEAT': {
           const { playerId, seatIndex } = msg;
           if (current.players[playerId]) {
@@ -881,8 +915,15 @@ export function useP2PPoker() {
           const { msg } = event.data || {};
           const actualMsg = (msg || event.data) as PeerMessage;
           if (actualMsg && actualMsg.type === 'SYNC_STATE') {
-            setTableState(actualMsg.state);
-            tableStateRef.current = actualMsg.state;
+            const newState = actualMsg.state;
+            const myId = localPlayerIdRef.current;
+            if (joinedSuccessfully && myId && !newState.players[myId]) {
+              setIsConnected(false);
+              setConnectionError('You have been kicked from the table by the Host.');
+              return;
+            }
+            setTableState(newState);
+            tableStateRef.current = newState;
             if (!joinedSuccessfully) {
               joinedSuccessfully = true;
               setIsConnected(true);
@@ -937,8 +978,15 @@ export function useP2PPoker() {
           conn.on('data', (data: any) => {
             const msg = (data?.msg || data) as PeerMessage;
             if (msg && msg.type === 'SYNC_STATE') {
-              setTableState(msg.state);
-              tableStateRef.current = msg.state;
+              const newState = msg.state;
+              const myId = localPlayerIdRef.current;
+              if (joinedSuccessfully && myId && !newState.players[myId]) {
+                setIsConnected(false);
+                setConnectionError('You have been kicked from the table by the Host.');
+                return;
+              }
+              setTableState(newState);
+              tableStateRef.current = newState;
               if (!joinedSuccessfully) {
                 joinedSuccessfully = true;
                 setIsConnected(true);
