@@ -24,7 +24,7 @@ export const INITIAL_TABLE_STATE: TableState = {
     bigBlind: 20,
     ante: 0,
     initialBuyIn: 1000,
-    autoProgressTurn: true,
+    autoProgressTurn: false,
     tableSize: 8,
   },
   logs: [],
@@ -365,7 +365,28 @@ export function useP2PPoker() {
             nonAllIn.every((p) => p.hasActedThisStreet && p.currentBet === current.currentHighBet);
 
           if (roundFinished) {
-            progressToNextStreet(current);
+            if (current.settings.autoProgressTurn) {
+              progressToNextStreet(current);
+            } else {
+              current.currentTurnSeat = null;
+              const streetSequence: Record<string, string> = {
+                preflop: 'Flop',
+                flop: 'Turn',
+                turn: 'River',
+                river: 'Showdown',
+              };
+              const nextName = streetSequence[current.street] || 'Next Step';
+              const logItem = {
+                id: Math.random().toString(36).substring(2, 9),
+                timestamp: Date.now(),
+                text: `⏳ Betting for ${current.street.toUpperCase()} completed. Waiting for Host to confirm to proceed to ${nextName}.`,
+                type: 'street' as const,
+              };
+              if (!current.logs[0]?.text.includes('Waiting for Host to confirm')) {
+                current.logs = [logItem, ...current.logs.slice(0, 49)];
+              }
+              broadcastState(current);
+            }
           } else {
             const nextSeat = getNextActiveSeat(current, player.seatIndex, false);
             current.currentTurnSeat = nextSeat;

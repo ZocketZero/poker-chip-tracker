@@ -76,19 +76,32 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
     setRaiseAmount(clamped);
   };
 
+  const isAwaitingHost =
+    tableState.isHandInProgress &&
+    tableState.currentTurnSeat === null &&
+    tableState.street !== 'showdown';
+
   return (
     <div
       className={`rounded-2xl p-4 transition-all duration-300 border backdrop-blur-xl ${
         isMyTurn
           ? 'bg-slate-900/95 border-amber-400/80 shadow-[0_0_30px_rgba(245,158,11,0.25)] ring-1 ring-amber-400/30'
+          : isAwaitingHost
+          ? 'bg-amber-950/20 border-amber-500/40'
           : 'bg-slate-950/80 border-slate-800/80 opacity-90'
       }`}
     >
       {!isMyTurn && (
         <div className="text-xs font-semibold text-slate-400 mb-2 flex items-center justify-between">
           <span className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-slate-600 animate-pulse" />
-            {t('waitingForTurn')}
+            <span
+              className={`w-2 h-2 rounded-full ${
+                isAwaitingHost ? 'bg-amber-400 animate-ping' : 'bg-slate-600 animate-pulse'
+              }`}
+            />
+            <span className={isAwaitingHost ? 'text-amber-300 font-bold' : ''}>
+              {isAwaitingHost ? t('waitingHostConfirm') : t('waitingForTurn')}
+            </span>
           </span>
           <span className="text-slate-400 font-mono text-xs">
             {t('stackLabel')}: <strong className="text-amber-300 font-bold">{formatChips(player.stack)}</strong>

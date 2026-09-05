@@ -52,13 +52,18 @@ export const TableView: React.FC<TableViewProps> = ({
             <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400">
               {t('roundStage')}
             </span>
-            <div className="flex items-center gap-1.5 mt-0.5">
+            <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
               <span className="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-emerald-300 bg-emerald-950/90 px-2.5 py-1 rounded-lg border border-emerald-500/40 shadow-sm">
                 {tableState.isHandInProgress ? getStreetLabel(tableState.street) : t('streetReady')}
               </span>
               <span className="text-[11px] font-mono text-slate-400 bg-slate-950/80 px-2 py-1 rounded-lg border border-slate-800">
                 {t('handNumber', { number: tableState.handNumber })}
               </span>
+              {tableState.isHandInProgress && tableState.currentTurnSeat === null && tableState.street !== 'showdown' && (
+                <span className="text-[10px] sm:text-xs font-bold text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded-lg border border-amber-400/60 shadow-sm animate-pulse">
+                  ⏳ {t('roundCompleteBadge')}
+                </span>
+              )}
             </div>
           </div>
         </div>

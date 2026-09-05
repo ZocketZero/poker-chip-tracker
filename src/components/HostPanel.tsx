@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { TableState } from '../types/poker';
 import { formatChips } from '../utils/pokerRules';
 import { useLanguage } from '../i18n/LanguageContext';
-import { Play, FastForward, Award, PlusCircle, Settings, ShieldCheck, Sparkles } from 'lucide-react';
+import { Play, FastForward, Award, PlusCircle, Settings, ShieldCheck, Sparkles, Check } from 'lucide-react';
 
 interface HostPanelProps {
   tableState: TableState;
@@ -36,16 +36,32 @@ export const HostPanel: React.FC<HostPanelProps> = ({
   const [bb, setBb] = useState(tableState.settings.bigBlind);
   const [ante, setAnte] = useState(tableState.settings.ante);
   const [tableSize, setTableSize] = useState(tableState.settings.tableSize || 8);
+  const [autoProgressTurn, setAutoProgressTurn] = useState(tableState.settings.autoProgressTurn ?? false);
 
   React.useEffect(() => {
     setSb(tableState.settings.smallBlind);
     setBb(tableState.settings.bigBlind);
     setAnte(tableState.settings.ante);
     setTableSize(tableState.settings.tableSize || 8);
+    setAutoProgressTurn(tableState.settings.autoProgressTurn ?? false);
   }, [tableState.settings]);
 
   const activePlayers = Object.values(tableState.players).filter((p) => p.isActive);
   const totalPot = tableState.pot + tableState.communityBets;
+  const isAwaitingConfirm =
+    tableState.isHandInProgress &&
+    tableState.currentTurnSeat === null &&
+    tableState.street !== 'showdown';
+
+  const getNextStreetLabel = (street: string) => {
+    switch (street) {
+      case 'preflop': return t('streetFlop');
+      case 'flop': return t('streetTurn');
+      case 'turn': return t('streetRiver');
+      case 'river': return t('streetShowdown');
+      default: return t('nextStreet');
+    }
+  };
 
   const handleOpenAwardModal = () => {
     const candidates = Object.values(tableState.players).filter((p) => !p.hasFolded);
@@ -99,6 +115,24 @@ export const HostPanel: React.FC<HostPanelProps> = ({
             <Play className="w-4 h-4 fill-slate-950" />
             {t('dealNewHand', { sb: tableState.settings.smallBlind, bb: tableState.settings.bigBlind })}
           </button>
+        ) : isAwaitingConfirm ? (
+          <>
+            <button
+              onClick={onNextStreet}
+              className="col-span-3 py-3 px-4 bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-500 hover:from-emerald-300 hover:to-teal-400 active:scale-98 text-slate-950 font-black rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(16,185,129,0.6)] border-2 border-emerald-300 transition-all cursor-pointer ring-2 ring-emerald-400/50 animate-pulse"
+            >
+              <Check className="w-5 h-5 stroke-[3]" />
+              <span>{t('confirmNextStreet', { street: getNextStreetLabel(tableState.street) })}</span>
+            </button>
+
+            <button
+              onClick={handleOpenAwardModal}
+              className="col-span-3 py-2 px-3 bg-gradient-to-r from-amber-500/80 to-amber-600/80 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-amber-400/40 transition-all cursor-pointer"
+            >
+              <Award className="w-4 h-4 text-slate-950" />
+              {t('awardPotBtn', { amount: formatChips(totalPot) })}
+            </button>
+          </>
         ) : (
           <>
             <button
@@ -328,6 +362,19 @@ export const HostPanel: React.FC<HostPanelProps> = ({
                   className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono font-bold text-slate-100"
                 />
               </div>
+
+              <div className="flex items-center justify-between p-3 bg-slate-950 border border-slate-800 rounded-xl mt-2">
+                <div>
+                  <label className="text-xs font-bold text-slate-200 block">{t('autoProgressLabel')}</label>
+                  <span className="text-[10px] text-slate-400 block leading-tight">{t('autoProgressDesc')}</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={autoProgressTurn}
+                  onChange={(e) => setAutoProgressTurn(e.target.checked)}
+                  className="w-4 h-4 accent-amber-400 cursor-pointer shrink-0 ml-2"
+                />
+              </div>
             </div>
 
             <div className="flex gap-2 pt-2">
@@ -339,7 +386,7 @@ export const HostPanel: React.FC<HostPanelProps> = ({
               </button>
               <button
                 onClick={() => {
-                  onUpdateSettings({ smallBlind: sb, bigBlind: bb, ante, tableSize });
+                  onUpdateSettings({ smallBlind: sb, bigBlind: bb, ante, tableSize, autoProgressTurn });
                   setShowSettingsModal(false);
                 }}
                 className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow cursor-pointer"
