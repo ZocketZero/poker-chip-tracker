@@ -908,7 +908,6 @@ export function useP2PPoker() {
         peer.on('connection', (conn) => {
           conn.on('open', () => {
             connectionsRef.current[conn.peer] = conn;
-            conn.send({ type: 'SYNC_STATE', state: tableStateRef.current });
           });
 
           conn.on('data', (data: any) => {
@@ -969,7 +968,7 @@ export function useP2PPoker() {
             }
             setTableState(newState);
             tableStateRef.current = newState;
-            if (!joinedSuccessfully) {
+            if (!joinedSuccessfully && myId && newState.players[myId]) {
               joinedSuccessfully = true;
               setIsConnected(true);
               setIsConnecting(false);
@@ -1005,9 +1004,6 @@ export function useP2PPoker() {
 
           conn.on('open', () => {
             hostConnRef.current = conn;
-            joinedSuccessfully = true;
-            setIsConnected(true);
-            setIsConnecting(false);
 
             conn.send({
               senderId: myPlayerId,
@@ -1032,7 +1028,7 @@ export function useP2PPoker() {
               }
               setTableState(newState);
               tableStateRef.current = newState;
-              if (!joinedSuccessfully) {
+              if (!joinedSuccessfully && myId && newState.players[myId]) {
                 joinedSuccessfully = true;
                 setIsConnected(true);
                 setIsConnecting(false);
@@ -1056,7 +1052,8 @@ export function useP2PPoker() {
       // Fallback timeout verification
       setTimeout(() => {
         if (!joinedSuccessfully && !isConnected) {
-          if (tableStateRef.current.roomId === cleanTargetId) {
+          if (tableStateRef.current.roomId === cleanTargetId && tableStateRef.current.players[myPlayerId]) {
+            joinedSuccessfully = true;
             setIsConnected(true);
             setIsConnecting(false);
           } else {
