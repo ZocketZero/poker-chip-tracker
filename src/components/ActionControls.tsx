@@ -140,16 +140,18 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
         {/* FOLD Button */}
         <button
           disabled={!isMyTurn}
           onClick={() => onAction('fold')}
-          className="relative group overflow-hidden flex flex-col items-center justify-center py-3.5 sm:p-3 rounded-xl font-black bg-gradient-to-b from-rose-600 via-rose-700 to-rose-900 hover:from-rose-500 hover:to-rose-800 active:scale-95 text-white shadow-[0_4px_15px_rgba(225,29,72,0.35)] border border-rose-500/40 transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer min-h-[64px] sm:min-h-0"
+          className="relative group overflow-hidden flex flex-col items-center justify-center py-2 sm:py-2.5 px-2 rounded-xl font-black bg-gradient-to-b from-rose-600 via-rose-700 to-rose-900 hover:from-rose-500 hover:to-rose-800 active:scale-95 text-white shadow-[0_4px_15px_rgba(225,29,72,0.35)] border border-rose-500/40 transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer min-h-[48px] sm:min-h-0"
         >
           <div className="absolute inset-x-0 top-0 h-1/2 bg-white/10 pointer-events-none rounded-t-xl" />
-          <X className="w-5 h-5 sm:w-5 sm:h-5 mb-0.5 group-hover:rotate-90 transition-transform duration-200" />
-          <span className="text-sm sm:text-sm tracking-wider">{t('actionFold')}</span>
+          <div className="flex items-center gap-1">
+            <X className="w-4 h-4 group-hover:rotate-90 transition-transform duration-200" />
+            <span className="text-xs sm:text-sm tracking-wider">{t('actionFold')}</span>
+          </div>
           <span className="text-[9px] text-rose-200 font-medium opacity-80 hidden sm:block">{t('actionSurrender')}</span>
         </button>
 
@@ -158,23 +160,27 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
           <button
             disabled={!isMyTurn}
             onClick={() => onAction('check')}
-            className="relative group overflow-hidden flex flex-col items-center justify-center py-3.5 sm:p-3 rounded-xl font-black bg-gradient-to-b from-emerald-600 via-emerald-700 to-emerald-900 hover:from-emerald-500 hover:to-emerald-800 active:scale-95 text-white shadow-[0_4px_15px_rgba(16,185,129,0.35)] border border-emerald-500/40 transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer min-h-[64px] sm:min-h-0"
+            className="relative group overflow-hidden flex flex-col items-center justify-center py-2 sm:py-2.5 px-2 rounded-xl font-black bg-gradient-to-b from-emerald-600 via-emerald-700 to-emerald-900 hover:from-emerald-500 hover:to-emerald-800 active:scale-95 text-white shadow-[0_4px_15px_rgba(16,185,129,0.35)] border border-emerald-500/40 transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer min-h-[48px] sm:min-h-0"
           >
             <div className="absolute inset-x-0 top-0 h-1/2 bg-white/10 pointer-events-none rounded-t-xl" />
-            <Check className="w-5 h-5 mb-0.5 group-hover:scale-110 transition-transform" />
-            <span className="text-sm tracking-wider">{t('actionCheck')}</span>
+            <div className="flex items-center gap-1">
+              <Check className="w-4 h-4 group-hover:scale-110 transition-transform" />
+              <span className="text-xs sm:text-sm tracking-wider">{t('actionCheck')}</span>
+            </div>
             <span className="text-[9px] text-emerald-200 font-medium opacity-80 hidden sm:block">{t('actionCheckSub')}</span>
           </button>
         ) : (
           <button
             disabled={!isMyTurn}
             onClick={() => onAction('call')}
-            className="relative group overflow-hidden flex flex-col items-center justify-center py-3.5 sm:p-3 rounded-xl font-black bg-gradient-to-b from-blue-600 via-blue-700 to-blue-900 hover:from-blue-500 hover:to-blue-800 active:scale-95 text-white shadow-[0_4px_15px_rgba(37,99,235,0.35)] border border-blue-500/40 transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer min-h-[64px] sm:min-h-0"
+            className="relative group overflow-hidden flex flex-col items-center justify-center py-2 sm:py-2.5 px-2 rounded-xl font-black bg-gradient-to-b from-blue-600 via-blue-700 to-blue-900 hover:from-blue-500 hover:to-blue-800 active:scale-95 text-white shadow-[0_4px_15px_rgba(37,99,235,0.35)] border border-blue-500/40 transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer min-h-[48px] sm:min-h-0"
           >
             <div className="absolute inset-x-0 top-0 h-1/2 bg-white/10 pointer-events-none rounded-t-xl" />
-            <Check className="w-5 h-5 mb-0.5" />
-            <span className="text-xs sm:text-sm tracking-wider font-mono">{t('actionCall')}</span>
-            <span className="text-[20px] font-mono font-bold text-blue-100">{formatChips(Math.min(toCall, player.stack))}</span>
+            <div className="flex items-center gap-1">
+              <Check className="w-4 h-4" />
+              <span className="text-xs sm:text-sm tracking-wider font-mono">{t('actionCall')}</span>
+            </div>
+            <span className="text-xs sm:text-sm font-mono font-bold text-blue-100">{formatChips(Math.min(toCall, player.stack))}</span>
           </button>
         )}
 
@@ -188,14 +194,16 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
               onAction('raise', raiseAmount);
             }
           }}
-          className="relative group overflow-hidden flex flex-col items-center justify-center py-3.5 sm:p-3 rounded-xl font-black bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 active:scale-95 text-slate-950 shadow-[0_4px_20px_rgba(245,158,11,0.4)] border border-amber-300/60 transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer min-h-[64px] sm:min-h-0"
+          className="relative group overflow-hidden flex flex-col items-center justify-center py-2 sm:py-2.5 px-2 rounded-xl font-black bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 active:scale-95 text-slate-950 shadow-[0_4px_20px_rgba(245,158,11,0.4)] border border-amber-300/60 transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer min-h-[48px] sm:min-h-0"
         >
           <div className="absolute inset-x-0 top-0 h-1/2 bg-white/20 pointer-events-none rounded-t-xl" />
-          <ArrowUpRight className="w-5 h-5 mb-0.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-          <span className="text-xs tracking-wider font-mono font-black">
-            {raiseAmount >= maxRaiseTarget ? t('actionAllInBtn') : t('actionRaise')}
-          </span>
-          <span className="text-[20px] font-mono font-black text-slate-800 leading-none">
+          <div className="flex items-center gap-1">
+            <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            <span className="text-xs tracking-wider font-mono font-black">
+              {raiseAmount >= maxRaiseTarget ? t('actionAllInBtn') : t('actionRaise')}
+            </span>
+          </div>
+          <span className="text-xs sm:text-sm font-mono font-black text-slate-900 leading-none">
             {raiseAmount >= maxRaiseTarget ? formatChips(maxRaiseTarget) : formatChips(raiseAmount)}
           </span>
         </button>

@@ -89,8 +89,8 @@ export const HostPanel: React.FC<HostPanelProps> = ({
   };
 
   return (
-    <div className="bg-slate-900/95 border border-amber-500/40 rounded-2xl p-4 shadow-2xl backdrop-blur-xl ring-1 ring-amber-500/20">
-      <div className="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5">
+    <div className="bg-slate-900/95 border border-amber-500/40 rounded-2xl p-3 sm:p-3.5 shadow-2xl backdrop-blur-xl ring-1 ring-amber-500/20">
+      <div className="flex items-center justify-between mb-2.5 border-b border-slate-800/80 pb-2">
         <div className="flex items-center gap-2">
           <span className="bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 text-xs font-black px-2.5 py-0.5 rounded-lg border border-amber-500/40 flex items-center gap-1">
             <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
@@ -124,12 +124,12 @@ export const HostPanel: React.FC<HostPanelProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
         {!tableState.isHandInProgress ? (
           <button
             onClick={onStartHand}
             disabled={activePlayers.length < 2}
-            className="col-span-3 py-3 px-4 bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-400 hover:to-teal-500 active:scale-98 text-slate-950 font-black rounded-xl shadow-[0_4px_20px_rgba(16,185,129,0.35)] flex items-center justify-center gap-2 text-sm disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer border border-emerald-400/50"
+            className="col-span-3 py-2 sm:py-2.5 px-3 bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-400 hover:to-teal-500 active:scale-98 text-slate-950 font-black rounded-xl shadow-[0_4px_20px_rgba(16,185,129,0.35)] flex items-center justify-center gap-2 text-xs sm:text-sm disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer border border-emerald-400/50"
           >
             <Play className="w-4 h-4 fill-slate-950" />
             {t('dealNewHand', { sb: tableState.settings.smallBlind, bb: tableState.settings.bigBlind })}
@@ -138,17 +138,17 @@ export const HostPanel: React.FC<HostPanelProps> = ({
           <>
             <button
               onClick={onNextStreet}
-              className="col-span-3 py-3 px-4 bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-500 hover:from-emerald-300 hover:to-teal-400 active:scale-98 text-slate-950 font-black rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(16,185,129,0.6)] border-2 border-emerald-300 transition-all cursor-pointer ring-2 ring-emerald-400/50 animate-pulse"
+              className="col-span-3 py-2 sm:py-2.5 px-3 bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-500 hover:from-emerald-300 hover:to-teal-400 active:scale-98 text-slate-950 font-black rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(16,185,129,0.6)] border-2 border-emerald-300 transition-all cursor-pointer ring-2 ring-emerald-400/50 animate-pulse"
             >
-              <Check className="w-5 h-5 stroke-[3]" />
+              <Check className="w-4 h-4 stroke-[3]" />
               <span>{t('confirmNextStreet', { street: getNextStreetLabel(tableState.street) })}</span>
             </button>
 
             <button
               onClick={handleOpenAwardModal}
-              className="col-span-3 py-2 px-3 bg-gradient-to-r from-amber-500/80 to-amber-600/80 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-amber-400/40 transition-all cursor-pointer"
+              className="col-span-3 py-1.5 px-2.5 bg-gradient-to-r from-amber-500/80 to-amber-600/80 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-amber-400/40 transition-all cursor-pointer"
             >
-              <Award className="w-4 h-4 text-slate-950" />
+              <Award className="w-3.5 h-3.5 text-slate-950" />
               {t('awardPotBtn', { amount: formatChips(totalPot) })}
             </button>
           </>
@@ -157,7 +157,7 @@ export const HostPanel: React.FC<HostPanelProps> = ({
             <button
               onClick={onNextStreet}
               disabled={tableState.street === 'showdown'}
-              className="py-2.5 px-3 bg-slate-800/90 hover:bg-slate-700 text-slate-100 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-slate-700 transition-all cursor-pointer shadow-sm disabled:opacity-40"
+              className="py-2 px-2.5 bg-slate-800/90 hover:bg-slate-700 text-slate-100 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-slate-700 transition-all cursor-pointer shadow-sm disabled:opacity-40"
             >
               <FastForward className="w-3.5 h-3.5 text-cyan-400" />
               {t('nextStreet')}
@@ -165,9 +165,9 @@ export const HostPanel: React.FC<HostPanelProps> = ({
 
             <button
               onClick={handleOpenAwardModal}
-              className="col-span-2 py-2.5 px-3 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-black rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-[0_4px_15px_rgba(245,158,11,0.35)] border border-amber-300/60 transition-all cursor-pointer"
+              className="col-span-2 py-2 px-2.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-black rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-[0_4px_15px_rgba(245,158,11,0.35)] border border-amber-300/60 transition-all cursor-pointer"
             >
-              <Award className="w-4 h-4 text-slate-950" />
+              <Award className="w-3.5 h-3.5 text-slate-950" />
               {t('awardPotBtn', { amount: formatChips(totalPot) })}
             </button>
           </>
