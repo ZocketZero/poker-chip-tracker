@@ -116,6 +116,7 @@ export const translations = {
     kickPlayerConfirm: 'Are you sure you want to kick {name} from the table?',
     managePlayersBtn: 'Players',
     kickedNotice: 'You have been kicked from the table by the Host.',
+    lostConnectionToHost: 'Lost connection to host.',
     peerConnected: 'Peer Connected',
     hostManaging: 'Host is managing dealer operations.',
 
@@ -288,6 +289,7 @@ export const translations = {
     kickPlayerConfirm: 'คุณแน่ใจหรือไม่ว่าต้องการเตะ {name} ออกจากห้อง?',
     managePlayersBtn: 'เตะผู้เล่น',
     kickedNotice: 'คุณถูกโฮสต์เตะให้ออกจากห้อง',
+    lostConnectionToHost: 'การเชื่อมต่อกับโฮสต์ขาดหายไป',
     peerConnected: 'เชื่อมต่อกับห้องแล้ว',
     hostManaging: 'โฮสต์กำลังจัดการรอบการแจกไพ่',
 
@@ -460,6 +462,7 @@ export const translations = {
     kickPlayerConfirm: '{name} をテーブルからキックしますか？',
     managePlayersBtn: 'キック',
     kickedNotice: 'ホストによってテーブルからキックされました。',
+    lostConnectionToHost: 'ホストとの接続が切断されました。',
     peerConnected: '接続完了',
     hostManaging: 'ホストがディーラー操作を管理しています。',
 

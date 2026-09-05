@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import Peer, { type DataConnection } from 'peerjs';
 import type { PeerMessage, TableState, Player } from '../types/poker';
 import { calculateSidePots, getNextActiveSeat } from '../utils/pokerRules';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const INITIAL_TABLE_STATE: TableState = {
   roomId: '',
@@ -32,6 +33,7 @@ export const INITIAL_TABLE_STATE: TableState = {
 };
 
 export function useP2PPoker() {
+  const { t } = useLanguage();
   const [peerId, setPeerId] = useState<string>('');
   const [isHost, setIsHost] = useState<boolean>(false);
   const [isConnected, setIsConnected] = useState<boolean>(false);
@@ -513,15 +515,29 @@ export function useP2PPoker() {
             const updatedPlayers = { ...current.players };
             delete updatedPlayers[playerId];
 
+            // 1. Send explicit KICKED notification to kicked player via WebRTC
             Object.entries(peerToPlayerMapRef.current).forEach(([connPeer, pId]) => {
               if (pId === playerId && connectionsRef.current[connPeer]) {
                 try {
-                  connectionsRef.current[connPeer].close();
+                  connectionsRef.current[connPeer].send({ type: 'KICKED' });
                 } catch (e) {
-                  console.warn('Error closing kicked peer connection', e);
+                  console.warn('Error sending KICKED message to peer', e);
                 }
               }
             });
+
+            // 2. Broadcast KICKED notification over BroadcastChannel
+            if (broadcastChannelRef.current) {
+              try {
+                broadcastChannelRef.current.postMessage({
+                  senderId: current.hostId,
+                  targetPlayerId: playerId,
+                  msg: { type: 'KICKED' },
+                });
+              } catch (e) {
+                console.warn('BroadcastChannel kick error', e);
+              }
+            }
 
             const logItem = {
               id: Math.random().toString(36).substring(2, 9),
@@ -529,11 +545,27 @@ export function useP2PPoker() {
               text: `🚫 ${kickedPlayer.name} was kicked from the table by Host.`,
               type: 'system' as const,
             };
+
+            // 3. Broadcast updated table state while connection is still open
             broadcastState({
               ...current,
               players: updatedPlayers,
               logs: [logItem, ...current.logs.slice(0, 24)],
             });
+
+            // 4. Delay closing peer connection slightly to allow WebRTC data buffer to flush
+            setTimeout(() => {
+              Object.entries(peerToPlayerMapRef.current).forEach(([connPeer, pId]) => {
+                if (pId === playerId && connectionsRef.current[connPeer]) {
+                  try {
+                    connectionsRef.current[connPeer].close();
+                    delete connectionsRef.current[connPeer];
+                  } catch (e) {
+                    console.warn('Error closing kicked peer connection', e);
+                  }
+                }
+              });
+            }, 300);
           }
           break;
         }
@@ -1025,22 +1057,31 @@ export function useP2PPoker() {
       try {
         const bc = new BroadcastChannel(`poker-room-${cleanTargetId}`);
         bc.onmessage = (event) => {
-          const { msg } = event.data || {};
+          const { msg, targetPlayerId } = event.data || {};
           const actualMsg = (msg || event.data) as PeerMessage;
-          if (actualMsg && actualMsg.type === 'SYNC_STATE') {
-            const newState = actualMsg.state;
-            const myId = localPlayerIdRef.current;
-            if (joinedSuccessfully && myId && !newState.players[myId]) {
+          const myId = localPlayerIdRef.current;
+
+          if (actualMsg) {
+            if (actualMsg.type === 'KICKED' && (!targetPlayerId || targetPlayerId === myId)) {
               setIsConnected(false);
-              setConnectionError('You have been kicked from the table by the Host.');
+              setConnectionError(t('kickedNotice'));
               return;
             }
-            setTableState(newState);
-            tableStateRef.current = newState;
-            if (!joinedSuccessfully && myId && newState.players[myId]) {
-              joinedSuccessfully = true;
-              setIsConnected(true);
-              setIsConnecting(false);
+
+            if (actualMsg.type === 'SYNC_STATE') {
+              const newState = actualMsg.state;
+              if (myId && tableStateRef.current.players[myId] && !newState.players[myId]) {
+                setIsConnected(false);
+                setConnectionError(t('kickedNotice'));
+                return;
+              }
+              setTableState(newState);
+              tableStateRef.current = newState;
+              if (!joinedSuccessfully && myId && newState.players[myId]) {
+                joinedSuccessfully = true;
+                setIsConnected(true);
+                setIsConnecting(false);
+              }
             }
           }
         };
@@ -1087,29 +1128,36 @@ export function useP2PPoker() {
 
           conn.on('data', (data: any) => {
             const msg = (data?.msg || data) as PeerMessage;
-            if (msg && msg.type === 'SYNC_STATE') {
-              const newState = msg.state;
-              const myId = localPlayerIdRef.current;
-              if (joinedSuccessfully && myId && !newState.players[myId]) {
+            const myId = localPlayerIdRef.current;
+
+            if (msg) {
+              if (msg.type === 'KICKED') {
                 setIsConnected(false);
-                setConnectionError('You have been kicked from the table by the Host.');
+                setConnectionError(t('kickedNotice'));
                 return;
               }
-              setTableState(newState);
-              tableStateRef.current = newState;
-              if (!joinedSuccessfully && myId && newState.players[myId]) {
-                joinedSuccessfully = true;
-                setIsConnected(true);
-                setIsConnecting(false);
+
+              if (msg.type === 'SYNC_STATE') {
+                const newState = msg.state;
+                if (myId && tableStateRef.current.players[myId] && !newState.players[myId]) {
+                  setIsConnected(false);
+                  setConnectionError(t('kickedNotice'));
+                  return;
+                }
+                setTableState(newState);
+                tableStateRef.current = newState;
+                if (!joinedSuccessfully && myId && newState.players[myId]) {
+                  joinedSuccessfully = true;
+                  setIsConnected(true);
+                  setIsConnecting(false);
+                }
               }
             }
           });
 
           conn.on('close', () => {
-            if (!broadcastChannelRef.current) {
-              setIsConnected(false);
-              setConnectionError('Lost connection to host.');
-            }
+            setIsConnected(false);
+            setConnectionError((prev) => prev || t('lostConnectionToHost'));
           });
         });
 
@@ -1134,7 +1182,7 @@ export function useP2PPoker() {
         }
       }, 3500);
     },
-    [isConnected]
+    [isConnected, t]
   );
 
   const startSoloTable = useCallback(

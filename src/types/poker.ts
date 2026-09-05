@@ -86,5 +86,6 @@ export type PeerMessage =
   | { type: 'HOST_TOGGLE_DEALER_ONLY'; isDealerOnly: boolean }
   | { type: 'REQUEST_SEAT'; playerId: string; seatIndex: number; name?: string }
   | { type: 'SIT_OUT_TOGGLE'; playerId: string }
+  | { type: 'KICKED' }
   | { type: 'PING' }
   | { type: 'PONG' };
