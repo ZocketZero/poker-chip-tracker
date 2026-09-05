@@ -11,6 +11,11 @@ A real-time, **serverless Peer-to-Peer (P2P)** Poker Chip Counter and Pot Manage
   - Built-in **BroadcastChannel** support for 0ms instant sync when testing across multiple browser tabs on the same machine.
   - Zero centralized databases or backend game servers required.
 
+- **👑 Flexible Host / Dealer Roles**:
+  - **Playing Host**: Host takes a seat at the table, plays hands, and bets chips while managing table operations.
+  - **Dealer-Only Mode (Non-Playing Host)**: Host acts solely as a dealer, managing card dealing, street progress, pot payouts, and chip rebuys without taking up a seat or placing bets.
+  - **Role Switching**: Host can toggle Dealer-Only mode at table creation, in practice mode, or inside the Settings menu (with explicit Save confirmation). Sitting down at empty seats is automatically disabled when in Dealer-Only mode.
+
 - **🌍 Multi-Language Support (i18n)**:
   - Instant localization toggle between **English (EN)**, **Thai (TH)**, and **Japanese (JA)**.
   - Persistent language preference using a lightweight custom React context without heavy dependencies.
@@ -21,7 +26,7 @@ A real-time, **serverless Peer-to-Peer (P2P)** Poker Chip Counter and Pot Manage
   - Handles **split pots** and awards odd chip remainders to the player closest to the dealer button (standard poker rules).
 
 - **🎯 Interactive Poker Felt Table**:
-  - Visual oval felt table with customizable seat capacities (6, 8, 9, or 10 players) and positions (Dealer `D`, Small Blind `SB`, Big Blind `BB`).
+  - Visual oval felt table with customizable seat capacities (2 to 10 players) and position badges (Dealer `D`, Small Blind `SB`, Big Blind `BB`, Winner `🏆`).
   - Real-time active bet placement in front of each seated player.
   - Visual **3D Casino Chip Stacks** rendered with authentic denominations ($1, $5, $25, $100, $500, $1,000).
 
@@ -30,12 +35,16 @@ A real-time, **serverless Peer-to-Peer (P2P)** Poker Chip Counter and Pot Manage
   - Quick bet presets: `2.5 BB`, `3 BB`, `1/2 Pot`, `3/4 Pot`, `Pot`, and an adjustable raise slider.
   - Active turn highlighting with animated pulse and visual cues.
 
-- **👑 Host / Dealer Controls**:
+- **📢 Stage & Announcement Banners**:
+  - Animated popup announcements to all players when advancing streets (`Preflop` → `Flop` → `Turn` → `River` → `Showdown`).
+
+- **👑 Comprehensive Host Administration**:
   - **Deal New Hand**: Rotates dealer button, collects blinds & optional antes, and triggers preflop action.
-  - **Next Street**: Advance betting rounds (`Preflop` → `Flop` → `Turn` → `River` → `Showdown`).
-  - **Award Pot**: Select one or multiple winners to split the pot, triggering celebratory confetti and win banner overlays.
+  - **Next Street**: Advance betting rounds with optional host confirmation or auto-advance toggle.
+  - **Award Pot**: Select single or multiple winners to split the pot, triggering celebratory confetti and win banner overlays.
   - **Rebuys & Chip Top-ups**: Inject chips into any player's stack mid-game.
-  - **Customizable Blinds**: Adjust Small Blind, Big Blind, and Ante amounts on the fly.
+  - **Player Management**: Kick disconnected or non-responsive players from the table.
+  - **Customizable Blinds & Seats**: Adjust Small Blind, Big Blind, Ante, and Table Capacity (2–10 seats) on the fly.
 
 - **🛡️ Player UX & Session Protection**:
   - Auto-generated poker aliases (e.g. *Maverick*, *Ace*, *Shark*) if nickname is left blank.
@@ -46,7 +55,7 @@ A real-time, **serverless Peer-to-Peer (P2P)** Poker Chip Counter and Pot Manage
   - Animated victory announcements and particle bursts for winning hands.
 
 - **🕹️ Practice / Offline Mode**:
-  - Single-device practice table with customizable bot counts (2–8 players) to test poker calculations and chip management without networking.
+  - Single-device practice table with customizable bot counts (2–10 players) and optional Dealer-Only host mode.
 
 ---
 
@@ -59,7 +68,7 @@ A real-time, **serverless Peer-to-Peer (P2P)** Poker Chip Counter and Pot Manage
 ### 2. Installation
 ```bash
 git clone <repo-url>
-cd poker-chip
+cd poker-chip-tracker
 npm install
 ```
 
@@ -83,10 +92,11 @@ Production assets are generated in the `dist/` folder and can be deployed to any
 
 ### Hosting a Table
 1. Open the app and enter your **Nickname** (or keep the randomized alias).
-2. Set your starting **Buy-In** chips (e.g. 1,000) and choose **Table Size** (seats).
-3. Optionally provide a custom **Room Code** (e.g. `vegas-table`).
-4. Click **"Create Table & Share Code"**.
-5. Copy the Room Code from the top navbar or lobby and share it with your friends.
+2. Set your starting **Buy-In** chips (e.g. 1,000) and choose **Table Size** (2–10 seats).
+3. Check **"Host as Dealer Only (non-playing)"** if you want to manage the table without playing chips.
+4. Optionally provide a custom **Room Code** (e.g. `vegas-night`).
+5. Click **"Create Table & Share Code"**.
+6. Share the Room Code with your friends.
 
 ### Joining a Table
 1. Open the app on another tab, phone, or laptop.
@@ -97,8 +107,8 @@ Production assets are generated in the `dist/` folder and can be deployed to any
 ### Running a Hand
 1. The **Host** clicks **"DEAL NEW HAND"**.
 2. Blinds are posted automatically, and the action highlights the player whose turn it is.
-3. Players take turns choosing **Fold**, **Check/Call**, or **Raise**.
-4. When betting completes, the Host progresses to the next street or awards the pot to the winner(s).
+3. Seated players take turns choosing **Fold**, **Check/Call**, or **Raise**.
+4. When betting completes for the street, the Host progresses to the next street or awards the pot to the winner(s).
 
 ---
 
@@ -116,33 +126,34 @@ Production assets are generated in the `dist/` folder and can be deployed to any
 ## 📂 Project Structure
 
 ```
-poker-chip/
+poker-chip-tracker/
 ├── public/
 │   ├── favicon.svg
 │   └── robots.txt
 ├── src/
 │   ├── assets/
 │   ├── components/
-│   │   ├── ActionControls.tsx     # Player betting controls (Fold, Call, Raise, All-In)
-│   │   ├── ChipStack.tsx          # 3D Casino chip stack visualizer & breakdown
-│   │   ├── GameLog.tsx            # Activity history feed
-│   │   ├── HostPanel.tsx          # Dealer & table administration controls
-│   │   ├── LanguageToggle.tsx     # Language selector component (EN/TH/JA)
-│   │   ├── PotCalculatorModal.tsx # Side-pot and chip math inspection modal
-│   │   ├── TableView.tsx          # Felt oval table layout & seated players
-│   │   └── WinnerCelebration.tsx  # Winner celebration banner & animation overlay
+│   │   ├── ActionControls.tsx       # Player betting controls (Fold, Call, Raise, All-In)
+│   │   ├── ChipStack.tsx            # 3D Casino chip stack visualizer & breakdown
+│   │   ├── GameLog.tsx              # Activity history feed
+│   │   ├── HostPanel.tsx            # Dealer & table administration controls
+│   │   ├── LanguageToggle.tsx       # Language selector component (EN/TH/JA)
+│   │   ├── PotCalculatorModal.tsx   # Side-pot and chip math inspection modal
+│   │   ├── StreetAnnouncement.tsx   # Stage / street transition popup banners
+│   │   ├── TableView.tsx            # Felt oval table layout & seated players
+│   │   └── WinnerCelebration.tsx    # Winner celebration banner & animation overlay
 │   ├── hooks/
-│   │   └── useP2PPoker.ts         # Hybrid P2P network state manager & rules dispatch
+│   │   └── useP2PPoker.ts           # Hybrid P2P network state manager & rules dispatch
 │   ├── i18n/
-│   │   ├── LanguageContext.tsx    # Multi-language provider & hook
-│   │   └── translations.ts        # English, Thai, and Japanese translation dictionary
+│   │   ├── LanguageContext.tsx      # Multi-language provider & hook
+│   │   └── translations.ts          # English, Thai, and Japanese translation dictionary
 │   ├── types/
-│   │   └── poker.ts               # Data models & WebRTC message protocols
+│   │   └── poker.ts                 # Data models & WebRTC message protocols
 │   ├── utils/
-│   │   └── pokerRules.ts          # Pure pot, side pot, and betting calculations
-│   ├── App.tsx                    # Main layout, lobby coordinator & reload protector
-│   ├── index.css                  # Tailwind styles & custom casino animations
-│   └── main.tsx                   # Application entry point wrapped in LanguageProvider
+│   │   └── pokerRules.ts            # Pure pot, side pot, and betting calculations
+│   ├── App.tsx                      # Main layout, lobby coordinator & reload protector
+│   ├── index.css                    # Tailwind styles & custom casino animations
+│   └── main.tsx                     # Application entry point wrapped in LanguageProvider
 ├── package.json
 ├── tsconfig.json
 └── vite.config.ts
