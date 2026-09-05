@@ -517,7 +517,7 @@ export function useP2PPoker() {
 
         case 'HOST_FORCE_SEAT': {
           const { playerId, seatIndex } = msg;
-          if (current.players[playerId]) {
+          if (current.players[playerId] && !current.players[playerId].isDealerOnly) {
             const isOccupied = Object.values(current.players).some(
               (p) => p.id !== playerId && p.seatIndex === seatIndex
             );
@@ -532,6 +532,11 @@ export function useP2PPoker() {
         case 'REQUEST_SEAT': {
           const { playerId, seatIndex, name } = msg;
           const targetPlayerId = playerId || effectivePlayerId;
+
+          if (current.players[targetPlayerId]?.isDealerOnly) {
+            break;
+          }
+
           const isOccupied = Object.values(current.players).some(
             (p) => p.id !== targetPlayerId && p.seatIndex === seatIndex
           );
@@ -621,6 +626,40 @@ export function useP2PPoker() {
           }
           break;
         }
+
+        case 'HOST_TOGGLE_DEALER_ONLY': {
+          const { isDealerOnly } = msg;
+          const host = current.players[effectivePlayerId];
+          if (host && effectivePlayerId === current.hostId) {
+            host.isDealerOnly = isDealerOnly;
+            if (isDealerOnly) {
+              host.seatIndex = -1;
+              host.isActive = false;
+              host.hasFolded = true;
+              host.currentBet = 0;
+            } else {
+              const seat = findFirstAvailableSeat(current);
+              host.seatIndex = seat;
+              host.isActive = true;
+              host.hasFolded = false;
+              if (host.stack <= 0) {
+                host.stack = current.settings.initialBuyIn;
+              }
+            }
+            const statusText = isDealerOnly
+              ? `${host.name} is now Dealer Only (non-playing host).`
+              : `${host.name} sat at Seat ${host.seatIndex + 1} with ${host.stack} chips.`;
+            const logItem = {
+              id: Math.random().toString(36).substring(2, 9),
+              timestamp: Date.now(),
+              text: `👑 ${statusText}`,
+              type: 'system' as const,
+            };
+            current.logs = [logItem, ...current.logs.slice(0, 49)];
+            broadcastState(current);
+          }
+          break;
+        }
       }
     },
     [broadcastState, progressToNextStreet]
@@ -662,7 +701,7 @@ export function useP2PPoker() {
 
   const startNewHand = (current: TableState) => {
     const activePlayers = Object.values(current.players).filter(
-      (p) => p.isActive && p.stack > 0
+      (p) => p.isActive && !p.isDealerOnly && p.seatIndex >= 0 && p.stack > 0
     );
 
     if (activePlayers.length < 2) {
@@ -794,7 +833,12 @@ export function useP2PPoker() {
 
   // Initialize a Host Room
   const hostRoom = useCallback(
-    (hostName: string, customRoomId?: string, initialSettings?: Partial<typeof INITIAL_TABLE_STATE.settings>) => {
+    (
+      hostName: string,
+      customRoomId?: string,
+      initialSettings?: Partial<typeof INITIAL_TABLE_STATE.settings>,
+      isDealerOnly: boolean = false
+    ) => {
       setIsConnecting(true);
       setConnectionError(null);
 
@@ -826,15 +870,16 @@ export function useP2PPoker() {
       const hostPlayer: Player = {
         id: hostUniqueId,
         name: hostName || 'Host Dealer',
-        stack: initialSettings?.initialBuyIn || 1000,
+        stack: isDealerOnly ? 0 : (initialSettings?.initialBuyIn || 1000),
         currentBet: 0,
         totalInvestedThisHand: 0,
-        isActive: true,
+        isActive: !isDealerOnly,
         hasFolded: false,
         isAllIn: false,
         hasActedThisStreet: false,
-        seatIndex: 0,
+        seatIndex: isDealerOnly ? -1 : 0,
         isHost: true,
+        isDealerOnly: isDealerOnly,
         connected: true,
       };
 
@@ -848,7 +893,7 @@ export function useP2PPoker() {
           {
             id: Math.random().toString(36).substring(2, 9),
             timestamp: Date.now(),
-            text: `Table created by ${hostPlayer.name}. Room Code: ${cleanRoomId}`,
+            text: `Table created by ${hostPlayer.name}${isDealerOnly ? ' (Dealer Only)' : ''}. Room Code: ${cleanRoomId}`,
             type: 'system',
           },
         ],
@@ -1026,74 +1071,81 @@ export function useP2PPoker() {
     [isConnected]
   );
 
-  const startSoloTable = useCallback((hostName: string = 'Dealer & Player 1', playerCount: number = 3, tableSize: number = 8) => {
-    setIsHost(true);
-    setIsConnected(true);
-    const mockId = 'local-player-1';
-    setLocalPlayerId(mockId);
-    localPlayerIdRef.current = mockId;
-    setPeerId('offline-mode');
+  const startSoloTable = useCallback(
+    (hostName: string = 'Dealer & Player 1', playerCount: number = 3, tableSize: number = 8, isDealerOnly: boolean = false) => {
+      setIsHost(true);
+      setIsConnected(true);
+      const mockId = 'local-player-1';
+      setLocalPlayerId(mockId);
+      localPlayerIdRef.current = mockId;
+      setPeerId('offline-mode');
 
-    const botNames = ['Alice', 'Bob', 'Charlie', 'David', 'Eve', 'Frank', 'Grace', 'Heidi', 'Ivan'];
-    const playersObj: Record<string, Player> = {};
+      const botNames = ['Alice', 'Bob', 'Charlie', 'David', 'Eve', 'Frank', 'Grace', 'Heidi', 'Ivan'];
+      const playersObj: Record<string, Player> = {};
 
-    const hostPlayer: Player = {
-      id: mockId,
-      name: hostName,
-      stack: 1000,
-      currentBet: 0,
-      totalInvestedThisHand: 0,
-      isActive: true,
-      hasFolded: false,
-      isAllIn: false,
-      hasActedThisStreet: false,
-      seatIndex: 0,
-      isHost: true,
-      connected: true,
-    };
-    playersObj[mockId] = hostPlayer;
-
-    const actualCount = Math.min(tableSize, Math.max(2, playerCount));
-    for (let i = 1; i < actualCount; i++) {
-      const bId = `local-bot-${i + 1}`;
-      const name = `${botNames[(i - 1) % botNames.length]} (Seat ${i + 1})`;
-      playersObj[bId] = {
-        id: bId,
-        name,
-        stack: 1000,
+      const hostPlayer: Player = {
+        id: mockId,
+        name: hostName,
+        stack: isDealerOnly ? 0 : 1000,
         currentBet: 0,
         totalInvestedThisHand: 0,
-        isActive: true,
+        isActive: !isDealerOnly,
         hasFolded: false,
         isAllIn: false,
         hasActedThisStreet: false,
-        seatIndex: i,
-        isHost: false,
+        seatIndex: isDealerOnly ? -1 : 0,
+        isHost: true,
+        isDealerOnly: isDealerOnly,
         connected: true,
       };
-    }
+      playersObj[mockId] = hostPlayer;
 
-    const initial: TableState = {
-      ...INITIAL_TABLE_STATE,
-      roomId: 'OFFLINE-TABLE',
-      hostId: mockId,
-      players: playersObj,
-      settings: {
-        ...INITIAL_TABLE_STATE.settings,
-        tableSize: Math.max(actualCount, tableSize),
-      },
-      logs: [
-        {
-          id: '1',
-          timestamp: Date.now(),
-          text: `Practice Table started with ${actualCount} seated players (${Math.max(actualCount, tableSize)} max seats).`,
-          type: 'system',
+      const actualCount = Math.min(tableSize, Math.max(2, playerCount));
+      const botStartIdx = isDealerOnly ? 0 : 1;
+      const botEndIdx = isDealerOnly ? actualCount : actualCount;
+
+      for (let i = botStartIdx; i < botEndIdx; i++) {
+        const bId = `local-bot-${i + 1}`;
+        const name = `${botNames[i % botNames.length]} (Seat ${i + 1})`;
+        playersObj[bId] = {
+          id: bId,
+          name,
+          stack: 1000,
+          currentBet: 0,
+          totalInvestedThisHand: 0,
+          isActive: true,
+          hasFolded: false,
+          isAllIn: false,
+          hasActedThisStreet: false,
+          seatIndex: i,
+          isHost: false,
+          connected: true,
+        };
+      }
+
+      const initial: TableState = {
+        ...INITIAL_TABLE_STATE,
+        roomId: 'OFFLINE-TABLE',
+        hostId: mockId,
+        players: playersObj,
+        settings: {
+          ...INITIAL_TABLE_STATE.settings,
+          tableSize: Math.max(actualCount, tableSize),
         },
-      ],
-    };
+        logs: [
+          {
+            id: '1',
+            timestamp: Date.now(),
+            text: `Practice Table started with ${actualCount} seated players (${Math.max(actualCount, tableSize)} max seats).`,
+            type: 'system',
+          },
+        ],
+      };
 
-    broadcastState(initial);
-  }, [broadcastState]);
+      broadcastState(initial);
+    },
+    [broadcastState]
+  );
 
   useEffect(() => {
     return () => {

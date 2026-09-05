@@ -12,6 +12,7 @@ interface HostPanelProps {
   onRebuy: (playerId: string, amount: number) => void;
   onUpdateSettings: (settings: Partial<TableState['settings']>) => void;
   onKickPlayer?: (playerId: string) => void;
+  onToggleDealerOnly?: (isDealerOnly: boolean) => void;
 }
 
 export const HostPanel: React.FC<HostPanelProps> = ({
@@ -22,6 +23,7 @@ export const HostPanel: React.FC<HostPanelProps> = ({
   onRebuy,
   onUpdateSettings,
   onKickPlayer,
+  onToggleDealerOnly,
 }) => {
   const { t } = useLanguage();
   const [showAwardModal, setShowAwardModal] = useState(false);
@@ -29,6 +31,8 @@ export const HostPanel: React.FC<HostPanelProps> = ({
   const [showRebuyModal, setShowRebuyModal] = useState(false);
   const [showKickModal, setShowKickModal] = useState(false);
   const [playerToKick, setPlayerToKick] = useState<{ id: string; name: string } | null>(null);
+
+  const hostPlayer = tableState.players[tableState.hostId];
 
   const [selectedWinners, setSelectedWinners] = useState<number[]>([]);
   const [customPotAmount, setCustomPotAmount] = useState<number>(0);
@@ -42,6 +46,7 @@ export const HostPanel: React.FC<HostPanelProps> = ({
   const [tableSize, setTableSize] = useState(tableState.settings.tableSize || 8);
   const [autoProgressTurn, setAutoProgressTurn] = useState(tableState.settings.autoProgressTurn ?? false);
   const [showStreetAnnouncements, setShowStreetAnnouncements] = useState(tableState.settings.showStreetAnnouncements ?? true);
+  const [isDealerOnly, setIsDealerOnly] = useState<boolean>(hostPlayer?.isDealerOnly ?? false);
 
   React.useEffect(() => {
     setSb(tableState.settings.smallBlind);
@@ -50,7 +55,8 @@ export const HostPanel: React.FC<HostPanelProps> = ({
     setTableSize(tableState.settings.tableSize || 8);
     setAutoProgressTurn(tableState.settings.autoProgressTurn ?? false);
     setShowStreetAnnouncements(tableState.settings.showStreetAnnouncements ?? true);
-  }, [tableState.settings]);
+    setIsDealerOnly(hostPlayer?.isDealerOnly ?? false);
+  }, [tableState.settings, hostPlayer?.isDealerOnly]);
 
   const activePlayers = Object.values(tableState.players).filter((p) => p.isActive);
   const totalPot = tableState.pot + tableState.communityBets;
@@ -401,17 +407,36 @@ export const HostPanel: React.FC<HostPanelProps> = ({
                   className="w-4 h-4 accent-amber-400 cursor-pointer shrink-0 ml-2"
                 />
               </div>
+
+              <div className="flex items-center justify-between p-3 bg-slate-950 border border-amber-500/30 rounded-xl mt-2">
+                <div>
+                  <label className="text-xs font-bold text-amber-300 block">{t('dealerOnlyOption')}</label>
+                  <span className="text-[10px] text-slate-400 block leading-tight">{t('dealerOnlyDesc')}</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={isDealerOnly}
+                  onChange={(e) => setIsDealerOnly(e.target.checked)}
+                  className="w-4 h-4 accent-amber-400 cursor-pointer shrink-0 ml-2"
+                />
+              </div>
             </div>
 
             <div className="flex gap-2 pt-2">
               <button
-                onClick={() => setShowSettingsModal(false)}
+                onClick={() => {
+                  setIsDealerOnly(hostPlayer?.isDealerOnly ?? false);
+                  setShowSettingsModal(false);
+                }}
                 className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer"
               >
                 {t('cancel')}
               </button>
               <button
                 onClick={() => {
+                  if (isDealerOnly !== (hostPlayer?.isDealerOnly ?? false)) {
+                    onToggleDealerOnly?.(isDealerOnly);
+                  }
                   onUpdateSettings({ smallBlind: sb, bigBlind: bb, ante, tableSize, autoProgressTurn, showStreetAnnouncements });
                   setShowSettingsModal(false);
                 }}

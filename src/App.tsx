@@ -43,6 +43,8 @@ export function App() {
   const [initialBuyIn, setInitialBuyIn] = useState<number>(1000);
   const [tableSize, setTableSize] = useState<number>(8);
   const [practicePlayerCount, setPracticePlayerCount] = useState<number>(3);
+  const [isDealerOnlyHost, setIsDealerOnlyHost] = useState<boolean>(false);
+  const [isPracticeDealerOnly, setIsPracticeDealerOnly] = useState<boolean>(false);
   const [copiedCode, setCopiedCode] = useState<boolean>(false);
   const [showCalculator, setShowCalculator] = useState<boolean>(false);
 
@@ -169,12 +171,29 @@ export function App() {
                     className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white shadow-inner"
                   />
                 </div>
+                <div className="col-span-2 flex items-center justify-between p-2.5 bg-slate-950/80 border border-slate-800 rounded-xl mt-1">
+                  <div>
+                    <label className="text-xs font-bold text-slate-200 block">{t('dealerOnlyOption')}</label>
+                    <span className="text-[10px] text-slate-400 block leading-tight">{t('dealerOnlyDesc')}</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={isDealerOnlyHost}
+                    onChange={(e) => setIsDealerOnlyHost(e.target.checked)}
+                    className="w-4 h-4 accent-amber-400 cursor-pointer shrink-0 ml-2"
+                  />
+                </div>
               </div>
 
               <button
                 disabled={isConnecting}
                 onClick={() =>
-                  hostRoom(playerName.length == 0 ? randomName() : playerName, customHostId || undefined, { initialBuyIn, tableSize })
+                  hostRoom(
+                    playerName.length == 0 ? randomName() : playerName,
+                    customHostId || undefined,
+                    { initialBuyIn, tableSize },
+                    isDealerOnlyHost
+                  )
                 }
                 className="w-full py-3.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 active:scale-98 text-slate-950 font-black rounded-xl text-xs sm:text-sm shadow-[0_4px_20px_rgba(245,158,11,0.35)] transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer border border-amber-300/50"
               >
@@ -225,8 +244,17 @@ export function App() {
                   </select>
                 </div>
               </div>
+              <div className="flex items-center justify-between p-2 bg-slate-950/80 border border-slate-800 rounded-xl my-1">
+                <label className="text-xs font-bold text-slate-300">{t('dealerOnlyOption')}</label>
+                <input
+                  type="checkbox"
+                  checked={isPracticeDealerOnly}
+                  onChange={(e) => setIsPracticeDealerOnly(e.target.checked)}
+                  className="w-4 h-4 accent-amber-400 cursor-pointer shrink-0 ml-2"
+                />
+              </div>
               <button
-                onClick={() => startSoloTable(playerName || 'Host', practicePlayerCount, Math.max(practicePlayerCount, 8))}
+                onClick={() => startSoloTable(playerName || 'Host', practicePlayerCount, Math.max(practicePlayerCount, 8), isPracticeDealerOnly)}
                 className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm border border-slate-700"
               >
                 {t('startPracticeBtn', { count: practicePlayerCount })}
@@ -300,6 +328,7 @@ export function App() {
           tableState={tableState}
           localPlayerId={localPlayerId}
           onSeatClick={(seatIdx) => {
+            if (localPlayer?.isDealerOnly) return;
             sendToHost({
               type: 'REQUEST_SEAT',
               playerId: localPlayerId,
@@ -365,6 +394,12 @@ export function App() {
                 sendToHost({
                   type: 'HOST_KICK_PLAYER',
                   playerId: pId,
+                })
+              }
+              onToggleDealerOnly={(isDealerOnly) =>
+                sendToHost({
+                  type: 'HOST_TOGGLE_DEALER_ONLY',
+                  isDealerOnly,
                 })
               }
             />

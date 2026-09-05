@@ -13,8 +13,9 @@ export interface Player {
   hasFolded: boolean;     // True if folded in current hand
   isAllIn: boolean;       // True if went all-in
   hasActedThisStreet: boolean; // Tracking betting turn completion
-  seatIndex: number;      // Position around table (0 - 9)
+  seatIndex: number;      // Position around table (0 - 9) or -1 if spectating/dealer-only
   isHost: boolean;
+  isDealerOnly?: boolean; // True if host is dealer only (does not play/bet)
   connected: boolean;
   lastAction?: PlayerActionType | null;
 }
@@ -82,6 +83,7 @@ export type PeerMessage =
   | { type: 'HOST_UPDATE_SETTINGS'; settings: Partial<GameSettings> }
   | { type: 'HOST_FORCE_SEAT'; playerId: string; seatIndex: number }
   | { type: 'HOST_KICK_PLAYER'; playerId: string }
+  | { type: 'HOST_TOGGLE_DEALER_ONLY'; isDealerOnly: boolean }
   | { type: 'REQUEST_SEAT'; playerId: string; seatIndex: number; name?: string }
   | { type: 'SIT_OUT_TOGGLE'; playerId: string }
   | { type: 'PING' }

@@ -35,6 +35,20 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
     setRaiseAmount(minRaiseTarget);
   }, [minRaiseTarget, currentHigh]);
 
+  if (player.isDealerOnly || player.seatIndex < 0) {
+    return (
+      <div className="bg-slate-900/90 backdrop-blur-md border border-amber-500/40 rounded-2xl p-4 text-center text-slate-300 space-y-1.5 shadow-xl">
+        <div className="flex items-center justify-center gap-2 text-amber-300 font-black text-sm">
+          <ShieldAlert className="w-4 h-4 text-amber-400" />
+          <span>{t('dealerOnlyNotice')}</span>
+        </div>
+        <p className="text-xs text-slate-400 max-w-md mx-auto">
+          {t('dealerOnlyDesc')}
+        </p>
+      </div>
+    );
+  }
+
   if (player.hasFolded || (!tableState.isHandInProgress && player.stack === 0)) {
     return (
       <div className="bg-slate-950/80 backdrop-blur-md border border-slate-800 rounded-2xl p-4 text-center text-slate-400 font-medium flex items-center justify-center gap-2 shadow-lg">

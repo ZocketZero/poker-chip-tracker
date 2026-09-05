@@ -83,6 +83,14 @@ export const translations = {
 
     // Host Panel
     dealerHostTitle: 'DEALER / HOST',
+    dealerOnlyOption: 'Host as Dealer Only (non-playing)',
+    dealerOnlyDesc: 'Host manages table, deals hands, and awards pots without placing bets or taking a seat.',
+    dealerOnlyBadge: 'Dealer Only (Non-Playing)',
+    playingHostBadge: 'Playing Host',
+    switchToDealerOnly: 'Switch to Dealer Only',
+    switchToPlayingHost: 'Take a Seat & Play',
+    dealerOnlyNotice: 'You are in Dealer-Only mode (managing game without betting chips).',
+    hostDealerLabel: 'Dealer Host',
     chipsBtn: 'Chips',
     blindsBtn: 'Blinds',
     dealNewHand: 'DEAL NEW HAND ({sb}/{bb})',
@@ -245,6 +253,14 @@ export const translations = {
 
     // Host Panel
     dealerHostTitle: 'คนแจก / โฮสต์',
+    dealerOnlyOption: 'โฮสต์เป็นผู้แจกไพ่อย่างเดียว (ไม่ลงเล่นวางเดิมพัน)',
+    dealerOnlyDesc: 'โฮสต์ทำหน้าที่ควบคุมเกม เปิดไพ่ แจกชิป โดยไม่นั่งที่นั่งและไม่ใช้ชิปวางเดิมพัน',
+    dealerOnlyBadge: 'ผู้แจกไพ่อย่างเดียว (ไม่ลงเล่น)',
+    playingHostBadge: 'โฮสต์ร่วมเล่นเดิมพัน',
+    switchToDealerOnly: 'สลับเป็นผู้แจกไพ่อย่างเดียว',
+    switchToPlayingHost: 'นั่งที่นั่งเพื่อเข้าร่วมเล่น',
+    dealerOnlyNotice: 'คุณอยู่ในโหมดผู้แจกไพ่อย่างเดียว (ทำหน้าที่ควบคุมเกมโดยไม่ได้ร่วมวางเดิมพัน)',
+    hostDealerLabel: 'คนแจกไพ่ / โฮสต์',
     chipsBtn: 'เติมชิป',
     blindsBtn: 'บลายด์',
     dealNewHand: 'แจกไพ่รอบใหม่ ({sb}/{bb})',
@@ -407,6 +423,14 @@ export const translations = {
 
     // Host Panel
     dealerHostTitle: 'ディーラー / ホスト',
+    dealerOnlyOption: 'ディーラー専用（ゲームに参加しない）',
+    dealerOnlyDesc: 'ホストはベットや着席をせず、ゲーム管理と進行のみを行います。',
+    dealerOnlyBadge: 'ディーラー専用（非参加）',
+    playingHostBadge: 'プレイ参加ホスト',
+    switchToDealerOnly: 'ディーラー専用に切り替え',
+    switchToPlayingHost: '席に着いてプレイ',
+    dealerOnlyNotice: 'ディーラー専用モードのホストです（ゲーム非参加）。',
+    hostDealerLabel: 'ディーラー / ホスト',
     chipsBtn: 'チップ追加',
     blindsBtn: 'ブラインド',
     dealNewHand: '新しいハンドを配る ({sb}/{bb})',

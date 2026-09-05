@@ -134,6 +134,8 @@ export function getNextActiveSeat(
     if (
       player &&
       player.isActive &&
+      !player.isDealerOnly &&
+      player.seatIndex >= 0 &&
       !player.hasFolded &&
       (includeAllIn || (!player.isAllIn && player.stack > 0))
     ) {
@@ -146,7 +148,7 @@ export function getNextActiveSeat(
 
 export function isStreetComplete(tableState: TableState): boolean {
   const activeUnfolded = Object.values(tableState.players).filter(
-    (p) => p.isActive && !p.hasFolded
+    (p) => p.isActive && !p.isDealerOnly && p.seatIndex >= 0 && !p.hasFolded
   );
 
   if (activeUnfolded.length <= 1) return true;

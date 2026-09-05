@@ -59,6 +59,12 @@ export const TableView: React.FC<TableViewProps> = ({
               <span className="text-[11px] font-mono text-slate-400 bg-slate-950/80 px-2 py-1 rounded-lg border border-slate-800">
                 {t('handNumber', { number: tableState.handNumber })}
               </span>
+              {tableState.players[tableState.hostId]?.isDealerOnly && (
+                <span className="text-[10px] sm:text-xs font-bold text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/30 flex items-center gap-1">
+                  <Crown className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                  <span>{tableState.players[tableState.hostId]?.name}: {t('dealerOnlyBadge')}</span>
+                </span>
+              )}
               {tableState.isHandInProgress && tableState.currentTurnSeat === null && tableState.street !== 'showdown' && (
                 <span className="text-[10px] sm:text-xs font-bold text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded-lg border border-amber-400/60 shadow-sm animate-pulse">
                   ⏳ {t('roundCompleteBadge')}
@@ -127,12 +133,22 @@ export const TableView: React.FC<TableViewProps> = ({
             ? Math.floor(tableState.lastWinner.amount / tableState.lastWinner.winnerSeatIndexes.length)
             : 0;
 
+          const isLocalDealerOnly = tableState.players[localPlayerId]?.isDealerOnly;
+
           if (!player) {
             return (
               <button
                 key={`seat-${seatIdx}`}
-                onClick={() => onSeatClick?.(seatIdx)}
-                className="flex flex-col items-center justify-center p-4 sm:p-5 rounded-2xl border-2 border-dashed border-slate-800 hover:border-amber-400/80 bg-slate-950/40 hover:bg-slate-900/80 transition-all group backdrop-blur-sm cursor-pointer min-h-[110px] sm:min-h-[125px] shadow-sm hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]"
+                disabled={isLocalDealerOnly}
+                onClick={() => {
+                  if (isLocalDealerOnly) return;
+                  onSeatClick?.(seatIdx);
+                }}
+                className={`flex flex-col items-center justify-center p-4 sm:p-5 rounded-2xl border-2 border-dashed transition-all group backdrop-blur-sm min-h-[110px] sm:min-h-[125px] shadow-sm ${
+                  isLocalDealerOnly
+                    ? 'border-slate-800/40 bg-slate-950/20 opacity-40 cursor-not-allowed'
+                    : 'border-slate-800 hover:border-amber-400/80 bg-slate-950/40 hover:bg-slate-900/80 cursor-pointer hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]'
+                }`}
               >
                 <div className="w-8 h-8 rounded-full border border-dashed border-slate-700 group-hover:border-amber-400/80 flex items-center justify-center text-slate-500 group-hover:text-amber-300 transition-colors mb-1.5">
                   <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" />
@@ -141,7 +157,7 @@ export const TableView: React.FC<TableViewProps> = ({
                   {t('seatNumber', { number: seatIdx + 1 })}
                 </span>
                 <span className="text-[10px] text-slate-600 group-hover:text-slate-400 font-medium">
-                  {t('clickToSit')}
+                  {isLocalDealerOnly ? t('dealerOnlyBadge') : t('clickToSit')}
                 </span>
               </button>
             );
