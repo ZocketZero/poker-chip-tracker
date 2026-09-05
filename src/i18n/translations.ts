@@ -53,6 +53,8 @@ export const translations = {
     stackLabel: 'Stack',
     betLabel: 'Bet',
     spectatingNotice: 'You are spectating. Click an empty seat to sit.',
+    viewModeGrid: 'Grid',
+    viewModeList: 'List Row',
 
     // Streets
     streetReady: 'Ready',
@@ -223,6 +225,8 @@ export const translations = {
     stackLabel: 'ชิปคงเหลือ',
     betLabel: 'เดิมพัน',
     spectatingNotice: 'คุณกำลังรับชม คลิกที่นั่งว่างเพื่อเข้าร่วมเล่น',
+    viewModeGrid: 'ตาราง',
+    viewModeList: 'แถวรายการ',
 
     // Streets
     streetReady: 'พร้อมเริ่ม',
@@ -393,6 +397,8 @@ export const translations = {
     stackLabel: 'スタック',
     betLabel: 'ベット',
     spectatingNotice: '観戦中です。空いているシートをクリックして着席してください。',
+    viewModeGrid: 'グリッド',
+    viewModeList: 'リスト',
 
     // Streets
     streetReady: '準備完了',
