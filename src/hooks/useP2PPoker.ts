@@ -143,7 +143,7 @@ export function useP2PPoker() {
       text: `--- Street advanced to: ${nextStreet.toUpperCase()} (Total Pot: ${current.pot}) ---`,
       type: 'street' as const,
     };
-    current.logs = [logItem, ...current.logs.slice(0, 49)];
+    current.logs = [logItem, ...current.logs.slice(0, 24)];
 
     const canAct = Object.values(current.players).filter(
       (p) => p.isActive && !p.hasFolded && !p.isAllIn && p.stack > 0
@@ -174,17 +174,26 @@ export function useP2PPoker() {
 
           // If player already exists, update connection & seat if free
           if (current.players[playerId]) {
-            current.players[playerId].connected = true;
-            if (name) current.players[playerId].name = name;
+            const updatedPlayer: Player = {
+              ...current.players[playerId],
+              connected: true,
+              ...(name ? { name } : {}),
+            };
             if (requestedSeat !== undefined) {
               const isOccupied = Object.values(current.players).some(
                 (p) => p.id !== playerId && p.seatIndex === requestedSeat
               );
               if (!isOccupied && requestedSeat >= 0 && requestedSeat < current.settings.tableSize) {
-                current.players[playerId].seatIndex = requestedSeat;
+                updatedPlayer.seatIndex = requestedSeat;
               }
             }
-            broadcastState(current);
+            broadcastState({
+              ...current,
+              players: {
+                ...current.players,
+                [playerId]: updatedPlayer,
+              },
+            });
             break;
           }
 
@@ -230,7 +239,7 @@ export function useP2PPoker() {
           broadcastState({
             ...current,
             players: updatedPlayers,
-            logs: [logItem, ...current.logs.slice(0, 49)],
+            logs: [logItem, ...current.logs.slice(0, 24)],
           });
           break;
         }
@@ -315,7 +324,7 @@ export function useP2PPoker() {
             text: actionLog,
             type: 'action' as const,
           };
-          current.logs = [logItem, ...current.logs.slice(0, 49)];
+          current.logs = [logItem, ...current.logs.slice(0, 24)];
 
           if (activeUnfolded.length === 1) {
             const winner = activeUnfolded[0];
@@ -354,7 +363,7 @@ export function useP2PPoker() {
               timestamp: Date.now(),
               reason: 'fold',
             };
-            current.logs = [winLog, ...current.logs.slice(0, 49)];
+            current.logs = [winLog, ...current.logs.slice(0, 24)];
 
             broadcastState(current);
             return;
@@ -384,7 +393,7 @@ export function useP2PPoker() {
                 type: 'street' as const,
               };
               if (!current.logs[0]?.text.includes('Waiting for Host to confirm')) {
-                current.logs = [logItem, ...current.logs.slice(0, 49)];
+                current.logs = [logItem, ...current.logs.slice(0, 24)];
               }
               broadcastState(current);
             }
@@ -459,7 +468,7 @@ export function useP2PPoker() {
             timestamp: Date.now(),
             reason: 'showdown',
           };
-          current.logs = [winLog, ...current.logs.slice(0, 49)];
+          current.logs = [winLog, ...current.logs.slice(0, 24)];
 
           broadcastState(current);
           break;
@@ -468,15 +477,25 @@ export function useP2PPoker() {
         case 'HOST_REBUY': {
           const { playerId, amount } = msg;
           if (current.players[playerId]) {
-            current.players[playerId].stack += amount;
+            const updatedPlayer: Player = {
+              ...current.players[playerId],
+              stack: current.players[playerId].stack + amount,
+            };
+            const updatedPlayers = {
+              ...current.players,
+              [playerId]: updatedPlayer,
+            };
             const logItem = {
               id: Math.random().toString(36).substring(2, 9),
               timestamp: Date.now(),
-              text: `💵 ${current.players[playerId].name} added ${amount} chips (New stack: ${current.players[playerId].stack}).`,
+              text: `💵 ${updatedPlayer.name} added ${amount} chips (New stack: ${updatedPlayer.stack}).`,
               type: 'system' as const,
             };
-            current.logs = [logItem, ...current.logs.slice(0, 49)];
-            broadcastState(current);
+            broadcastState({
+              ...current,
+              players: updatedPlayers,
+              logs: [logItem, ...current.logs.slice(0, 24)],
+            });
           }
           break;
         }
@@ -491,7 +510,8 @@ export function useP2PPoker() {
               current.currentTurnSeat = nextSeat;
             }
 
-            delete current.players[playerId];
+            const updatedPlayers = { ...current.players };
+            delete updatedPlayers[playerId];
 
             Object.entries(peerToPlayerMapRef.current).forEach(([connPeer, pId]) => {
               if (pId === playerId && connectionsRef.current[connPeer]) {
@@ -509,8 +529,11 @@ export function useP2PPoker() {
               text: `🚫 ${kickedPlayer.name} was kicked from the table by Host.`,
               type: 'system' as const,
             };
-            current.logs = [logItem, ...current.logs.slice(0, 49)];
-            broadcastState(current);
+            broadcastState({
+              ...current,
+              players: updatedPlayers,
+              logs: [logItem, ...current.logs.slice(0, 24)],
+            });
           }
           break;
         }
@@ -522,8 +545,17 @@ export function useP2PPoker() {
               (p) => p.id !== playerId && p.seatIndex === seatIndex
             );
             if (!isOccupied && seatIndex >= 0 && seatIndex < current.settings.tableSize) {
-              current.players[playerId].seatIndex = seatIndex;
-              broadcastState(current);
+              const updatedPlayer: Player = {
+                ...current.players[playerId],
+                seatIndex,
+              };
+              broadcastState({
+                ...current,
+                players: {
+                  ...current.players,
+                  [playerId]: updatedPlayer,
+                },
+              });
             }
           }
           break;
@@ -537,6 +569,20 @@ export function useP2PPoker() {
             break;
           }
 
+          if (current.isHandInProgress) {
+            const logItem = {
+              id: Math.random().toString(36).substring(2, 9),
+              timestamp: Date.now(),
+              text: `⚠️ Cannot change seats while a hand is in progress. Please wait for the hand to finish.`,
+              type: 'system' as const,
+            };
+            broadcastState({
+              ...current,
+              logs: [logItem, ...current.logs.slice(0, 24)],
+            });
+            break;
+          }
+
           const isOccupied = Object.values(current.players).some(
             (p) => p.id !== targetPlayerId && p.seatIndex === seatIndex
           );
@@ -544,17 +590,25 @@ export function useP2PPoker() {
           if (seatIndex >= 0 && seatIndex < current.settings.tableSize && !isOccupied) {
             if (current.players[targetPlayerId]) {
               const oldSeat = current.players[targetPlayerId].seatIndex;
-              current.players[targetPlayerId].seatIndex = seatIndex;
-              if (name) current.players[targetPlayerId].name = name;
+              const updatedPlayer: Player = {
+                ...current.players[targetPlayerId],
+                seatIndex,
+                ...(name ? { name } : {}),
+              };
+              const updatedPlayers = {
+                ...current.players,
+                [targetPlayerId]: updatedPlayer,
+              };
               const logItem = {
                 id: Math.random().toString(36).substring(2, 9),
                 timestamp: Date.now(),
-                text: `${current.players[targetPlayerId].name} moved from Seat ${oldSeat + 1} to Seat ${seatIndex + 1}.`,
+                text: `${updatedPlayer.name} moved from Seat ${oldSeat + 1} to Seat ${seatIndex + 1}.`,
                 type: 'system' as const,
               };
               broadcastState({
                 ...current,
-                logs: [logItem, ...current.logs.slice(0, 49)],
+                players: updatedPlayers,
+                logs: [logItem, ...current.logs.slice(0, 24)],
               });
             } else {
               const newPlayer: Player = {
@@ -571,7 +625,6 @@ export function useP2PPoker() {
                 isHost: targetPlayerId === current.hostId,
                 connected: true,
               };
-              current.players[targetPlayerId] = newPlayer;
               const logItem = {
                 id: Math.random().toString(36).substring(2, 9),
                 timestamp: Date.now(),
@@ -581,7 +634,7 @@ export function useP2PPoker() {
               broadcastState({
                 ...current,
                 players: { ...current.players, [targetPlayerId]: newPlayer },
-                logs: [logItem, ...current.logs.slice(0, 49)],
+                logs: [logItem, ...current.logs.slice(0, 24)],
               });
             }
           }
@@ -590,12 +643,13 @@ export function useP2PPoker() {
 
         case 'HOST_UPDATE_SETTINGS': {
           current.settings = { ...current.settings, ...msg.settings };
+          const updatedPlayers = { ...current.players };
           if (msg.settings.tableSize) {
             const newSize = msg.settings.tableSize;
-            Object.values(current.players).forEach((p) => {
+            Object.values(updatedPlayers).forEach((p) => {
               if (p.seatIndex >= newSize) {
-                const available = findFirstAvailableSeat(current);
-                p.seatIndex = available;
+                const available = findFirstAvailableSeat({ ...current, players: updatedPlayers });
+                updatedPlayers[p.id] = { ...p, seatIndex: available };
               }
             });
           }
@@ -605,24 +659,36 @@ export function useP2PPoker() {
             text: `⚙️ Table settings updated (Seats: ${current.settings.tableSize}, Blinds: ${current.settings.smallBlind}/${current.settings.bigBlind}).`,
             type: 'system' as const,
           };
-          current.logs = [logItem, ...current.logs.slice(0, 49)];
-          broadcastState(current);
+          broadcastState({
+            ...current,
+            players: updatedPlayers,
+            logs: [logItem, ...current.logs.slice(0, 24)],
+          });
           break;
         }
 
         case 'SIT_OUT_TOGGLE': {
           const { playerId } = msg;
           if (current.players[playerId]) {
-            current.players[playerId].isActive = !current.players[playerId].isActive;
-            const status = current.players[playerId].isActive ? 'is back' : 'is sitting out';
+            const updatedPlayer: Player = {
+              ...current.players[playerId],
+              isActive: !current.players[playerId].isActive,
+            };
+            const status = updatedPlayer.isActive ? 'is back' : 'is sitting out';
             const logItem = {
               id: Math.random().toString(36).substring(2, 9),
               timestamp: Date.now(),
-              text: `${current.players[playerId].name} ${status}.`,
+              text: `${updatedPlayer.name} ${status}.`,
               type: 'system' as const,
             };
-            current.logs = [logItem, ...current.logs.slice(0, 49)];
-            broadcastState(current);
+            broadcastState({
+              ...current,
+              players: {
+                ...current.players,
+                [playerId]: updatedPlayer,
+              },
+              logs: [logItem, ...current.logs.slice(0, 24)],
+            });
           }
           break;
         }
@@ -631,32 +697,35 @@ export function useP2PPoker() {
           const { isDealerOnly } = msg;
           const host = current.players[effectivePlayerId];
           if (host && effectivePlayerId === current.hostId) {
-            host.isDealerOnly = isDealerOnly;
-            if (isDealerOnly) {
-              host.seatIndex = -1;
-              host.isActive = false;
-              host.hasFolded = true;
-              host.currentBet = 0;
-            } else {
-              const seat = findFirstAvailableSeat(current);
-              host.seatIndex = seat;
-              host.isActive = true;
-              host.hasFolded = false;
-              if (host.stack <= 0) {
-                host.stack = current.settings.initialBuyIn;
-              }
-            }
+            const updatedHost: Player = {
+              ...host,
+              isDealerOnly,
+              ...(isDealerOnly
+                ? { seatIndex: -1, isActive: false, hasFolded: true, currentBet: 0 }
+                : {
+                    seatIndex: findFirstAvailableSeat(current),
+                    isActive: true,
+                    hasFolded: false,
+                    stack: host.stack <= 0 ? current.settings.initialBuyIn : host.stack,
+                  }),
+            };
             const statusText = isDealerOnly
-              ? `${host.name} is now Dealer Only (non-playing host).`
-              : `${host.name} sat at Seat ${host.seatIndex + 1} with ${host.stack} chips.`;
+              ? `${updatedHost.name} is now Dealer Only (non-playing host).`
+              : `${updatedHost.name} sat at Seat ${updatedHost.seatIndex + 1} with ${updatedHost.stack} chips.`;
             const logItem = {
               id: Math.random().toString(36).substring(2, 9),
               timestamp: Date.now(),
               text: `👑 ${statusText}`,
               type: 'system' as const,
             };
-            current.logs = [logItem, ...current.logs.slice(0, 49)];
-            broadcastState(current);
+            broadcastState({
+              ...current,
+              players: {
+                ...current.players,
+                [effectivePlayerId]: updatedHost,
+              },
+              logs: [logItem, ...current.logs.slice(0, 24)],
+            });
           }
           break;
         }
@@ -818,7 +887,7 @@ export function useP2PPoker() {
       text: `🃏 Hand #${current.handNumber} started. Blinds: ${current.settings.smallBlind}/${current.settings.bigBlind}.`,
       type: 'street' as const,
     };
-    current.logs = [logItem, ...current.logs.slice(0, 49)];
+    current.logs = [logItem, ...current.logs.slice(0, 24)];
 
     broadcastState(current);
   };
