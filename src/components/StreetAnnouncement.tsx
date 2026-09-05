@@ -8,7 +8,7 @@ interface StreetAnnouncementProps {
   tableState: TableState;
 }
 
-export const StreetAnnouncement: React.FC<StreetAnnouncementProps> = ({ tableState }) => {
+export const StreetAnnouncement: React.FC<StreetAnnouncementProps> = React.memo(({ tableState }) => {
   const { t } = useLanguage();
   const [announcement, setAnnouncement] = useState<{
     id: string;
@@ -134,29 +134,29 @@ export const StreetAnnouncement: React.FC<StreetAnnouncementProps> = ({ tableSta
   const colorStyles = {
     emerald: {
       border: 'border-emerald-400/90',
-      glow: 'shadow-[0_0_45px_rgba(16,185,129,0.5)]',
-      gradient: 'from-slate-950/95 via-emerald-950/90 to-slate-950/95',
+      glow: 'shadow-2xl',
+      gradient: 'from-slate-950 via-emerald-950 to-slate-950',
       badgeBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-400/60',
       iconBg: 'bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950',
     },
     cyan: {
       border: 'border-cyan-400/90',
-      glow: 'shadow-[0_0_45px_rgba(6,182,212,0.5)]',
-      gradient: 'from-slate-950/95 via-cyan-950/90 to-slate-950/95',
+      glow: 'shadow-2xl',
+      gradient: 'from-slate-950 via-cyan-950 to-slate-950',
       badgeBg: 'bg-cyan-500/20 text-cyan-300 border-cyan-400/60',
       iconBg: 'bg-gradient-to-tr from-cyan-500 to-blue-400 text-slate-950',
     },
     amber: {
       border: 'border-amber-400/90',
-      glow: 'shadow-[0_0_45px_rgba(245,158,11,0.5)]',
-      gradient: 'from-slate-950/95 via-amber-950/90 to-slate-950/95',
+      glow: 'shadow-2xl',
+      gradient: 'from-slate-950 via-amber-950 to-slate-950',
       badgeBg: 'bg-amber-500/20 text-amber-300 border-amber-400/60',
       iconBg: 'bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950',
     },
     purple: {
       border: 'border-purple-400/90',
-      glow: 'shadow-[0_0_45px_rgba(168,85,247,0.5)]',
-      gradient: 'from-slate-950/95 via-purple-950/90 to-slate-950/95',
+      glow: 'shadow-2xl',
+      gradient: 'from-slate-950 via-purple-950 to-slate-950',
       badgeBg: 'bg-purple-500/20 text-purple-300 border-purple-400/60',
       iconBg: 'bg-gradient-to-tr from-purple-500 to-fuchsia-400 text-slate-950',
     },
@@ -165,7 +165,7 @@ export const StreetAnnouncement: React.FC<StreetAnnouncementProps> = ({ tableSta
   return (
     <div className="fixed top-3 sm:top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-auto max-w-md w-[94%] sm:w-full animate-pop-in">
       <div
-        className={`relative overflow-hidden bg-gradient-to-r ${colorStyles.gradient} border-2 ${colorStyles.border} rounded-2xl p-3.5 sm:p-4 ${colorStyles.glow} backdrop-blur-2xl ring-1 ring-white/10`}
+        className={`relative overflow-hidden bg-gradient-to-r ${colorStyles.gradient} border-2 ${colorStyles.border} rounded-2xl p-3.5 sm:p-4 ${colorStyles.glow} ring-1 ring-white/10`}
       >
         {/* Ambient sweep highlight */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer pointer-events-none" />
@@ -177,7 +177,7 @@ export const StreetAnnouncement: React.FC<StreetAnnouncementProps> = ({ tableSta
             >
               {announcement.icon === 'play' && <Play className="w-5 h-5 fill-slate-950" />}
               {announcement.icon === 'street' && <FastForward className="w-5 h-5" />}
-              {announcement.icon === 'waiting' && <Clock className="w-5 h-5 animate-pulse" />}
+              {announcement.icon === 'waiting' && <Clock className="w-5 h-5" />}
               {announcement.icon === 'showdown' && <Sparkles className="w-5 h-5" />}
             </div>
 
@@ -189,7 +189,7 @@ export const StreetAnnouncement: React.FC<StreetAnnouncementProps> = ({ tableSta
                   {announcement.badge}
                 </span>
               </div>
-              <div className="text-sm sm:text-base font-black text-white tracking-wide mt-0.5 drop-shadow">
+              <div className="text-sm sm:text-base font-black text-white tracking-wide mt-0.5">
                 {announcement.title}
               </div>
               <div className="text-xs text-slate-300 font-medium">{announcement.subtitle}</div>
@@ -206,4 +206,5 @@ export const StreetAnnouncement: React.FC<StreetAnnouncementProps> = ({ tableSta
       </div>
     </div>
   );
-};
+});
+

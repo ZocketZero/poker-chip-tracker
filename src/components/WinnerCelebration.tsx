@@ -8,7 +8,7 @@ interface WinnerCelebrationProps {
   tableState: TableState;
 }
 
-export const WinnerCelebration: React.FC<WinnerCelebrationProps> = ({ tableState }) => {
+export const WinnerCelebration: React.FC<WinnerCelebrationProps> = React.memo(({ tableState }) => {
   const { t } = useLanguage();
   const lastWinner = tableState.lastWinner;
   const [visible, setVisible] = useState(false);
@@ -31,7 +31,7 @@ export const WinnerCelebration: React.FC<WinnerCelebrationProps> = ({ tableState
 
   return (
     <div className="fixed top-14 sm:top-16 left-1/2 -translate-x-1/2 z-50 pointer-events-auto max-w-lg w-[92%] sm:w-full animate-pop-in">
-      <div className="relative overflow-hidden bg-gradient-to-r from-slate-950/95 via-amber-950/90 to-slate-950/95 border-2 border-amber-400/90 rounded-2xl p-3.5 sm:p-4 shadow-[0_0_50px_rgba(245,158,11,0.6)] backdrop-blur-2xl ring-2 ring-amber-400/30">
+      <div className="relative overflow-hidden bg-gradient-to-r from-slate-950 via-amber-950/95 to-slate-950 border-2 border-amber-400/90 rounded-2xl p-3.5 sm:p-4 shadow-2xl ring-2 ring-amber-400/30">
         {/* Shimmer light sweep */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer pointer-events-none" />
 
@@ -46,7 +46,7 @@ export const WinnerCelebration: React.FC<WinnerCelebrationProps> = ({ tableState
                 <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                 <span>{t('handWinnerTitle', { number: lastWinner.handNumber })}</span>
               </div>
-              <div className="text-base sm:text-lg font-black text-white truncate max-w-[200px] sm:max-w-[260px] drop-shadow">
+              <div className="text-base sm:text-lg font-black text-white truncate max-w-[200px] sm:max-w-[260px]">
                 {lastWinner.winnerNames.join(' & ')}
               </div>
             </div>
@@ -75,4 +75,5 @@ export const WinnerCelebration: React.FC<WinnerCelebrationProps> = ({ tableState
       </div>
     </div>
   );
-};
+});
+

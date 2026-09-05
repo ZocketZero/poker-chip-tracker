@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import type { TableState, Player } from '../types/poker';
 import { ChipStack } from './ChipStack';
 import { formatChips } from '../utils/pokerRules';
@@ -25,7 +25,7 @@ interface TableViewProps {
   onPlayerClick?: (player: Player) => void;
 }
 
-export const TableView: React.FC<TableViewProps> = ({
+export const TableView: React.FC<TableViewProps> = React.memo(({
   tableState,
   localPlayerId,
   onSeatClick,
@@ -43,13 +43,19 @@ export const TableView: React.FC<TableViewProps> = ({
   };
 
   const totalSeats = tableState.settings.tableSize || 8;
-  const playersBySeat: Record<number, Player> = {};
 
-  Object.values(tableState.players).forEach((p) => {
-    playersBySeat[p.seatIndex] = p;
-  });
+  const playersBySeat = useMemo(() => {
+    const map: Record<number, Player> = {};
+    Object.values(tableState.players).forEach((p) => {
+      map[p.seatIndex] = p;
+    });
+    return map;
+  }, [tableState.players]);
 
-  const totalPot = tableState.pot + tableState.communityBets;
+  const totalPot = useMemo(
+    () => tableState.pot + tableState.communityBets,
+    [tableState.pot, tableState.communityBets]
+  );
 
   const getStreetLabel = (street: string) => {
     switch (street) {
@@ -65,7 +71,7 @@ export const TableView: React.FC<TableViewProps> = ({
   return (
     <div className="w-full select-none flex flex-col gap-2.5 sm:gap-3.5 p-1 sm:p-2">
       {/* Central Pot & Street Info Header Card */}
-      <div className="bg-gradient-to-r from-slate-900 via-emerald-950/60 to-slate-900 border border-emerald-500/30 rounded-2xl p-3 sm:p-4 shadow-xl backdrop-blur-xl flex flex-wrap items-center justify-between gap-2.5 sm:gap-4 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-slate-900 via-emerald-950/60 to-slate-900 border border-emerald-500/30 rounded-2xl p-3 sm:p-4 shadow-xl backdrop-blur-md flex flex-wrap items-center justify-between gap-2.5 sm:gap-4 relative overflow-hidden">
         {/* Ambient background glow */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(16,185,129,0.12)_0%,transparent_70%)] pointer-events-none" />
 
@@ -89,7 +95,7 @@ export const TableView: React.FC<TableViewProps> = ({
                 </span>
               )}
               {tableState.isHandInProgress && tableState.currentTurnSeat === null && tableState.street !== 'showdown' && (
-                <span className="text-[10px] sm:text-xs font-bold text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded-lg border border-amber-400/60 shadow-sm animate-pulse">
+                <span className="text-[10px] sm:text-xs font-bold text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded-lg border border-amber-400/60 shadow-sm">
                   ⏳ {t('roundCompleteBadge')}
                 </span>
               )}
@@ -133,7 +139,7 @@ export const TableView: React.FC<TableViewProps> = ({
             </div>
           )}
 
-          <div className="flex items-center gap-2 sm:gap-3 bg-slate-950/85 border border-amber-400/50 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-2xl backdrop-blur-md shadow-[0_4px_20px_rgba(245,158,11,0.25)]">
+          <div className="flex items-center gap-2 sm:gap-3 bg-slate-950/90 border border-amber-400/50 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-2xl shadow-lg">
             <div className="p-1.5 bg-amber-500/10 rounded-xl border border-amber-500/30">
               <Coins className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
             </div>
@@ -141,7 +147,7 @@ export const TableView: React.FC<TableViewProps> = ({
               <div className="text-[9px] sm:text-[10px] text-amber-200/90 font-bold uppercase tracking-widest leading-none">
                 {t('totalPot')}
               </div>
-              <div className="text-lg sm:text-2xl font-black text-amber-300 font-mono tracking-tight leading-tight drop-shadow-[0_2px_10px_rgba(245,158,11,0.5)]">
+              <div className="text-lg sm:text-2xl font-black text-amber-300 font-mono tracking-tight leading-tight">
                 {formatChips(totalPot)}
               </div>
             </div>
@@ -197,10 +203,10 @@ export const TableView: React.FC<TableViewProps> = ({
                     if (isLocalDealerOnly) return;
                     onSeatClick?.(seatIdx);
                   }}
-                  className={`w-full flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-dashed transition-all group backdrop-blur-sm shadow-sm ${
+                  className={`w-full flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-dashed transition-all group shadow-sm ${
                     isLocalDealerOnly
                       ? 'border-slate-800/40 bg-slate-950/20 opacity-40 cursor-not-allowed'
-                      : 'border-slate-800 hover:border-amber-400/80 bg-slate-950/40 hover:bg-slate-900/80 cursor-pointer hover:shadow-[0_0_15px_rgba(245,158,11,0.15)]'
+                      : 'border-slate-800 hover:border-amber-400/80 bg-slate-950/60 hover:bg-slate-900/80 cursor-pointer'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -230,10 +236,10 @@ export const TableView: React.FC<TableViewProps> = ({
                   if (isLocalDealerOnly) return;
                   onSeatClick?.(seatIdx);
                 }}
-                className={`flex flex-col items-center justify-center p-4 sm:p-5 rounded-2xl border-2 border-dashed transition-all group backdrop-blur-sm min-h-[110px] sm:min-h-[125px] shadow-sm ${
+                className={`flex flex-col items-center justify-center p-4 sm:p-5 rounded-2xl border-2 border-dashed transition-all group min-h-[110px] sm:min-h-[125px] shadow-sm ${
                   isLocalDealerOnly
                     ? 'border-slate-800/40 bg-slate-950/20 opacity-40 cursor-not-allowed'
-                    : 'border-slate-800 hover:border-amber-400/80 bg-slate-950/40 hover:bg-slate-900/80 cursor-pointer hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]'
+                    : 'border-slate-800 hover:border-amber-400/80 bg-slate-950/60 hover:bg-slate-900/80 cursor-pointer'
                 }`}
               >
                 <div className="w-8 h-8 rounded-full border border-dashed border-slate-700 group-hover:border-amber-400/80 flex items-center justify-center text-slate-500 group-hover:text-amber-300 transition-colors mb-1.5">
@@ -255,16 +261,16 @@ export const TableView: React.FC<TableViewProps> = ({
               <div
                 key={`seat-${seatIdx}`}
                 onClick={() => onPlayerClick?.(player)}
-                className={`relative flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl cursor-pointer transition-all duration-200 backdrop-blur-xl border gap-2 sm:gap-4 ${
+                className={`relative flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl cursor-pointer transition-all duration-150 border gap-2 sm:gap-4 ${
                   isWinner
-                    ? 'bg-gradient-to-r from-amber-950/90 via-slate-900 to-amber-950/90 border-amber-300 shadow-[0_0_35px_rgba(245,158,11,0.6)] ring-2 ring-amber-400 animate-winner z-20 scale-[1.01]'
+                    ? 'bg-gradient-to-r from-amber-950/90 via-slate-900 to-amber-950/90 border-amber-300 ring-2 ring-amber-400 animate-winner z-20'
                     : isTurn
-                    ? 'bg-slate-900/95 border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.4)] ring-1 ring-amber-400 animate-turn scale-[1.005]'
+                    ? 'bg-slate-900 border-amber-400 ring-1 ring-amber-400 animate-turn shadow-lg'
                     : player.hasFolded
                     ? 'bg-slate-950/60 border-slate-800/80 opacity-40 grayscale'
                     : isLocal
-                    ? 'bg-slate-900/90 border-cyan-400/80 shadow-[0_0_14px_rgba(6,182,212,0.25)] ring-1 ring-cyan-400/30'
-                    : 'bg-slate-900/80 border-slate-800 hover:border-slate-700 hover:bg-slate-800/80 shadow-md'
+                    ? 'bg-slate-900 border-cyan-400/80 ring-1 ring-cyan-400/30'
+                    : 'bg-slate-900/90 border-slate-800 hover:border-slate-700 hover:bg-slate-850 shadow-md'
                 }`}
               >
                 {/* Left section: Seat # & Badges & Avatar & Player Info */}
@@ -327,7 +333,7 @@ export const TableView: React.FC<TableViewProps> = ({
                     {/* Status badge */}
                     <div className="mt-0.5">
                       {isWinner ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-400/80 shadow-md animate-pulse">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-400/80 shadow-md">
                           <Trophy className="w-2.5 h-2.5 text-amber-400 shrink-0" />
                           {t('winnerBadge', { amount: formatChips(shareWon) })}
                         </span>
@@ -337,13 +343,13 @@ export const TableView: React.FC<TableViewProps> = ({
                           {t('foldedBadge')}
                         </span>
                       ) : player.isAllIn ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-600/50 animate-pulse shadow-sm">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-600/50 shadow-sm">
                           <Flame className="w-2.5 h-2.5 text-amber-400" />
                           {t('allInBadge')}
                         </span>
                       ) : isTurn ? (
                         <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-500/50 shadow-sm">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping inline-block" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
                           {t('actingBadge')}
                         </span>
                       ) : player.lastAction === 'check' ? (
@@ -395,16 +401,16 @@ export const TableView: React.FC<TableViewProps> = ({
             <div
               key={`seat-${seatIdx}`}
               onClick={() => onPlayerClick?.(player)}
-              className={`relative flex flex-col justify-between p-2.5 sm:p-3.5 rounded-2xl cursor-pointer transition-all duration-200 backdrop-blur-xl border ${
+              className={`relative flex flex-col justify-between p-2.5 sm:p-3.5 rounded-2xl cursor-pointer transition-all duration-150 border ${
                 isWinner
-                  ? 'bg-gradient-to-b from-amber-950/90 via-slate-900 to-amber-950/90 border-amber-300 shadow-[0_0_35px_rgba(245,158,11,0.6)] ring-2 ring-amber-400 animate-winner z-20 scale-[1.03]'
+                  ? 'bg-gradient-to-b from-amber-950/90 via-slate-900 to-amber-950/90 border-amber-300 ring-2 ring-amber-400 animate-winner z-20'
                   : isTurn
-                  ? 'bg-slate-900/95 border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.4)] ring-1 ring-amber-400 animate-turn scale-[1.02]'
+                  ? 'bg-slate-900 border-amber-400 ring-1 ring-amber-400 animate-turn shadow-lg'
                   : player.hasFolded
                   ? 'bg-slate-950/60 border-slate-800/80 opacity-40 grayscale'
                   : isLocal
-                  ? 'bg-slate-900/90 border-cyan-400/80 shadow-[0_0_14px_rgba(6,182,212,0.25)] ring-1 ring-cyan-400/30'
-                  : 'bg-slate-900/80 border-slate-800 hover:border-slate-700 hover:bg-slate-800/80 shadow-md'
+                  ? 'bg-slate-900 border-cyan-400/80 ring-1 ring-cyan-400/30'
+                  : 'bg-slate-900/90 border-slate-800 hover:border-slate-700 hover:bg-slate-850 shadow-md'
               }`}
             >
               {/* Header inside Card: Seat # & Badges */}
@@ -470,7 +476,7 @@ export const TableView: React.FC<TableViewProps> = ({
                   </div>
 
                   {isWinner ? (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-400/80 shadow-md animate-pulse">
+                    <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-400/80 shadow-md">
                       <Trophy className="w-2.5 h-2.5 text-amber-400 shrink-0" />
                       {t('winnerBadge', { amount: formatChips(shareWon) })}
                     </span>
@@ -480,13 +486,13 @@ export const TableView: React.FC<TableViewProps> = ({
                       {t('foldedBadge')}
                     </span>
                   ) : player.isAllIn ? (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-600/50 animate-pulse shadow-sm">
+                    <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-600/50 shadow-sm">
                       <Flame className="w-2.5 h-2.5 text-amber-400" />
                       {t('allInBadge')}
                     </span>
                   ) : isTurn ? (
                     <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-500/50 shadow-sm">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping inline-block" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
                       {t('actingBadge')}
                     </span>
                   ) : player.lastAction === 'check' ? (
@@ -534,4 +540,5 @@ export const TableView: React.FC<TableViewProps> = ({
       </div>
     </div>
   );
-};
+});
+

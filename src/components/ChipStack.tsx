@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { getChipBreakdown, formatChips } from '../utils/pokerRules';
 
 interface ChipStackProps {
@@ -8,7 +8,7 @@ interface ChipStackProps {
   maxChipsShown?: number;
 }
 
-export const ChipStack: React.FC<ChipStackProps> = ({
+export const ChipStack: React.FC<ChipStackProps> = React.memo(({
   amount,
   size = 'md',
   showLabel = true,
@@ -16,7 +16,7 @@ export const ChipStack: React.FC<ChipStackProps> = ({
 }) => {
   if (amount <= 0) return null;
 
-  const breakdown = getChipBreakdown(amount);
+  const breakdown = useMemo(() => getChipBreakdown(amount), [amount]);
 
   const config = {
     sm: { width: 'w-7', height: 'h-2', text: 'text-[8px]', overlap: '-mt-1' },
@@ -42,7 +42,7 @@ export const ChipStack: React.FC<ChipStackProps> = ({
                     }}
                     className={`relative ${config.width} ${config.height} ${
                       idx === 0 ? '' : config.overlap
-                    } rounded-full border border-white/30 flex items-center justify-center shadow-[0_3px_5px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.6),inset_0_-1px_2px_rgba(0,0,0,0.5)] transition-transform group-hover:-translate-y-0.5`}
+                    } rounded-full border border-white/30 flex items-center justify-center shadow-md transition-transform group-hover:-translate-y-0.5`}
                   >
                     {/* Chip Edge Markings / Pattern */}
                     <div className="absolute inset-x-1 inset-y-0 flex justify-between pointer-events-none opacity-40">
@@ -76,11 +76,12 @@ export const ChipStack: React.FC<ChipStackProps> = ({
       </div>
 
       {showLabel && (
-        <div className="mt-1 bg-slate-950/95 border border-amber-400/50 text-amber-300 font-extrabold font-mono px-2 py-0.5 rounded-full text-[11px] shadow-[0_4px_12px_rgba(0,0,0,0.6)] tracking-wide flex items-center gap-1.5 backdrop-blur-md">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+        <div className="mt-1 bg-slate-950/95 border border-amber-400/50 text-amber-300 font-extrabold font-mono px-2 py-0.5 rounded-full text-[11px] shadow-md tracking-wide flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
           {formatChips(amount)}
         </div>
       )}
     </div>
   );
-};
+});
+

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useP2PPoker } from './hooks/useP2PPoker';
 import { TableView } from './components/TableView';
 import { ActionControls } from './components/ActionControls';
@@ -21,6 +21,7 @@ import {
   LogOut,
   Play
 } from 'lucide-react';
+import type { PlayerActionType, TableState } from './types/poker';
 
 export function App() {
   const { t } = useLanguage();
@@ -50,10 +51,8 @@ export function App() {
 
   function randomName(): string {
     const names = ['Maverick', 'Ace', 'Joker', 'BluffKing', 'Viper', 'Diamond', 'Shark'];
-    return names[Math.floor(Math.random() * names.length)]
-
+    return names[Math.floor(Math.random() * names.length)];
   }
-
 
   useEffect(() => {
     if (!playerName) {
@@ -61,24 +60,117 @@ export function App() {
     }
   }, []);
 
+  const localPlayer = useMemo(
+    () => tableState.players[localPlayerId],
+    [tableState.players, localPlayerId]
+  );
 
+  const isMyTurn = useMemo(
+    () =>
+      tableState.isHandInProgress &&
+      !!localPlayer &&
+      !localPlayer.hasFolded &&
+      !localPlayer.isAllIn &&
+      localPlayer.stack > 0 &&
+      tableState.currentTurnSeat === localPlayer.seatIndex,
+    [tableState.isHandInProgress, tableState.currentTurnSeat, localPlayer]
+  );
 
-  const localPlayer = tableState.players[localPlayerId];
-  const isMyTurn =
-    tableState.isHandInProgress &&
-    !!localPlayer &&
-    !localPlayer.hasFolded &&
-    !localPlayer.isAllIn &&
-    localPlayer.stack > 0 &&
-    tableState.currentTurnSeat === localPlayer.seatIndex;
-
-  const handleCopyRoomId = () => {
+  const handleCopyRoomId = useCallback(() => {
     if (tableState.roomId) {
       navigator.clipboard.writeText(tableState.roomId);
       setCopiedCode(true);
       setTimeout(() => setCopiedCode(false), 2000);
     }
-  };
+  }, [tableState.roomId]);
+
+  const handleSeatClick = useCallback(
+    (seatIdx: number) => {
+      if (localPlayer?.isDealerOnly) return;
+      sendToHost({
+        type: 'REQUEST_SEAT',
+        playerId: localPlayerId,
+        seatIndex: seatIdx,
+        name: playerName,
+      });
+    },
+    [localPlayer?.isDealerOnly, localPlayerId, playerName, sendToHost]
+  );
+
+  const handleAction = useCallback(
+    (action: PlayerActionType, amount?: number) => {
+      sendToHost({
+        type: 'PLAYER_ACTION',
+        action,
+        amount,
+      });
+    },
+    [sendToHost]
+  );
+
+  const handleStartHand = useCallback(() => {
+    sendToHost({ type: 'HOST_START_HAND' });
+  }, [sendToHost]);
+
+  const handleNextStreet = useCallback(() => {
+    sendToHost({ type: 'HOST_NEXT_STREET' });
+  }, [sendToHost]);
+
+  const handleAwardPot = useCallback(
+    (winners: number[], amt?: number) => {
+      sendToHost({
+        type: 'HOST_AWARD_POT',
+        winnerSeatIndexes: winners,
+        customAmount: amt,
+      });
+    },
+    [sendToHost]
+  );
+
+  const handleRebuy = useCallback(
+    (pId: string, amt: number) => {
+      sendToHost({
+        type: 'HOST_REBUY',
+        playerId: pId,
+        amount: amt,
+      });
+    },
+    [sendToHost]
+  );
+
+  const handleUpdateSettings = useCallback(
+    (sett: Partial<TableState['settings']>) => {
+      sendToHost({
+        type: 'HOST_UPDATE_SETTINGS',
+        settings: sett,
+      });
+    },
+    [sendToHost]
+  );
+
+  const handleKickPlayer = useCallback(
+    (pId: string) => {
+      sendToHost({
+        type: 'HOST_KICK_PLAYER',
+        playerId: pId,
+      });
+    },
+    [sendToHost]
+  );
+
+  const handleToggleDealerOnly = useCallback(
+    (isDealerOnly: boolean) => {
+      sendToHost({
+        type: 'HOST_TOGGLE_DEALER_ONLY',
+        isDealerOnly,
+      });
+    },
+    [sendToHost]
+  );
+
+  const handleCloseCalculator = useCallback(() => {
+    setShowCalculator(false);
+  }, []);
 
   if (!isConnected) {
     return (
@@ -89,17 +181,15 @@ export function App() {
         </div>
 
         {/* Ambient Casino Lighting */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-amber-500/10 blur-[140px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-10 left-10 w-96 h-96 bg-emerald-500/10 blur-[130px] rounded-full pointer-events-none" />
-        <div className="absolute top-10 right-10 w-80 h-80 bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-amber-500/10 blur-[80px] rounded-full pointer-events-none" />
 
         <div className="max-w-md w-full z-10 space-y-5">
           {/* Logo & Header */}
           <div className="text-center space-y-2">
-            <div className="inline-flex items-center justify-center p-4 bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 rounded-3xl shadow-[0_10px_30px_rgba(245,158,11,0.3)] border border-amber-300/60 animate-turn">
+            <div className="inline-flex items-center justify-center p-4 bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 rounded-3xl shadow-lg border border-amber-300/60 animate-turn">
               <Coins className="w-10 h-10 text-slate-950 stroke-[2.5]" />
             </div>
-            <h1 className="text-3xl font-serif-poker font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-400 flex items-center justify-center gap-2 drop-shadow-md">
+            <h1 className="text-3xl font-serif-poker font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-400 flex items-center justify-center gap-2">
               {t('appTitle')} <Sparkles className="w-5 h-5 text-amber-400 fill-amber-400" />
             </h1>
             <p className="text-xs text-slate-400 max-w-sm mx-auto">
@@ -108,13 +198,13 @@ export function App() {
           </div>
 
           {connectionError && (
-            <div className="bg-rose-950/90 border border-rose-500/60 p-3.5 rounded-2xl text-xs text-rose-200 shadow-lg shadow-rose-950/50">
+            <div className="bg-rose-950/90 border border-rose-500/60 p-3.5 rounded-2xl text-xs text-rose-200 shadow-lg">
               <strong>{t('connectionError')}</strong> {connectionError}
             </div>
           )}
 
           {/* Nickname Input Card */}
-          <div className="bg-slate-900/90 border border-slate-800/90 p-4 rounded-2xl shadow-xl backdrop-blur-xl space-y-1.5">
+          <div className="bg-slate-900 border border-slate-800/90 p-4 rounded-2xl shadow-xl space-y-1.5">
             <label className="text-[11px] font-extrabold text-amber-400/90 uppercase tracking-widest block">
               {t('playerNickname')}
             </label>
@@ -129,7 +219,7 @@ export function App() {
 
           <div className="grid grid-cols-1 gap-4">
             {/* Host Section */}
-            <div className="bg-slate-900/90 border border-amber-500/30 p-5 rounded-2xl shadow-xl backdrop-blur-xl space-y-3.5 ring-1 ring-amber-500/10">
+            <div className="bg-slate-900 border border-amber-500/30 p-5 rounded-2xl shadow-xl space-y-3.5 ring-1 ring-amber-500/10">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-black text-amber-400 uppercase tracking-widest flex items-center gap-2">
                   <Wifi className="w-4 h-4" /> {t('hostNewTable')}
@@ -195,14 +285,14 @@ export function App() {
                     isDealerOnlyHost
                   )
                 }
-                className="w-full py-3.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 active:scale-98 text-slate-950 font-black rounded-xl text-xs sm:text-sm shadow-[0_4px_20px_rgba(245,158,11,0.35)] transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer border border-amber-300/50"
+                className="w-full py-3.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 active:scale-98 text-slate-950 font-black rounded-xl text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer border border-amber-300/50"
               >
                 {isConnecting ? t('creatingRoom') : t('createTableBtn', { count: tableSize })}
               </button>
             </div>
 
             {/* Join Section */}
-            <div className="bg-slate-900/90 border border-slate-800/90 p-5 rounded-2xl shadow-xl backdrop-blur-xl space-y-3.5">
+            <div className="bg-slate-900 border border-slate-800/90 p-5 rounded-2xl shadow-xl space-y-3.5">
               <span className="text-xs font-black text-cyan-400 uppercase tracking-widest flex items-center gap-2">
                 <Users className="w-4 h-4" /> {t('joinExistingTable')}
               </span>
@@ -218,7 +308,7 @@ export function App() {
                 <button
                   disabled={isConnecting || !roomIdInput.trim()}
                   onClick={() => joinRoom(roomIdInput, playerName)}
-                  className="px-6 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 active:scale-95 text-white font-black rounded-xl text-xs shadow-lg shadow-cyan-900/40 transition-all disabled:opacity-40 cursor-pointer border border-cyan-400/30"
+                  className="px-6 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 active:scale-95 text-white font-black rounded-xl text-xs shadow-md transition-all disabled:opacity-40 cursor-pointer border border-cyan-400/30"
                 >
                   {t('joinBtn')}
                 </button>
@@ -226,7 +316,7 @@ export function App() {
             </div>
 
             {/* Offline Practice / Single Device Mode */}
-            <div className="bg-slate-900/60 border border-slate-800/80 p-3.5 rounded-2xl space-y-2">
+            <div className="bg-slate-900/80 border border-slate-800/80 p-3.5 rounded-2xl space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
                   <Play className="w-3.5 h-3.5 text-emerald-400" /> {t('practiceModeTitle')}
@@ -269,7 +359,7 @@ export function App() {
   return (
     <div className="min-h-screen bg-[#060911] text-slate-100 flex flex-col justify-between p-2 sm:p-4 max-w-7xl mx-auto select-none pb-48 sm:pb-40">
       {/* Top Navbar */}
-      <header className="z-50 flex items-center justify-between gap-2 bg-slate-900/90 border border-slate-800 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl backdrop-blur-xl mb-2 shadow-xl ring-1 ring-white/5">
+      <header className="z-50 flex items-center justify-between gap-2 bg-slate-900 border border-slate-800 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl mb-2 shadow-xl ring-1 ring-white/5">
         <div className="flex items-center gap-2 min-w-0">
           <div className="flex items-center gap-1.5 shrink-0">
             <div className="p-1.5 bg-amber-500/10 rounded-xl border border-amber-500/30">
@@ -327,15 +417,7 @@ export function App() {
         <TableView
           tableState={tableState}
           localPlayerId={localPlayerId}
-          onSeatClick={(seatIdx) => {
-            if (localPlayer?.isDealerOnly) return;
-            sendToHost({
-              type: 'REQUEST_SEAT',
-              playerId: localPlayerId,
-              seatIndex: seatIdx,
-              name: playerName,
-            });
-          }}
+          onSeatClick={handleSeatClick}
         />
       </main>
 
@@ -346,7 +428,7 @@ export function App() {
 
       {/* FIXED BOTTOM CONTROLS BAR (Action Controls & Host Menu) — Always visible at the bottom of the screen */}
       <div className="fixed bottom-0 left-0 right-0 z-40 p-2 sm:p-3 pointer-events-none flex justify-center">
-        <div className="w-full max-w-7xl pointer-events-auto shadow-[0_-10px_35px_rgba(0,0,0,0.9)]">
+        <div className="w-full max-w-7xl pointer-events-auto shadow-2xl">
           {isHost ? (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-3">
               {/* Action Controls */}
@@ -356,16 +438,10 @@ export function App() {
                     player={localPlayer}
                     tableState={tableState}
                     isMyTurn={isMyTurn}
-                    onAction={(action, amount) => {
-                      sendToHost({
-                        type: 'PLAYER_ACTION',
-                        action,
-                        amount,
-                      });
-                    }}
+                    onAction={handleAction}
                   />
                 ) : (
-                  <div className="bg-slate-900/95 border border-slate-800 p-3 sm:p-4 rounded-2xl text-center text-xs text-slate-400 backdrop-blur-xl shadow-2xl">
+                  <div className="bg-slate-900 border border-slate-800 p-3 sm:p-4 rounded-2xl text-center text-xs text-slate-400 shadow-2xl">
                     {t('spectatingNotice')}
                   </div>
                 )}
@@ -375,40 +451,13 @@ export function App() {
               <div className="lg:col-span-6 flex flex-col justify-end">
                 <HostPanel
                   tableState={tableState}
-                  onStartHand={() => sendToHost({ type: 'HOST_START_HAND' })}
-                  onNextStreet={() => sendToHost({ type: 'HOST_NEXT_STREET' })}
-                  onAwardPot={(winners, amt) =>
-                    sendToHost({
-                      type: 'HOST_AWARD_POT',
-                      winnerSeatIndexes: winners,
-                      customAmount: amt,
-                    })
-                  }
-                  onRebuy={(pId, amt) =>
-                    sendToHost({
-                      type: 'HOST_REBUY',
-                      playerId: pId,
-                      amount: amt,
-                    })
-                  }
-                  onUpdateSettings={(sett) =>
-                    sendToHost({
-                      type: 'HOST_UPDATE_SETTINGS',
-                      settings: sett,
-                    })
-                  }
-                  onKickPlayer={(pId) =>
-                    sendToHost({
-                      type: 'HOST_KICK_PLAYER',
-                      playerId: pId,
-                    })
-                  }
-                  onToggleDealerOnly={(isDealerOnly) =>
-                    sendToHost({
-                      type: 'HOST_TOGGLE_DEALER_ONLY',
-                      isDealerOnly,
-                    })
-                  }
+                  onStartHand={handleStartHand}
+                  onNextStreet={handleNextStreet}
+                  onAwardPot={handleAwardPot}
+                  onRebuy={handleRebuy}
+                  onUpdateSettings={handleUpdateSettings}
+                  onKickPlayer={handleKickPlayer}
+                  onToggleDealerOnly={handleToggleDealerOnly}
                 />
               </div>
             </div>
@@ -420,22 +469,16 @@ export function App() {
                     player={localPlayer}
                     tableState={tableState}
                     isMyTurn={isMyTurn}
-                    onAction={(action, amount) => {
-                      sendToHost({
-                        type: 'PLAYER_ACTION',
-                        action,
-                        amount,
-                      });
-                    }}
+                    onAction={handleAction}
                   />
                 ) : (
-                  <div className="bg-slate-900/95 border border-slate-800 p-3 sm:p-4 rounded-2xl text-center text-xs text-slate-400 backdrop-blur-xl shadow-2xl">
+                  <div className="bg-slate-900 border border-slate-800 p-3 sm:p-4 rounded-2xl text-center text-xs text-slate-400 shadow-2xl">
                     {t('spectatingNotice')}
                   </div>
                 )}
               </div>
               <div className="lg:col-span-5 flex-col justify-end hidden lg:flex">
-                <div className="bg-slate-900/95 border border-slate-800/90 rounded-2xl p-3 sm:p-4 flex flex-col justify-center text-center text-xs text-slate-400 backdrop-blur-xl shadow-2xl">
+                <div className="bg-slate-900 border border-slate-800/90 rounded-2xl p-3 sm:p-4 flex flex-col justify-center text-center text-xs text-slate-400 shadow-2xl">
                   <div className="font-bold text-slate-300 mb-0.5">{t('peerConnected')}</div>
                   <div>{t('hostManaging')}</div>
                 </div>
@@ -455,7 +498,7 @@ export function App() {
       {showCalculator && (
         <PotCalculatorModal
           tableState={tableState}
-          onClose={() => setShowCalculator(false)}
+          onClose={handleCloseCalculator}
         />
       )}
     </div>
@@ -463,3 +506,4 @@ export function App() {
 }
 
 export default App;
+
