@@ -37,7 +37,7 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
 
   if (player.isDealerOnly || player.seatIndex < 0) {
     return (
-      <div className="bg-slate-900/90 backdrop-blur-md border border-amber-500/40 rounded-2xl p-4 text-center text-slate-300 space-y-1.5 shadow-xl">
+      <div className="bg-slate-900/95 backdrop-blur-md border border-amber-500/40 rounded-2xl p-4 text-center text-slate-300 space-y-1.5 shadow-2xl">
         <div className="flex items-center justify-center gap-2 text-amber-300 font-black text-sm">
           <ShieldAlert className="w-4 h-4 text-amber-400" />
           <span>{t('dealerOnlyNotice')}</span>
@@ -51,7 +51,7 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
 
   if (player.hasFolded || (!tableState.isHandInProgress && player.stack === 0)) {
     return (
-      <div className="bg-slate-950/80 backdrop-blur-md border border-slate-800 rounded-2xl p-4 text-center text-slate-400 font-medium flex items-center justify-center gap-2 shadow-lg">
+      <div className="bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-2xl p-4 text-center text-slate-400 font-medium flex items-center justify-center gap-2 shadow-2xl">
         <ShieldAlert className="w-4 h-4 text-slate-500" />
         <span>
           {player.stack === 0
@@ -64,7 +64,7 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
 
   if (player.isAllIn || player.stack === 0) {
     return (
-      <div className="bg-gradient-to-r from-amber-950/50 via-slate-950/80 to-rose-950/50 backdrop-blur-md border border-amber-500/40 rounded-2xl p-4 text-center text-amber-300 font-bold flex items-center justify-center gap-2 shadow-xl">
+      <div className="bg-slate-950/95 backdrop-blur-md border border-amber-500/40 rounded-2xl p-4 text-center text-amber-300 font-bold flex items-center justify-center gap-2 shadow-2xl">
         <Flame className="w-5 h-5 text-amber-400 animate-bounce" />
         <span>
           {player.totalInvestedThisHand > 0 ? (
@@ -97,12 +97,12 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
 
   return (
     <div
-      className={`rounded-2xl p-4 transition-all duration-300 border backdrop-blur-xl ${
+      className={`rounded-2xl p-3.5 sm:p-4 transition-all duration-300 border backdrop-blur-xl shadow-2xl ${
         isMyTurn
           ? 'bg-slate-900/95 border-amber-400/80 shadow-[0_0_30px_rgba(245,158,11,0.25)] ring-1 ring-amber-400/30'
           : isAwaitingHost
-          ? 'bg-amber-950/20 border-amber-500/40'
-          : 'bg-slate-950/80 border-slate-800/80 opacity-90'
+          ? 'bg-slate-900/95 border-amber-500/40'
+          : 'bg-slate-950/95 border-slate-800/80'
       }`}
     >
       {!isMyTurn && (

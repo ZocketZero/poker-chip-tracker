@@ -267,7 +267,7 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#060911] text-slate-100 flex flex-col justify-between p-2 sm:p-4 max-w-7xl mx-auto select-none">
+    <div className="min-h-screen bg-[#060911] text-slate-100 flex flex-col justify-between p-2 sm:p-4 max-w-7xl mx-auto select-none pb-48 sm:pb-40">
       {/* Top Navbar */}
       <header className="z-50 flex items-center justify-between gap-2 bg-slate-900/90 border border-slate-800 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl backdrop-blur-xl mb-2 shadow-xl ring-1 ring-white/5">
         <div className="flex items-center gap-2 min-w-0">
@@ -339,81 +339,109 @@ export function App() {
         />
       </main>
 
-      {/* Bottom Controls Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-3 mt-1 sm:mt-2">
-        {/* Action Controls — most important on mobile, show first */}
-        <div className="lg:col-span-5 order-1 flex flex-col justify-end">
-          {localPlayer ? (
-            <ActionControls
-              player={localPlayer}
-              tableState={tableState}
-              isMyTurn={isMyTurn}
-              onAction={(action, amount) => {
-                sendToHost({
-                  type: 'PLAYER_ACTION',
-                  action,
-                  amount,
-                });
-              }}
-            />
-          ) : (
-            <div className="bg-slate-900/80 border border-slate-800 p-3 sm:p-4 rounded-2xl text-center text-xs text-slate-400">
-              {t('spectatingNotice')}
-            </div>
-          )}
-        </div>
+      {/* Main Game Log Area */}
+      <div className="w-full mt-1 sm:mt-2">
+        <GameLog logs={tableState.logs} />
+      </div>
 
-        {/* Host / Dealer Operations */}
-        <div className="lg:col-span-4 order-2 flex flex-col justify-end z-50">
+      {/* FIXED BOTTOM CONTROLS BAR (Action Controls & Host Menu) — Always visible at the bottom of the screen */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 p-2 sm:p-3 pointer-events-none flex justify-center">
+        <div className="w-full max-w-7xl pointer-events-auto shadow-[0_-10px_35px_rgba(0,0,0,0.9)]">
           {isHost ? (
-            <HostPanel
-              tableState={tableState}
-              onStartHand={() => sendToHost({ type: 'HOST_START_HAND' })}
-              onNextStreet={() => sendToHost({ type: 'HOST_NEXT_STREET' })}
-              onAwardPot={(winners, amt) =>
-                sendToHost({
-                  type: 'HOST_AWARD_POT',
-                  winnerSeatIndexes: winners,
-                  customAmount: amt,
-                })
-              }
-              onRebuy={(pId, amt) =>
-                sendToHost({
-                  type: 'HOST_REBUY',
-                  playerId: pId,
-                  amount: amt,
-                })
-              }
-              onUpdateSettings={(sett) =>
-                sendToHost({
-                  type: 'HOST_UPDATE_SETTINGS',
-                  settings: sett,
-                })
-              }
-              onKickPlayer={(pId) =>
-                sendToHost({
-                  type: 'HOST_KICK_PLAYER',
-                  playerId: pId,
-                })
-              }
-              onToggleDealerOnly={(isDealerOnly) =>
-                sendToHost({
-                  type: 'HOST_TOGGLE_DEALER_ONLY',
-                  isDealerOnly,
-                })
-              }
-            />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-3">
+              {/* Action Controls */}
+              <div className="lg:col-span-6 flex flex-col justify-end">
+                {localPlayer ? (
+                  <ActionControls
+                    player={localPlayer}
+                    tableState={tableState}
+                    isMyTurn={isMyTurn}
+                    onAction={(action, amount) => {
+                      sendToHost({
+                        type: 'PLAYER_ACTION',
+                        action,
+                        amount,
+                      });
+                    }}
+                  />
+                ) : (
+                  <div className="bg-slate-900/95 border border-slate-800 p-3 sm:p-4 rounded-2xl text-center text-xs text-slate-400 backdrop-blur-xl shadow-2xl">
+                    {t('spectatingNotice')}
+                  </div>
+                )}
+              </div>
+
+              {/* Host / Dealer Menu Panel */}
+              <div className="lg:col-span-6 flex flex-col justify-end">
+                <HostPanel
+                  tableState={tableState}
+                  onStartHand={() => sendToHost({ type: 'HOST_START_HAND' })}
+                  onNextStreet={() => sendToHost({ type: 'HOST_NEXT_STREET' })}
+                  onAwardPot={(winners, amt) =>
+                    sendToHost({
+                      type: 'HOST_AWARD_POT',
+                      winnerSeatIndexes: winners,
+                      customAmount: amt,
+                    })
+                  }
+                  onRebuy={(pId, amt) =>
+                    sendToHost({
+                      type: 'HOST_REBUY',
+                      playerId: pId,
+                      amount: amt,
+                    })
+                  }
+                  onUpdateSettings={(sett) =>
+                    sendToHost({
+                      type: 'HOST_UPDATE_SETTINGS',
+                      settings: sett,
+                    })
+                  }
+                  onKickPlayer={(pId) =>
+                    sendToHost({
+                      type: 'HOST_KICK_PLAYER',
+                      playerId: pId,
+                    })
+                  }
+                  onToggleDealerOnly={(isDealerOnly) =>
+                    sendToHost({
+                      type: 'HOST_TOGGLE_DEALER_ONLY',
+                      isDealerOnly,
+                    })
+                  }
+                />
+              </div>
+            </div>
           ) : (
-            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-3 sm:p-4 flex flex-col justify-center text-center text-xs text-slate-400">
-              <div className="font-bold text-slate-300 mb-0.5">{t('peerConnected')}</div>
-              <div>{t('hostManaging')}</div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-3">
+              <div className="lg:col-span-7 flex flex-col justify-end">
+                {localPlayer ? (
+                  <ActionControls
+                    player={localPlayer}
+                    tableState={tableState}
+                    isMyTurn={isMyTurn}
+                    onAction={(action, amount) => {
+                      sendToHost({
+                        type: 'PLAYER_ACTION',
+                        action,
+                        amount,
+                      });
+                    }}
+                  />
+                ) : (
+                  <div className="bg-slate-900/95 border border-slate-800 p-3 sm:p-4 rounded-2xl text-center text-xs text-slate-400 backdrop-blur-xl shadow-2xl">
+                    {t('spectatingNotice')}
+                  </div>
+                )}
+              </div>
+              <div className="lg:col-span-5 flex-col justify-end hidden lg:flex">
+                <div className="bg-slate-900/95 border border-slate-800/90 rounded-2xl p-3 sm:p-4 flex flex-col justify-center text-center text-xs text-slate-400 backdrop-blur-xl shadow-2xl">
+                  <div className="font-bold text-slate-300 mb-0.5">{t('peerConnected')}</div>
+                  <div>{t('hostManaging')}</div>
+                </div>
+              </div>
             </div>
           )}
-        </div>
-
-        {/* Game Log — collapsed height on mobile */}
-        <div className="lg:col-span-3 order-3">
-          <GameLog logs={tableState.logs} />
         </div>
       </div>
 
