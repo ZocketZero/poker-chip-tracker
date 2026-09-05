@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import type { TableState } from '../types/poker';
 import { formatChips } from '../utils/pokerRules';
 import { useLanguage } from '../i18n/LanguageContext';
-import { Play, FastForward, Award, PlusCircle, Settings, ShieldCheck, Sparkles, Check, UserX, AlertTriangle } from 'lucide-react';
+import { Play, FastForward, Award, PlusCircle, Settings, ShieldCheck, Sparkles, Check, UserX, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface HostPanelProps {
   tableState: TableState;
@@ -32,6 +32,7 @@ export const HostPanel: React.FC<HostPanelProps> = ({
   const [showRebuyModal, setShowRebuyModal] = useState(false);
   const [showKickModal, setShowKickModal] = useState(false);
   const [playerToKick, setPlayerToKick] = useState<{ id: string; name: string } | null>(null);
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
   const hostPlayer = tableState.players[tableState.hostId];
 
@@ -89,8 +90,130 @@ export const HostPanel: React.FC<HostPanelProps> = ({
     setShowAwardModal(false);
   };
 
+  if (isCollapsed) {
+    return (
+      <div className="bg-slate-900/95 border border-amber-500/40 rounded-2xl p-2.5 px-3.5 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-2.5 transition-all">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 text-xs font-black px-2 py-0.5 rounded-lg border border-amber-500/40 flex items-center gap-1 shrink-0">
+            <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+            <span className="hidden sm:inline">{t('dealerHostTitle')}</span>
+          </span>
+          <span className="text-xs font-mono text-slate-400 truncate">
+            {t('handNumber', { number: tableState.handNumber })}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5 shrink-0">
+          {!tableState.isHandInProgress ? (
+            <button
+              onClick={onStartHand}
+              disabled={activePlayers.length < 2}
+              className="px-3 py-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black rounded-lg text-xs flex items-center gap-1 transition-all cursor-pointer shadow-sm active:scale-95 disabled:opacity-40"
+            >
+              <Play className="w-3.5 h-3.5 fill-slate-950" />
+              <span>{t('dealNewHand', { sb: tableState.settings.smallBlind, bb: tableState.settings.bigBlind })}</span>
+            </button>
+          ) : tableState.street === 'showdown' ? (
+            <button
+              onClick={handleOpenAwardModal}
+              className="px-3 py-1 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-black rounded-lg text-xs flex items-center gap-1.5 shadow-[0_2px_12px_rgba(245,158,11,0.5)] border border-amber-300/80 transition-all cursor-pointer active:scale-95 animate-pulse"
+            >
+              <Award className="w-3.5 h-3.5 text-slate-950" />
+              <span>{t('awardPotBtn', { amount: formatChips(totalPot) })}</span>
+            </button>
+          ) : isAwaitingConfirm ? (
+            <button
+              onClick={onNextStreet}
+              className="px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg text-xs flex items-center gap-1 transition-all cursor-pointer shadow-sm active:scale-95 animate-pulse"
+            >
+              <Check className="w-3.5 h-3.5 stroke-[3]" />
+              <span>{t('confirmNextStreet', { street: getNextStreetLabel(tableState.street) })}</span>
+            </button>
+          ) : (
+            <button
+              onClick={onNextStreet}
+              className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold rounded-lg text-xs flex items-center gap-1 transition-all cursor-pointer shadow-sm disabled:opacity-40"
+            >
+              <FastForward className="w-3.5 h-3.5 text-cyan-400" />
+              <span>{t('nextStreet')}</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => setIsCollapsed(false)}
+            className="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 text-amber-300 hover:text-amber-200 px-2 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border border-slate-700 active:scale-95"
+            title="Expand Host Menu"
+          >
+            <ChevronUp className="w-3.5 h-3.5 text-amber-400" />
+            <span className="text-[11px] hidden sm:inline">ขยาย</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-slate-900/95 border border-amber-500/40 rounded-2xl p-3 sm:p-3.5 shadow-2xl backdrop-blur-xl ring-1 ring-amber-500/20">
+    <>
+      {isCollapsed ? (
+        <div className="bg-slate-900/95 border border-amber-500/40 rounded-2xl p-2.5 px-3.5 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-2.5 transition-all">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 text-xs font-black px-2 py-0.5 rounded-lg border border-amber-500/40 flex items-center gap-1 shrink-0">
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">{t('dealerHostTitle')}</span>
+            </span>
+            <span className="text-xs font-mono text-slate-400 truncate">
+              {t('handNumber', { number: tableState.handNumber })}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            {!tableState.isHandInProgress ? (
+              <button
+                onClick={onStartHand}
+                disabled={activePlayers.length < 2}
+                className="px-3 py-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black rounded-lg text-xs flex items-center gap-1 transition-all cursor-pointer shadow-sm active:scale-95 disabled:opacity-40"
+              >
+                <Play className="w-3.5 h-3.5 fill-slate-950" />
+                <span>{t('dealNewHand', { sb: tableState.settings.smallBlind, bb: tableState.settings.bigBlind })}</span>
+              </button>
+            ) : tableState.street === 'showdown' ? (
+              <button
+                onClick={handleOpenAwardModal}
+                className="px-3 py-1 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-black rounded-lg text-xs flex items-center gap-1.5 shadow-[0_2px_12px_rgba(245,158,11,0.5)] border border-amber-300/80 transition-all cursor-pointer active:scale-95 animate-pulse"
+              >
+                <Award className="w-3.5 h-3.5 text-slate-950" />
+                <span>{t('awardPotBtn', { amount: formatChips(totalPot) })}</span>
+              </button>
+            ) : isAwaitingConfirm ? (
+              <button
+                onClick={onNextStreet}
+                className="px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg text-xs flex items-center gap-1 transition-all cursor-pointer shadow-sm active:scale-95 animate-pulse"
+              >
+                <Check className="w-3.5 h-3.5 stroke-[3]" />
+                <span>{t('confirmNextStreet', { street: getNextStreetLabel(tableState.street) })}</span>
+              </button>
+            ) : (
+              <button
+                onClick={onNextStreet}
+                className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold rounded-lg text-xs flex items-center gap-1 transition-all cursor-pointer shadow-sm disabled:opacity-40"
+              >
+                <FastForward className="w-3.5 h-3.5 text-cyan-400" />
+                <span>{t('nextStreet')}</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => setIsCollapsed(false)}
+              className="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 text-amber-300 hover:text-amber-200 px-2 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border border-slate-700 active:scale-95"
+              title="Expand Host Menu"
+            >
+              <ChevronUp className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-[11px] hidden sm:inline">ขยาย</span>
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-slate-900/95 border border-amber-500/40 rounded-2xl p-3 sm:p-3.5 shadow-2xl backdrop-blur-xl ring-1 ring-amber-500/20">
       <div className="flex items-center justify-between mb-2.5 border-b border-slate-800/80 pb-2">
         <div className="flex items-center gap-2">
           <span className="bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 text-xs font-black px-2.5 py-0.5 rounded-lg border border-amber-500/40 flex items-center gap-1">
@@ -121,6 +244,13 @@ export const HostPanel: React.FC<HostPanelProps> = ({
           >
             <Settings className="w-3.5 h-3.5 text-amber-400" />
             <span>{t('blindsBtn')}</span>
+          </button>
+          <button
+            onClick={() => setIsCollapsed(true)}
+            className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-amber-300 transition-colors cursor-pointer flex items-center gap-0.5 text-[10px] ml-1"
+            title="Minimize Host Menu"
+          >
+            <ChevronDown className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
@@ -174,6 +304,8 @@ export const HostPanel: React.FC<HostPanelProps> = ({
           </>
         )}
       </div>
+      </div>
+      )}
 
       {showAwardModal && createPortal(
         <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[100] flex items-center justify-center p-4">
@@ -534,6 +666,6 @@ export const HostPanel: React.FC<HostPanelProps> = ({
         </div>,
         document.body
       )}
-    </div>
+    </>
   );
 };

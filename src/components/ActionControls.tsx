@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { Player, TableState, PlayerActionType } from '../types/poker';
 import { formatChips } from '../utils/pokerRules';
 import { useLanguage } from '../i18n/LanguageContext';
-import { Flame, ArrowUpRight, Check, X, ShieldAlert } from 'lucide-react';
+import { Flame, ArrowUpRight, Check, X, ShieldAlert, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface ActionControlsProps {
   player: Player;
@@ -30,10 +30,12 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
   const maxRaiseTarget = player.currentBet + player.stack;
 
   const [raiseAmount, setRaiseAmount] = useState<number>(minRaiseTarget);
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
   useEffect(() => {
     setRaiseAmount(minRaiseTarget);
   }, [minRaiseTarget, currentHigh]);
+
 
   if (player.isDealerOnly || player.seatIndex < 0) {
     return (
@@ -95,6 +97,59 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
     tableState.currentTurnSeat === null &&
     tableState.street !== 'showdown';
 
+  // COLLAPSED / MINIMIZED VIEW
+  if (isCollapsed) {
+    return (
+      <div className="bg-slate-900/95 backdrop-blur-xl border border-amber-500/40 rounded-2xl p-2.5 px-3.5 shadow-2xl flex items-center justify-between gap-2.5 transition-all">
+        <div className="flex items-center gap-2 min-w-0">
+          {isMyTurn ? (
+            <div className="flex items-center gap-1.5 text-amber-300 font-extrabold text-xs animate-pulse">
+              <span className="relative flex h-2.5 w-2.5 shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+              </span>
+              <span className="uppercase tracking-wider">{t('yourTurn')}</span>
+              <span className="font-mono text-amber-200">({formatChips(Math.min(toCall, player.stack))})</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 text-slate-400 font-semibold text-xs truncate">
+              <span className="w-2 h-2 rounded-full bg-slate-600 shrink-0" />
+              <span className="truncate">{isAwaitingHost ? t('waitingHostConfirm') : t('waitingForTurn')}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-1.5 shrink-0">
+          {isMyTurn && (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => onAction('fold')}
+                className="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white font-black rounded-lg text-xs transition-all cursor-pointer shadow-sm active:scale-95"
+              >
+                {t('actionFold')}
+              </button>
+              <button
+                onClick={() => onAction(canCheck ? 'check' : 'call')}
+                className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-lg text-xs transition-all cursor-pointer shadow-sm active:scale-95"
+              >
+                {canCheck ? t('actionCheck') : `${t('actionCall')} ${formatChips(Math.min(toCall, player.stack))}`}
+              </button>
+            </div>
+          )}
+
+          <button
+            onClick={() => setIsCollapsed(false)}
+            className="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 text-amber-300 hover:text-amber-200 px-2 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border border-slate-700 active:scale-95"
+            title="Expand action controls"
+          >
+            <ChevronUp className="w-3.5 h-3.5 text-amber-400" />
+            <span className="text-[11px] hidden sm:inline">ขยาย</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`rounded-2xl p-3.5 sm:p-4 transition-all duration-300 border backdrop-blur-xl shadow-2xl ${
@@ -117,14 +172,23 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
               {isAwaitingHost ? t('waitingHostConfirm') : t('waitingForTurn')}
             </span>
           </span>
-          <span className="text-slate-400 font-mono text-xs">
-            {t('stackLabel')}: <strong className="text-amber-300 font-bold">{formatChips(player.stack)}</strong>
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-slate-400 font-mono text-xs">
+              {t('stackLabel')}: <strong className="text-amber-300 font-bold">{formatChips(player.stack)}</strong>
+            </span>
+            <button
+              onClick={() => setIsCollapsed(true)}
+              className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-amber-300 transition-colors cursor-pointer flex items-center gap-0.5 text-[10px]"
+              title="Minimize Controls"
+            >
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       )}
 
       {isMyTurn && (
-        <div className="flex items-center justify-between mb-3 border-b border-amber-500/20 pb-2.5">
+        <div className="flex items-center justify-between mb-2.5 border-b border-amber-500/20 pb-2">
           <div className="flex items-center gap-2">
             <span className="relative flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
@@ -134,8 +198,17 @@ export const ActionControls: React.FC<ActionControlsProps> = ({
               {t('yourTurn')}
             </span>
           </div>
-          <div className="text-xs text-slate-300">
-            {t('toCall')} <strong className="text-amber-400 font-mono font-bold text-sm">{formatChips(Math.min(toCall, player.stack))}</strong>
+          <div className="flex items-center gap-2">
+            <div className="text-xs text-slate-300">
+              {t('toCall')} <strong className="text-amber-400 font-mono font-bold text-sm">{formatChips(Math.min(toCall, player.stack))}</strong>
+            </div>
+            <button
+              onClick={() => setIsCollapsed(true)}
+              className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-amber-300 transition-colors cursor-pointer flex items-center gap-0.5 text-[10px]"
+              title="Minimize Controls"
+            >
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       )}
