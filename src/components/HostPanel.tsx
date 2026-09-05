@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { TableState } from '../types/poker';
 import { formatChips } from '../utils/pokerRules';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -174,9 +175,9 @@ export const HostPanel: React.FC<HostPanelProps> = ({
         )}
       </div>
 
-      {showAwardModal && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-amber-400/50 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
+      {showAwardModal && createPortal(
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-amber-400/50 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div>
               <h3 className="text-lg font-black text-amber-300 flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-amber-400" />
@@ -234,12 +235,13 @@ export const HostPanel: React.FC<HostPanelProps> = ({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {showRebuyModal && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+      {showRebuyModal && createPortal(
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div>
               <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
                 <PlusCircle className="w-4 h-4 text-emerald-400" />
@@ -310,12 +312,13 @@ export const HostPanel: React.FC<HostPanelProps> = ({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {showSettingsModal && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+      {showSettingsModal && createPortal(
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div>
               <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
                 <Settings className="w-4 h-4 text-amber-400" />
@@ -446,12 +449,13 @@ export const HostPanel: React.FC<HostPanelProps> = ({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {showKickModal && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-rose-500/50 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
+      {showKickModal && createPortal(
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-rose-500/50 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div>
               <h3 className="text-base font-bold text-rose-300 flex items-center gap-2">
                 <UserX className="w-5 h-5 text-rose-400" />
@@ -527,7 +531,8 @@ export const HostPanel: React.FC<HostPanelProps> = ({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
