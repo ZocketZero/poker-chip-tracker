@@ -38,7 +38,9 @@ export function App() {
     sendToHost,
   } = useP2PPoker();
 
-  const [playerName, setPlayerName] = useState<string>('');
+  const [playerName, setPlayerName] = useState<string>(
+    () => localStorage.getItem('poker_player_name') ?? ''
+  );
   const [roomIdInput, setRoomIdInput] = useState<string>('');
   const [customHostId, setCustomHostId] = useState<string>('');
   const [initialBuyIn, setInitialBuyIn] = useState<number>(1000);
@@ -59,6 +61,12 @@ export function App() {
       setPlayerName(randomName());
     }
   }, []);
+
+  useEffect(() => {
+    if (playerName) {
+      localStorage.setItem('poker_player_name', playerName);
+    }
+  }, [playerName]);
 
   const localPlayer = useMemo(
     () => tableState.players[localPlayerId],
