@@ -163,7 +163,7 @@ export function useP2PPoker() {
   // Host processes incoming messages & updates authoritative game state
   const handleMessageAsHost = useCallback(
     (senderId: string, msg: PeerMessage) => {
-      const current = { ...tableStateRef.current };
+      const current = { ...tableStateRef.current, players: { ...tableStateRef.current.players } };
       
       // Resolve actual player (if senderId is 'local' or match directly)
       const effectivePlayerId = senderId === 'local' ? localPlayerIdRef.current : senderId;
