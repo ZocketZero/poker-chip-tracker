@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import type { Player, TableState, PlayerActionType } from '../types/poker';
 import { formatChips } from '../utils/pokerRules';
 import { useLanguage } from '../i18n/LanguageContext';
-import { Flame, ArrowUpRight, Check, X, ShieldAlert, ChevronDown, ChevronUp } from 'lucide-react';
+import { Flame, ArrowUpRight, Check, X, ShieldAlert, ChevronDown, ChevronUp, Trophy } from 'lucide-react';
 
 interface ActionControlsProps {
   player: Player;
   tableState: TableState;
   onAction: (action: PlayerActionType, amount?: number) => void;
   isMyTurn: boolean;
+  onOpenRankings?: () => void;
 }
 
 export const ActionControls: React.FC<ActionControlsProps> = React.memo(({
@@ -16,6 +17,7 @@ export const ActionControls: React.FC<ActionControlsProps> = React.memo(({
   tableState,
   onAction,
   isMyTurn,
+  onOpenRankings,
 }) => {
   const { t } = useLanguage();
   const currentHigh = tableState.currentHighBet;
@@ -136,6 +138,17 @@ export const ActionControls: React.FC<ActionControlsProps> = React.memo(({
             </div>
           )}
 
+          {onOpenRankings && (
+            <button
+              onClick={onOpenRankings}
+              className="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 text-amber-300 px-2 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border border-slate-700 active:scale-95"
+              title={t('handRankingsBtn')}
+            >
+              <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-[11px] hidden sm:inline">{t('handRankingsBtn')}</span>
+            </button>
+          )}
+
           <button
             onClick={() => setIsCollapsed(false)}
             className="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 text-amber-300 hover:text-amber-200 px-2 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border border-slate-700 active:scale-95"
@@ -172,6 +185,16 @@ export const ActionControls: React.FC<ActionControlsProps> = React.memo(({
             </span>
           </span>
           <div className="flex items-center gap-2">
+            {onOpenRankings && (
+              <button
+                onClick={onOpenRankings}
+                className="p-1 px-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-amber-500/40 text-amber-300 hover:text-amber-200 transition-colors cursor-pointer flex items-center gap-1 text-[11px] font-bold"
+                title={t('handRankingsBtn')}
+              >
+                <Trophy className="w-3 h-3 text-amber-400" />
+                <span className="hidden sm:inline">{t('handRankingsBtn')}</span>
+              </button>
+            )}
             <span className="text-slate-400 font-mono text-xs">
               {t('stackLabel')}: <strong className="text-amber-300 font-bold">{formatChips(player.stack)}</strong>
             </span>
@@ -197,6 +220,16 @@ export const ActionControls: React.FC<ActionControlsProps> = React.memo(({
             </span>
           </div>
           <div className="flex items-center gap-2">
+            {onOpenRankings && (
+              <button
+                onClick={onOpenRankings}
+                className="p-1 px-1.5 rounded-lg bg-slate-950 border border-amber-500/30 hover:border-amber-400 text-amber-300 transition-colors cursor-pointer flex items-center gap-1 text-[11px] font-bold"
+                title={t('handRankingsBtn')}
+              >
+                <Trophy className="w-3 h-3 text-amber-400" />
+                <span className="hidden sm:inline">{t('handRankingsBtn')}</span>
+              </button>
+            )}
             <div className="text-xs text-slate-300">
               {t('toCall')} <strong className="text-amber-400 font-mono font-bold text-sm">{formatChips(Math.min(toCall, player.stack))}</strong>
             </div>

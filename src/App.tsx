@@ -5,6 +5,7 @@ import { ActionControls } from './components/ActionControls';
 import { HostPanel } from './components/HostPanel';
 import { GameLog } from './components/GameLog';
 import { PotCalculatorModal } from './components/PotCalculatorModal';
+import { HandRankingsModal } from './components/HandRankingsModal';
 import { WinnerCelebration } from './components/WinnerCelebration';
 import { StreetAnnouncement } from './components/StreetAnnouncement';
 import { LanguageToggle } from './components/LanguageToggle';
@@ -19,7 +20,8 @@ import {
   Wifi,
   Sparkles,
   LogOut,
-  Play
+  Play,
+  Trophy
 } from 'lucide-react';
 import type { PlayerActionType, TableState, PotWinnerSelection } from './types/poker';
 
@@ -50,6 +52,7 @@ export function App() {
   const [isPracticeDealerOnly, setIsPracticeDealerOnly] = useState<boolean>(false);
   const [copiedCode, setCopiedCode] = useState<boolean>(false);
   const [showCalculator, setShowCalculator] = useState<boolean>(false);
+  const [showRankings, setShowRankings] = useState<boolean>(false);
 
   function randomName(): string {
     const names = ['Maverick', 'Ace', 'Joker', 'BluffKing', 'Viper', 'Diamond', 'Shark'];
@@ -240,6 +243,16 @@ export function App() {
             <p className="text-xs text-slate-400 max-w-sm mx-auto">
               {t('appSubtitle')}
             </p>
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => setShowRankings(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/40 rounded-full text-xs font-bold transition-all cursor-pointer shadow-md hover:border-amber-400 active:scale-95"
+              >
+                <Trophy className="w-3.5 h-3.5 text-amber-400" />
+                <span>{t('viewHandRankings')}</span>
+              </button>
+            </div>
           </div>
 
           {connectionError && (
@@ -397,6 +410,10 @@ export function App() {
             </div>
           </div>
         </div>
+
+        {showRankings && (
+          <HandRankingsModal onClose={() => setShowRankings(false)} />
+        )}
       </div>
     );
   }
@@ -432,6 +449,15 @@ export function App() {
 
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <LanguageToggle variant="compact" />
+
+          <button
+            onClick={() => setShowRankings(true)}
+            className="flex items-center gap-1 sm:gap-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700/80 px-2 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95 hover:border-amber-500/40"
+            title={t('handRankings')}
+          >
+            <Trophy className="w-3.5 h-3.5 text-amber-400" />
+            <span className="hidden sm:block">{t('handRankingsBtn')}</span>
+          </button>
 
           <button
             onClick={() => setShowCalculator(true)}
@@ -485,6 +511,7 @@ export function App() {
                     tableState={tableState}
                     isMyTurn={isMyTurn}
                     onAction={handleAction}
+                    onOpenRankings={() => setShowRankings(true)}
                   />
                 ) : (
                   <div className="bg-slate-900 border border-slate-800 p-3 sm:p-4 rounded-2xl text-center text-xs text-slate-400 shadow-2xl">
@@ -519,6 +546,7 @@ export function App() {
                     tableState={tableState}
                     isMyTurn={isMyTurn}
                     onAction={handleAction}
+                    onOpenRankings={() => setShowRankings(true)}
                   />
                 ) : (
                   <div className="bg-slate-900 border border-slate-800 p-3 sm:p-4 rounded-2xl text-center text-xs text-slate-400 shadow-2xl">
@@ -549,6 +577,11 @@ export function App() {
           tableState={tableState}
           onClose={handleCloseCalculator}
         />
+      )}
+
+      {/* Poker Hand Rankings Cheat Sheet Modal */}
+      {showRankings && (
+        <HandRankingsModal onClose={() => setShowRankings(false)} />
       )}
     </div>
   );

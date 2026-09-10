@@ -197,6 +197,29 @@ export const translations = {
 
     // Language Toggle
     switchLanguage: 'Language',
+
+    // Hand Rankings Guide
+    handRankings: 'Hand Rankings',
+    handRankingsBtn: 'Hand Rankings',
+    handRankingsTitle: 'Texas Hold\'em Hand Rankings',
+    handRankingsSubtitle: 'Official poker hand hierarchy from strongest (#1) to weakest (#10)',
+    viewHandRankings: 'Hand Rankings Guide',
+    ruleImportantNotes: 'Essential Poker Rules',
+    ruleSuitsEqual: 'Suits have equal rank: ♠, ♥, ♦, ♣ are all equal. No suit beats another in Hold\'em.',
+    ruleBestFive: 'Best 5 of 7 cards: Choose your best 5-card combination from 2 hole cards and 5 board cards.',
+    ruleSplitPot: 'Equal hands split (Chop): If 5-card hands are identical, players split the pot equally.',
+    ruleKicker: 'Kicker breaks ties: When matching pairs or trips, the highest remaining card (kicker) wins.',
+    ruleCardOrder: 'Rank hierarchy: A > K > Q > J > 10 > 9 > 8 > 7 > 6 > 5 > 4 > 3 > 2 (A can also count as 1 in A-2-3-4-5 straight).',
+    filterAllHands: 'All Hands',
+    filterHighHands: 'High Tier (#1-#4)',
+    filterMidHands: 'Mid Tier (#5-#7)',
+    filterLowHands: 'Basic Tier (#8-#10)',
+    searchRankingsPlaceholder: 'Search hands (e.g. Flush, Straight, Two Pair)...',
+    tieBreakerLabel: 'Tie-breaker',
+    oddsLabel: 'Probability',
+    closeHandRankings: 'Close',
+    bestHandBadge: 'HIGHEST',
+    quickCheatSheet: 'Hand Cheat Sheet',
   },
   th: {
     // Header & Brand
@@ -394,6 +417,29 @@ export const translations = {
 
     // Language Toggle
     switchLanguage: 'เปลี่ยนภาษา',
+
+    // Hand Rankings Guide
+    handRankings: 'ลำดับไพ่',
+    handRankingsBtn: 'ลำดับไพ่',
+    handRankingsTitle: 'คู่มือระดับไพ่โป๊กเกอร์ (Texas Hold\'em)',
+    handRankingsSubtitle: 'ลำดับความใหญ่ของไพ่โป๊กเกอร์ จากใหญ่ที่สุด (#1) ไปเล็กที่สุด (#10)',
+    viewHandRankings: 'คู่มือระดับไพ่',
+    ruleImportantNotes: 'ข้อควรรู้สำคัญสำหรับผู้เล่น',
+    ruleSuitsEqual: 'ดอกไพ่ไม่มีคะแนนสูงต่ำ: ♠, ♥, ♦, ♣ ศักดิ์เท่ากันทุกดอก ไม่มีดอกใหญ่กว่าในเท็กซัสโฮลเอ็ม',
+    ruleBestFive: 'ใช้ไพ่ที่ดีที่สุด 5 ใบ: จากทั้งหมด 7 ใบ (ไพ่ในมือ 2 ใบ + ไพ่กองกลาง 5 ใบ)',
+    ruleSplitPot: 'เสมอแบ่งชิปเท่ากัน (Chop): หากไพ่ 5 ใบที่ดีที่สุดเหมือนกันทุกใบ จะแบ่งชิปเท่ากัน',
+    ruleKicker: 'คิกเกอร์ (Kicker) ตัดสิน: เมื่อแต้มคู่หรือตองเท่ากัน ไพ่ใบเดี่ยวที่แต้มสูงสุดที่เหลือจะเป็นผู้ชนะ',
+    ruleCardOrder: 'ลำดับแต้มไพ่: A > K > Q > J > 10 > 9 > 8 > 7 > 6 > 5 > 4 > 3 > 2 (A นับเป็น 1 ได้ในสเตรท A-2-3-4-5)',
+    filterAllHands: 'ทั้งหมด',
+    filterHighHands: 'ระดับสูง (#1-#4)',
+    filterMidHands: 'ระดับกลาง (#5-#7)',
+    filterLowHands: 'ระดับพื้นฐาน (#8-#10)',
+    searchRankingsPlaceholder: 'ค้นหาระดับไพ่ (เช่น ฟลัช, สองคู่, ฟูลเฮ้าส์, สเตรท)...',
+    tieBreakerLabel: 'กติกาเมื่อแต้มชนกัน',
+    oddsLabel: 'โอกาสเกิด',
+    closeHandRankings: 'ปิด',
+    bestHandBadge: 'สูงสุด',
+    quickCheatSheet: 'โพยระดับไพ่',
   },
   ja: {
     // Header & Brand
@@ -591,6 +637,29 @@ export const translations = {
 
     // Language Toggle
     switchLanguage: '言語切替',
+
+    // Hand Rankings Guide
+    handRankings: '役一覧',
+    handRankingsBtn: '役一覧',
+    handRankingsTitle: 'テキサスホールデム 役の強さ一覧',
+    handRankingsSubtitle: 'ポーカーの手役ランキング（最強 #1 〜 最弱 #10）',
+    viewHandRankings: '役一覧ガイド',
+    ruleImportantNotes: '覚えておくべき重要ルール',
+    ruleSuitsEqual: 'スート（絵柄）に強弱なし: ♠♥♦♣はすべて同等です。スートによる勝敗判定はありません。',
+    ruleBestFive: '7枚中最強の5枚で勝負: 手札2枚＋共通カード5枚から最も強い5枚を選びます。',
+    ruleSplitPot: '同一役は引き分け (チョップ): 最強5枚が完全に同一の場合はポットを均等分割します。',
+    ruleKicker: 'キッカーで決着: ペアやスリーカードが同ランクの場合、残りの高ランク札で勝敗判定。',
+    ruleCardOrder: 'カードの強さ: A > K > Q > J > 10 > 9 > 8 > 7 > 6 > 5 > 4 > 3 > 2（AはA-2-3-4-5のストレートで1としても使用可）',
+    filterAllHands: '全ハンド',
+    filterHighHands: '上位役 (#1-#4)',
+    filterMidHands: '中位役 (#5-#7)',
+    filterLowHands: '基本役 (#8-#10)',
+    searchRankingsPlaceholder: '役を検索 (例: フラッシュ, フルハウス, ペア)...',
+    tieBreakerLabel: '同役の場合の判定',
+    oddsLabel: '出現確率',
+    closeHandRankings: '閉じる',
+    bestHandBadge: '最強',
+    quickCheatSheet: '早見表',
   },
 };
 
