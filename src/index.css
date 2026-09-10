@@ -8,20 +8,65 @@
   /* Body gradient glows (updated per theme below) */
   --glow1: rgba(16, 185, 129, 0.05);
   --glow2: rgba(245, 158, 11, 0.04);
+
+  /* ── Semantic accent tokens (default = dark/amber) ──────────── */
+  --accent:         oklch(80% .18 55);   /* amber-300 equivalent */
+  --accent-bright:  oklch(85% .19 55);   /* lighter accent */
+  --accent-dim:     oklch(70% .16 55);   /* dimmer accent */
+  --accent-bg:      oklch(30% .08 55 / 0.20);   /* accent tinted bg */
+  --accent-border:  oklch(70% .16 55 / 0.40);   /* accent border */
+  --accent-text-on: oklch(10% .03 55);   /* text ON accent buttons */
+
+  /* ── Semantic surface tokens ───────────────────────────────── */
+  --surface-page:   oklch(8%  .02 255);  /* outermost bg */
+  --surface-panel:  oklch(11% .03 260);  /* cards & panels */
+  --surface-card:   oklch(13% .03 260);  /* inner card */
+  --surface-input:  oklch(7%  .02 260);  /* inputs */
+  --surface-hover:  oklch(16% .03 260);  /* hover state */
+  --border-default: oklch(22% .04 260);  /* default border */
+  --border-subtle:  oklch(18% .03 260);  /* subtle divider */
+
+  --text-primary:   oklch(92% .02 255);  /* headings / labels */
+  --text-secondary: oklch(75% .03 258);  /* body text */
+  --text-muted:     oklch(52% .04 260);  /* muted / placeholder */
+  --text-on-dark:   oklch(92% .02 255);  /* text on dark surfaces */
 }
 
-/* ── Dark (default — no overrides needed, Tailwind defaults are dark) */
+/* ── Dark (default — classic casino) ────────────────────────── */
 .theme-dark {
   color-scheme: dark;
   --glow1: rgba(16, 185, 129, 0.05);
   --glow2: rgba(245, 158, 11, 0.04);
+  /* Uses :root defaults */
 }
 
 /* ── Light ───────────────────────────────────────────────────── */
 .theme-light {
   color-scheme: light;
-  --glow1: rgba(16, 185, 129, 0.05);
+  --glow1: rgba(16, 185, 129, 0.06);
   --glow2: rgba(210, 120, 6, 0.08);
+
+  /* ── Semantic accent: warm amber on light bg ── */
+  --accent:         oklch(46% .15 52);   /* rich amber — readable on white */
+  --accent-bright:  oklch(40% .16 51);
+  --accent-dim:     oklch(54% .13 53);
+  --accent-bg:      oklch(46% .15 52 / 0.12);
+  --accent-border:  oklch(46% .15 52 / 0.35);
+  --accent-text-on: oklch(98% .005 55);  /* white text on amber btn */
+
+  /* ── Semantic surfaces: light ── */
+  --surface-page:   oklch(98% .004 250);
+  --surface-panel:  oklch(95% .006 252);
+  --surface-card:   oklch(92% .007 252);
+  --surface-input:  oklch(99% .002 250);
+  --surface-hover:  oklch(89% .010 254);
+  --border-default: oklch(80% .015 258);
+  --border-subtle:  oklch(86% .010 256);
+
+  --text-primary:   oklch(14% .03 265);
+  --text-secondary: oklch(28% .03 262);
+  --text-muted:     oklch(48% .03 260);
+  --text-on-dark:   oklch(14% .03 265);
 
   /* ── Slate: invert scale — backgrounds go light, text goes dark ── */
   --color-slate-50:  oklch(8%  .03 265);    /* near-black (text-slate-50) */
@@ -31,43 +76,56 @@
   --color-slate-400: oklch(40% .03 258);    /* muted text ← was 600 */
   --color-slate-500: oklch(52% .03 257);    /* placeholder ← was 500 */
   --color-slate-600: oklch(66% .025 257);   /* very muted ← was 400 */
-  --color-slate-700: oklch(88% .012 255);   /* border/divider ← was 300 */
-  --color-slate-800: oklch(93% .007 252);   /* card surface ← was 200 */
-  --color-slate-900: oklch(96% .004 250);   /* panel surface ← was 100 */
+  --color-slate-700: oklch(80% .012 255);   /* border/divider ← was 300 */
+  --color-slate-800: oklch(90% .007 252);   /* card surface ← was 200 */
+  --color-slate-900: oklch(95% .004 250);   /* panel surface ← was 100 */
   --color-slate-950: oklch(98.5% .002 250); /* page background ← was 50 */
 
   /* white → near-black so text-white reads dark on light surfaces */
   --color-white: oklch(8% .03 265);
 
-  /* ── Amber → dark warm gold (readable on light bg) ── */
-  --color-amber-200: oklch(44% .14 52);   /* dark amber — was near-white yellow */
-  --color-amber-300: oklch(38% .15 51);   /* richer dark gold */
-  --color-amber-400: oklch(33% .14 50);   /* deep amber/brown-gold */
-  --color-amber-500: oklch(28% .12 49);   /* very deep */
-  --color-amber-600: oklch(24% .10 48);
-  --color-amber-950: oklch(10% .05 48);
+  /* ── Amber → deep readable gold on light bg ── */
+  --color-amber-200: oklch(52% .14 52);
+  --color-amber-300: oklch(46% .15 52);
+  --color-amber-400: oklch(40% .14 51);
+  --color-amber-500: oklch(34% .13 50);
+  --color-amber-600: oklch(28% .11 49);
+  --color-amber-950: oklch(12% .05 48);
 
-  /* ── Cyan → deep teal (readable on light bg) ── */
-  --color-cyan-200: oklch(40% .12 210);
-  --color-cyan-300: oklch(35% .13 210);
-  --color-cyan-400: oklch(30% .13 210);
-  --color-cyan-500: oklch(26% .11 210);
+  /* ── Cyan → deep teal on light bg ── */
+  --color-cyan-200:  oklch(36% .12 210);
+  --color-cyan-300:  oklch(31% .13 210);
+  --color-cyan-400:  oklch(28% .13 210);
+  --color-cyan-500:  oklch(24% .11 210);
 
-  /* ── Emerald → deep green (readable on light bg) ── */
-  --color-emerald-300: oklch(36% .13 155);
-  --color-emerald-400: oklch(31% .14 155);
-  --color-emerald-500: oklch(27% .12 155);
+  /* ── Emerald → deep green on light bg ── */
+  --color-emerald-300: oklch(33% .13 155);
+  --color-emerald-400: oklch(28% .14 155);
+  --color-emerald-500: oklch(24% .12 155);
+
+  /* ── Rose/red → readable on light ── */
+  --color-rose-200:  oklch(40% .14 15);
+  --color-rose-400:  oklch(46% .16 15);
+  --color-rose-950:  oklch(14% .05 15);
 }
 
-/* ── Soft (purple-dark) ──────────────────────────────────────── */
+/* ── Soft (fuchsia-dark) ─────────────────────────────────────── */
 .theme-soft {
   color-scheme: dark;
   --glow1: rgba(232, 121, 249, 0.07);
   --glow2: rgba(192, 132, 252, 0.04);
 
+  /* Semantic accent: fuchsia */
+  --accent:         oklch(80% .20 328);
+  --accent-bright:  oklch(86% .22 328);
+  --accent-dim:     oklch(70% .17 328);
+  --accent-bg:      oklch(40% .15 328 / 0.20);
+  --accent-border:  oklch(70% .18 328 / 0.40);
+  --accent-text-on: oklch(10% .03 328);
+
   /* Remap slate to a purple-dark family */
   --color-slate-50:  oklch(9%  .05 310);
-  --color-slate-100: oklch(92% .04 310);   /* lightest text */
+  --color-slate-100: oklch(92% .04 310);
   --color-slate-200: oklch(83% .06 310);
   --color-slate-300: oklch(72% .07 310);
   --color-slate-400: oklch(60% .07 310);
@@ -80,11 +138,21 @@
 
   /* Swap amber accent → fuchsia */
   --color-amber-200: oklch(87% .16 330);
-  --color-amber-300: oklch(78% .18 330);
-  --color-amber-400: oklch(68% .22 330);
-  --color-amber-500: oklch(58% .24 330);
-  --color-amber-600: oklch(48% .22 330);
-  --color-amber-950: oklch(18% .10 330);
+  --color-amber-300: oklch(80% .20 328);
+  --color-amber-400: oklch(70% .22 328);
+  --color-amber-500: oklch(58% .24 328);
+  --color-amber-600: oklch(48% .22 328);
+  --color-amber-950: oklch(18% .10 328);
+
+  /* Emerald → violet-pink in soft theme */
+  --color-emerald-300: oklch(74% .16 320);
+  --color-emerald-400: oklch(64% .18 320);
+  --color-emerald-500: oklch(54% .18 320);
+
+  /* Cyan → lavender in soft theme */
+  --color-cyan-200:  oklch(82% .12 300);
+  --color-cyan-300:  oklch(72% .14 300);
+  --color-cyan-400:  oklch(62% .16 300);
 }
 
 /* ── Neon (cyan-dark) ────────────────────────────────────────── */
@@ -92,6 +160,14 @@
   color-scheme: dark;
   --glow1: rgba(34, 211, 238, 0.08);
   --glow2: rgba(14, 165, 233, 0.05);
+
+  /* Semantic accent: cyan */
+  --accent:         oklch(82% .15 200);
+  --accent-bright:  oklch(88% .17 200);
+  --accent-dim:     oklch(72% .13 200);
+  --accent-bg:      oklch(40% .12 200 / 0.20);
+  --accent-border:  oklch(72% .14 200 / 0.40);
+  --accent-text-on: oklch(8%  .04 210);
 
   /* Remap slate to a deep-teal family */
   --color-slate-50:  oklch(8%  .05 210);
@@ -107,12 +183,22 @@
   --color-slate-950: oklch(8%  .05 210);
 
   /* Swap amber accent → cyan */
-  --color-amber-200: oklch(89% .11 200);
-  --color-amber-300: oklch(80% .14 200);
-  --color-amber-400: oklch(70% .17 200);
+  --color-amber-200: oklch(89% .12 200);
+  --color-amber-300: oklch(82% .15 200);
+  --color-amber-400: oklch(72% .17 200);
   --color-amber-500: oklch(60% .18 200);
   --color-amber-600: oklch(50% .16 200);
   --color-amber-950: oklch(18% .08 200);
+
+  /* Emerald → electric green/cyan in neon theme */
+  --color-emerald-300: oklch(82% .18 165);
+  --color-emerald-400: oklch(72% .20 165);
+  --color-emerald-500: oklch(60% .20 165);
+
+  /* Cyan → sky blue in neon theme */
+  --color-cyan-200:  oklch(85% .14 220);
+  --color-cyan-300:  oklch(75% .16 220);
+  --color-cyan-400:  oklch(65% .18 220);
 }
 
 /* ── Royal (indigo-dark) ─────────────────────────────────────── */
@@ -120,6 +206,14 @@
   color-scheme: dark;
   --glow1: rgba(129, 140, 248, 0.07);
   --glow2: rgba(167, 139, 250, 0.04);
+
+  /* Semantic accent: indigo-violet */
+  --accent:         oklch(78% .15 278);
+  --accent-bright:  oklch(84% .17 278);
+  --accent-dim:     oklch(68% .13 278);
+  --accent-bg:      oklch(38% .12 278 / 0.22);
+  --accent-border:  oklch(68% .14 278 / 0.40);
+  --accent-text-on: oklch(10% .03 278);
 
   /* Remap slate to a deep-indigo family */
   --color-slate-50:  oklch(8%  .05 270);
@@ -135,12 +229,22 @@
   --color-slate-950: oklch(8%  .05 270);
 
   /* Swap amber accent → indigo-violet */
-  --color-amber-200: oklch(85% .09 280);
-  --color-amber-300: oklch(74% .13 280);
-  --color-amber-400: oklch(63% .17 280);
-  --color-amber-500: oklch(53% .19 280);
-  --color-amber-600: oklch(44% .17 280);
-  --color-amber-950: oklch(17% .08 280);
+  --color-amber-200: oklch(86% .10 278);
+  --color-amber-300: oklch(78% .15 278);
+  --color-amber-400: oklch(66% .18 278);
+  --color-amber-500: oklch(55% .20 278);
+  --color-amber-600: oklch(46% .18 278);
+  --color-amber-950: oklch(18% .08 278);
+
+  /* Emerald → teal-indigo in royal theme */
+  --color-emerald-300: oklch(76% .14 260);
+  --color-emerald-400: oklch(66% .16 260);
+  --color-emerald-500: oklch(56% .16 260);
+
+  /* Cyan → periwinkle in royal theme */
+  --color-cyan-200:  oklch(82% .10 258);
+  --color-cyan-300:  oklch(72% .12 258);
+  --color-cyan-400:  oklch(62% .14 258);
 }
 
 .font-mono {
@@ -181,8 +285,25 @@ button, select, input, a, [role="button"] {
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-amber-400, rgba(245, 158, 11, 0.6));
+  background: var(--accent, rgba(245, 158, 11, 0.6));
 }
+
+/* ── Semantic utility classes using CSS tokens ─────────────────
+   These classes respond correctly across ALL themes.             */
+.bg-surface-page   { background-color: var(--surface-page); }
+.bg-surface-panel  { background-color: var(--surface-panel); }
+.bg-surface-card   { background-color: var(--surface-card); }
+.bg-surface-input  { background-color: var(--surface-input); }
+.bg-surface-hover  { background-color: var(--surface-hover); }
+.border-default    { border-color: var(--border-default); }
+.border-subtle     { border-color: var(--border-subtle); }
+.text-accent       { color: var(--accent); }
+.text-accent-dim   { color: var(--accent-dim); }
+.text-primary      { color: var(--text-primary); }
+.text-secondary    { color: var(--text-secondary); }
+.text-muted        { color: var(--text-muted); }
+.bg-accent         { background-color: var(--accent-bg); }
+.border-accent     { border-color: var(--accent-border); }
 
 @keyframes pulse-gold {
   0%, 100% {

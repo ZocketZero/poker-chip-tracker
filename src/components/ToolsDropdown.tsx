@@ -13,15 +13,6 @@ import {
 } from 'lucide-react';
 import { formatChips } from '../utils/pokerRules';
 
-// Accent color dots per theme for visual preview
-const THEME_DOTS: Record<string, string> = {
-  dark:  'bg-amber-400',
-  light: 'bg-amber-500',
-  soft:  'bg-fuchsia-400',
-  neon:  'bg-cyan-400',
-  royal: 'bg-indigo-400',
-};
-
 interface ToolsDropdownProps {
   pot: number;
   onOpenRankings: () => void;
@@ -99,39 +90,48 @@ export const ToolsDropdown: React.FC<ToolsDropdownProps> = React.memo(
 
         {/* Dropdown panel */}
         {isOpen && (
-          <div className="absolute right-0 mt-1.5 w-52 bg-slate-900 border border-slate-700/90 rounded-xl shadow-2xl z-50 py-1 overflow-hidden ring-1 ring-white/10">
+          <div className="absolute right-0 mt-1.5 w-56 bg-slate-900 border border-slate-700/90 rounded-xl shadow-2xl z-50 py-1 overflow-hidden ring-1 ring-white/10">
 
             {/* Tools section header */}
-            <div className="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-800">
+            <div className="px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-800">
               Tools
             </div>
 
             {/* Hand Rankings */}
             <button
               onClick={handleOpenRankings}
-              className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-amber-300 hover:bg-slate-800/80 hover:text-amber-200 transition-colors cursor-pointer text-left"
+              className="w-full flex items-center gap-2.5 px-3 py-2 text-xs hover:bg-slate-800/80 transition-colors cursor-pointer text-left"
+              style={{ color: 'var(--accent)' }}
             >
-              <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <Trophy className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--accent)' }} />
               <span>{t('handRankingsBtn')}</span>
             </button>
 
             {/* Pot Calculator */}
             <button
               onClick={handleOpenCalculator}
-              className="w-full flex items-center justify-between gap-2.5 px-3 py-2 text-xs text-amber-300 hover:bg-slate-800/80 hover:text-amber-200 transition-colors cursor-pointer text-left"
+              className="w-full flex items-center justify-between gap-2.5 px-3 py-2 text-xs hover:bg-slate-800/80 transition-colors cursor-pointer text-left"
+              style={{ color: 'var(--accent)' }}
             >
               <span className="flex items-center gap-2.5">
-                <Calculator className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <Calculator className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--accent)' }} />
                 <span>{t('potMath')}</span>
               </span>
-              <span className="font-mono text-amber-200 text-[10px] bg-amber-500/10 px-1.5 py-0.5 rounded-md border border-amber-500/20">
+              <span
+                className="font-mono text-[10px] px-1.5 py-0.5 rounded-md border"
+                style={{
+                  color: 'var(--accent-bright)',
+                  background: 'var(--accent-bg)',
+                  borderColor: 'var(--accent-border)',
+                }}
+              >
                 {formatChips(pot)}
               </span>
             </button>
 
             {/* Theme section header */}
-            <div className="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1 border-t border-slate-800 mt-1">
-              <Palette className="w-3 h-3 text-amber-400" />
+            <div className="px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1 border-t border-slate-800 mt-1">
+              <Palette className="w-3 h-3" style={{ color: 'var(--accent)' }} />
               <span>Theme</span>
             </div>
 
@@ -141,27 +141,35 @@ export const ToolsDropdown: React.FC<ToolsDropdownProps> = React.memo(
                 <button
                   key={item.id}
                   onClick={() => handleSelectTheme(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-1.5 text-xs transition-colors cursor-pointer text-left ${
+                  className="w-full flex items-center justify-between px-3 py-1.5 text-xs transition-colors cursor-pointer text-left hover:bg-slate-800/80"
+                  style={
                     isSelected
-                      ? 'bg-amber-500/15 text-amber-300 font-bold'
-                      : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
-                  }`}
+                      ? {
+                          background: 'var(--accent-bg)',
+                          color: 'var(--accent)',
+                          fontWeight: 700,
+                        }
+                      : { color: 'var(--color-slate-300, #cbd5e1)' }
+                  }
                   role="option"
                   aria-selected={isSelected}
                 >
                   <span className="flex items-center gap-2">
-                    <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${THEME_DOTS[item.id]}`} />
+                    <span
+                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      style={{ background: 'var(--accent)' }}
+                    />
                     <span className="text-sm leading-none">{item.emoji}</span>
                     <span>{item.label}</span>
                   </span>
-                  {isSelected && <Check className="w-3.5 h-3.5 text-amber-400" />}
+                  {isSelected && <Check className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />}
                 </button>
               );
             })}
 
             {/* Language section header */}
-            <div className="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1 border-t border-slate-800 mt-1">
-              <Globe className="w-3 h-3 text-amber-400" />
+            <div className="px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1 border-t border-slate-800 mt-1">
+              <Globe className="w-3 h-3" style={{ color: 'var(--accent)' }} />
               <span>Language</span>
             </div>
 
@@ -171,11 +179,16 @@ export const ToolsDropdown: React.FC<ToolsDropdownProps> = React.memo(
                 <button
                   key={item.code}
                   onClick={() => handleSelectLanguage(item.code)}
-                  className={`w-full flex items-center justify-between px-3 py-2 text-xs transition-colors cursor-pointer text-left ${
+                  className="w-full flex items-center justify-between px-3 py-2 text-xs transition-colors cursor-pointer text-left hover:bg-slate-800/80"
+                  style={
                     isSelected
-                      ? 'bg-amber-500/15 text-amber-300 font-bold'
-                      : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
-                  }`}
+                      ? {
+                          background: 'var(--accent-bg)',
+                          color: 'var(--accent)',
+                          fontWeight: 700,
+                        }
+                      : { color: 'var(--color-slate-300, #cbd5e1)' }
+                  }
                   role="option"
                   aria-selected={isSelected}
                 >
@@ -183,7 +196,7 @@ export const ToolsDropdown: React.FC<ToolsDropdownProps> = React.memo(
                     <span className="text-sm leading-none">{item.flag}</span>
                     <span>{item.label}</span>
                   </span>
-                  {isSelected && <Check className="w-3.5 h-3.5 text-amber-400" />}
+                  {isSelected && <Check className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />}
                 </button>
               );
             })}
