@@ -9,13 +9,12 @@ import { HandRankingsModal } from './components/HandRankingsModal';
 import { WinnerCelebration } from './components/WinnerCelebration';
 import { StreetAnnouncement } from './components/StreetAnnouncement';
 import { LanguageToggle } from './components/LanguageToggle';
+import { ToolsDropdown } from './components/ToolsDropdown';
 import { useLanguage } from './i18n/LanguageContext';
-import { formatChips } from './utils/pokerRules';
 import {
   Coins,
   Copy,
   Check,
-  Calculator,
   Users,
   Wifi,
   Sparkles,
@@ -448,25 +447,11 @@ export function App() {
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          <LanguageToggle variant="compact" />
-
-          <button
-            onClick={() => setShowRankings(true)}
-            className="flex items-center gap-1 sm:gap-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700/80 px-2 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95 hover:border-amber-500/40"
-            title={t('handRankings')}
-          >
-            <Trophy className="w-3.5 h-3.5 text-amber-400" />
-            <span className="hidden sm:block">{t('handRankingsBtn')}</span>
-          </button>
-
-          <button
-            onClick={() => setShowCalculator(true)}
-            className="flex items-center gap-1 sm:gap-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95"
-          >
-            <Calculator className="w-3.5 h-3.5" />
-            <span className="hidden sm:block">{t('potMath')}</span>
-            <span className="font-mono text-amber-200 text-[10px]">({formatChips(tableState.pot + tableState.communityBets)})</span>
-          </button>
+          <ToolsDropdown
+            pot={tableState.pot + tableState.communityBets}
+            onOpenRankings={() => setShowRankings(true)}
+            onOpenCalculator={() => setShowCalculator(true)}
+          />
 
           <div className="text-xs text-slate-300 font-bold flex items-center gap-1 bg-slate-950 px-2 sm:px-3 py-1.5 rounded-xl border border-slate-800 shadow-inner">
             <Users className="w-3.5 h-3.5 text-cyan-400" />
