@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Peer, { type DataConnection } from 'peerjs';
 import type { PeerMessage, TableState, Player } from '../types/poker';
-import { calculateSidePots, getNextActiveSeat } from '../utils/pokerRules';
+import { calculateSidePots, getNextActiveSeat, awardPot, awardPotsWithSelections } from '../utils/pokerRules';
 import { useLanguage } from '../i18n/LanguageContext';
 
 export const INITIAL_TABLE_STATE: TableState = {
@@ -418,30 +418,100 @@ export function useP2PPoker() {
         }
 
         case 'HOST_AWARD_POT': {
-          const { winnerSeatIndexes, customAmount } = msg;
-          const winners = Object.values(current.players).filter((p) =>
-            winnerSeatIndexes.includes(p.seatIndex)
-          );
-
-          if (winners.length === 0) return;
-
+          const { winnerSeatIndexes, customAmount, potWinners, customPayouts } = msg;
           const totalPot = customAmount !== undefined ? customAmount : (current.pot + current.communityBets);
-          const share = Math.floor(totalPot / winners.length);
-          let rem = totalPot % winners.length;
+          const payouts: Record<string, number> = {};
+          const logMessages: string[] = [];
+          const tableSize = current.settings.tableSize || 8;
 
-          winners.forEach((w) => {
-            current.players[w.id].stack += share;
-          });
+          if (customPayouts && Object.keys(customPayouts).length > 0) {
+            // Explicit custom payout mapping
+            for (const [pId, amt] of Object.entries(customPayouts)) {
+              if (amt > 0 && current.players[pId]) {
+                payouts[pId] = (payouts[pId] || 0) + amt;
+                logMessages.push(`${current.players[pId].name}: +${amt}`);
+              }
+            }
+          } else if (potWinners && potWinners.length > 0 && current.sidePots && current.sidePots.length > 0) {
+            // Per-pot winner selection
+            const potWinnerMap: Record<number, string[]> = {};
+            potWinners.forEach((pw) => {
+              potWinnerMap[pw.potIndex] = Object.values(current.players)
+                .filter((p) => pw.winnerSeatIndexes.includes(p.seatIndex))
+                .map((p) => p.id);
+            });
 
-          if (rem > 0) {
-            current.players[winners[0].id].stack += rem;
+            const result = awardPotsWithSelections(
+              current.sidePots,
+              potWinnerMap,
+              current.players,
+              current.dealerSeat,
+              tableSize
+            );
+            Object.assign(payouts, result.payouts);
+            logMessages.push(...result.messages);
+          } else {
+            // Standard winner seat indexes
+            const winners = Object.values(current.players).filter((p) =>
+              winnerSeatIndexes.includes(p.seatIndex)
+            );
+
+            if (winners.length === 0) return;
+
+            if (current.sidePots && current.sidePots.length > 1 && customAmount === undefined) {
+              // Distribute each pot among eligible winners
+              const result = awardPot(
+                current.sidePots,
+                winners.map((w) => w.id),
+                current.players,
+                current.dealerSeat,
+                tableSize
+              );
+              Object.assign(payouts, result.payouts);
+              logMessages.push(...result.messages);
+            } else {
+              // Single pot or customAmount: split equally
+              const share = Math.floor(totalPot / winners.length);
+              const remainder = totalPot % winners.length;
+
+              winners.forEach((w) => {
+                payouts[w.id] = (payouts[w.id] || 0) + share;
+              });
+
+              if (remainder > 0) {
+                // Award odd chip to player closest clockwise from dealer button
+                const sortedWinners = [...winners].sort((a, b) => {
+                  const distA = (a.seatIndex - current.dealerSeat + tableSize) % tableSize;
+                  const distB = (b.seatIndex - current.dealerSeat + tableSize) % tableSize;
+                  return distA - distB;
+                });
+                for (let i = 0; i < remainder; i++) {
+                  const luckyId = sortedWinners[i % sortedWinners.length].id;
+                  payouts[luckyId] = (payouts[luckyId] || 0) + 1;
+                }
+              }
+            }
           }
 
-          const winnerNames = winners.map((w) => w.name).join(', ');
+          // Apply payouts to player stacks
+          let totalAwarded = 0;
+          const winnersList: Player[] = [];
+          for (const [pId, amt] of Object.entries(payouts)) {
+            if (amt > 0 && current.players[pId]) {
+              current.players[pId].stack += amt;
+              totalAwarded += amt;
+              winnersList.push(current.players[pId]);
+            }
+          }
+
+          if (winnersList.length === 0) return;
+
+          const winnerNames = winnersList.map((w) => w.name).join(', ');
+          const detailText = logMessages.length > 0 ? ` (${logMessages.join(' | ')})` : '';
           const winLog = {
             id: Math.random().toString(36).substring(2, 9),
             timestamp: Date.now(),
-            text: `🏆 Hand #${current.handNumber} finished: ${winnerNames} awarded ${totalPot} chips!`,
+            text: `🏆 Hand #${current.handNumber} finished: ${winnerNames} awarded ${totalAwarded} chips!${detailText}`,
             type: 'winner' as const,
           };
 
@@ -463,9 +533,9 @@ export function useP2PPoker() {
           current.isHandInProgress = false;
           current.currentTurnSeat = null;
           current.lastWinner = {
-            winnerNames: winners.map((w) => w.name),
-            winnerSeatIndexes: winners.map((w) => w.seatIndex),
-            amount: totalPot,
+            winnerNames: winnersList.map((w) => w.name),
+            winnerSeatIndexes: winnersList.map((w) => w.seatIndex),
+            amount: totalAwarded,
             handNumber: current.handNumber,
             timestamp: Date.now(),
             reason: 'showdown',

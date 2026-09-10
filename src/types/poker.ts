@@ -72,13 +72,24 @@ export interface TableState {
   lastWinner?: WinnerInfo | null;
 }
 
+export interface PotWinnerSelection {
+  potIndex: number;
+  winnerSeatIndexes: number[];
+}
+
 export type PeerMessage =
   | { type: 'SYNC_STATE'; state: TableState }
   | { type: 'JOIN_REQUEST'; name: string; requestedSeat?: number; buyIn?: number }
   | { type: 'PLAYER_ACTION'; action: PlayerActionType; amount?: number }
   | { type: 'HOST_START_HAND' }
   | { type: 'HOST_NEXT_STREET' }
-  | { type: 'HOST_AWARD_POT'; winnerSeatIndexes: number[]; customAmount?: number }
+  | {
+      type: 'HOST_AWARD_POT';
+      winnerSeatIndexes: number[];
+      customAmount?: number;
+      potWinners?: PotWinnerSelection[];
+      customPayouts?: Record<string, number>;
+    }
   | { type: 'HOST_REBUY'; playerId: string; amount: number }
   | { type: 'HOST_UPDATE_SETTINGS'; settings: Partial<GameSettings> }
   | { type: 'HOST_FORCE_SEAT'; playerId: string; seatIndex: number }

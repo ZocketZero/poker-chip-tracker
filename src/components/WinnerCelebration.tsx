@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import confetti from 'canvas-confetti';
 import type { TableState } from '../types/poker';
 import { formatChips } from '../utils/pokerRules';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -18,6 +19,16 @@ export const WinnerCelebration: React.FC<WinnerCelebrationProps> = React.memo(({
     if (lastWinner && lastWinner.timestamp && lastWinner.handNumber !== lastHandSeen) {
       setLastHandSeen(lastWinner.handNumber);
       setVisible(true);
+
+      try {
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 },
+        });
+      } catch {
+        // Ignore confetti errors if canvas unavailable
+      }
 
       const timer = setTimeout(() => {
         setVisible(false);

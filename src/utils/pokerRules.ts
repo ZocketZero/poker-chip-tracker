@@ -66,7 +66,8 @@ export function awardPot(
   pots: SidePot[],
   winnerIds: string[],
   players: Record<string, Player>,
-  dealerSeat: number
+  dealerSeat: number,
+  tableSize: number = 8
 ): { payouts: Record<string, number>; remainingPot: number; messages: string[] } {
   const payouts: Record<string, number> = {};
   const messages: string[] = [];
@@ -98,8 +99,70 @@ export function awardPot(
 
     if (remainder > 0) {
       const sortedBySeat = [...winningPool].sort((a, b) => {
-        const seatA = (players[a]?.seatIndex - dealerSeat + 10) % 10;
-        const seatB = (players[b]?.seatIndex - dealerSeat + 10) % 10;
+        const seatA = (players[a]?.seatIndex - dealerSeat + tableSize) % tableSize;
+        const seatB = (players[b]?.seatIndex - dealerSeat + tableSize) % tableSize;
+        return seatA - seatB;
+      });
+
+      for (let i = 0; i < remainder; i++) {
+        const luckyWinnerId = sortedBySeat[i % sortedBySeat.length];
+        payouts[luckyWinnerId] = (payouts[luckyWinnerId] || 0) + 1;
+      }
+    }
+
+    const names = winningPool.map((id) => players[id]?.name || 'Player').join(', ');
+    const potLabel = index === 0 ? 'Main Pot' : `Side Pot #${index}`;
+    messages.push(`${potLabel} (${pot.amount}) awarded to ${names}`);
+  });
+
+  return { payouts, remainingPot: remaining, messages };
+}
+
+export function awardPotsWithSelections(
+  pots: SidePot[],
+  potWinnerMap: Record<number, string[]>,
+  players: Record<string, Player>,
+  dealerSeat: number,
+  tableSize: number = 8
+): { payouts: Record<string, number>; remainingPot: number; messages: string[] } {
+  const payouts: Record<string, number> = {};
+  const messages: string[] = [];
+
+  for (const pId of Object.keys(players)) {
+    payouts[pId] = 0;
+  }
+
+  let remaining = 0;
+
+  pots.forEach((pot, index) => {
+    const specified = potWinnerMap[index] || [];
+    const eligibleWinners = specified.filter((wId) =>
+      pot.eligiblePlayerIds.includes(wId)
+    );
+
+    const winningPool =
+      eligibleWinners.length > 0
+        ? eligibleWinners
+        : specified.length > 0
+        ? specified
+        : pot.eligiblePlayerIds;
+
+    if (winningPool.length === 0) {
+      remaining += pot.amount;
+      return;
+    }
+
+    const share = Math.floor(pot.amount / winningPool.length);
+    const remainder = pot.amount % winningPool.length;
+
+    winningPool.forEach((wId) => {
+      payouts[wId] = (payouts[wId] || 0) + share;
+    });
+
+    if (remainder > 0) {
+      const sortedBySeat = [...winningPool].sort((a, b) => {
+        const seatA = (players[a]?.seatIndex - dealerSeat + tableSize) % tableSize;
+        const seatB = (players[b]?.seatIndex - dealerSeat + tableSize) % tableSize;
         return seatA - seatB;
       });
 

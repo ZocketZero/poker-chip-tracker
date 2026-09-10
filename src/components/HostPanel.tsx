@@ -1,19 +1,28 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import type { TableState } from '../types/poker';
+import type { TableState, PotWinnerSelection } from '../types/poker';
 import { formatChips } from '../utils/pokerRules';
 import { useLanguage } from '../i18n/LanguageContext';
-import { Play, FastForward, Award, PlusCircle, Settings, ShieldCheck, Sparkles, Check, UserX, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
+import { WinnerSelectionModal } from './WinnerSelectionModal';
+import { Play, FastForward, Award, PlusCircle, Settings, ShieldCheck, Check, UserX, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface HostPanelProps {
   tableState: TableState;
   onStartHand: () => void;
   onNextStreet: () => void;
-  onAwardPot: (winnerSeatIndexes: number[], customAmount?: number) => void;
+  onAwardPot: (
+    winnerSeatIndexes: number[],
+    customAmount?: number,
+    potWinners?: PotWinnerSelection[],
+    customPayouts?: Record<string, number>
+  ) => void;
   onRebuy: (playerId: string, amount: number) => void;
   onUpdateSettings: (settings: Partial<TableState['settings']>) => void;
   onKickPlayer?: (playerId: string) => void;
   onToggleDealerOnly?: (isDealerOnly: boolean) => void;
+  externalAwardModalOpen?: boolean;
+  onCloseExternalAwardModal?: () => void;
+  externalSelectedSeat?: number | null;
 }
 
 export const HostPanel: React.FC<HostPanelProps> = React.memo(({
@@ -25,9 +34,13 @@ export const HostPanel: React.FC<HostPanelProps> = React.memo(({
   onUpdateSettings,
   onKickPlayer,
   onToggleDealerOnly,
+  externalAwardModalOpen,
+  onCloseExternalAwardModal,
+  externalSelectedSeat,
 }) => {
   const { t } = useLanguage();
   const [showAwardModal, setShowAwardModal] = useState(false);
+  const [internalSelectedSeat, setInternalSelectedSeat] = useState<number | null>(null);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showRebuyModal, setShowRebuyModal] = useState(false);
   const [showKickModal, setShowKickModal] = useState(false);
@@ -36,8 +49,19 @@ export const HostPanel: React.FC<HostPanelProps> = React.memo(({
 
   const hostPlayer = tableState.players[tableState.hostId];
 
-  const [selectedWinners, setSelectedWinners] = useState<number[]>([]);
-  const [customPotAmount, setCustomPotAmount] = useState<number>(0);
+  const isAwardModalOpen = showAwardModal || (externalAwardModalOpen ?? false);
+  const activeAwardSeat = externalAwardModalOpen ? externalSelectedSeat : internalSelectedSeat;
+
+  const handleOpenAwardModal = (seatIndex?: number) => {
+    setInternalSelectedSeat(seatIndex ?? null);
+    setShowAwardModal(true);
+  };
+
+  const handleCloseAward = () => {
+    setShowAwardModal(false);
+    onCloseExternalAwardModal?.();
+    setInternalSelectedSeat(null);
+  };
 
   const [selectedRebuyPlayer, setSelectedRebuyPlayer] = useState<string>('');
   const [rebuyAmount, setRebuyAmount] = useState<number>(500);
@@ -77,19 +101,6 @@ export const HostPanel: React.FC<HostPanelProps> = React.memo(({
     }
   };
 
-  const handleOpenAwardModal = () => {
-    const candidates = Object.values(tableState.players).filter((p) => !p.hasFolded);
-    setSelectedWinners(candidates.map((p) => p.seatIndex));
-    setCustomPotAmount(totalPot);
-    setShowAwardModal(true);
-  };
-
-  const handleConfirmAward = () => {
-    if (selectedWinners.length === 0) return;
-    onAwardPot(selectedWinners, customPotAmount || totalPot);
-    setShowAwardModal(false);
-  };
-
   return (
     <>
       {isCollapsed ? (
@@ -116,8 +127,8 @@ export const HostPanel: React.FC<HostPanelProps> = React.memo(({
               </button>
             ) : tableState.street === 'showdown' ? (
               <button
-                onClick={handleOpenAwardModal}
-                className="px-3 py-1 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-black rounded-lg text-xs flex items-center gap-1.5 border border-amber-300/80 transition-all cursor-pointer active:scale-95"
+                onClick={() => handleOpenAwardModal()}
+                className="px-3 py-1 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-black rounded-lg text-xs flex items-center gap-1.5 border border-amber-300/80 transition-all cursor-pointer active:scale-95 ring-2 ring-amber-400/60 animate-pulse"
               >
                 <Award className="w-3.5 h-3.5 text-slate-950" />
                 <span>{t('awardPotBtn', { amount: formatChips(totalPot) })}</span>
@@ -214,7 +225,7 @@ export const HostPanel: React.FC<HostPanelProps> = React.memo(({
             </button>
 
             <button
-              onClick={handleOpenAwardModal}
+              onClick={() => handleOpenAwardModal()}
               className="col-span-3 py-1.5 px-2.5 bg-gradient-to-r from-amber-500/80 to-amber-600/80 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-amber-400/40 transition-all cursor-pointer"
             >
               <Award className="w-3.5 h-3.5 text-slate-950" />
@@ -233,8 +244,8 @@ export const HostPanel: React.FC<HostPanelProps> = React.memo(({
             </button>
 
             <button
-              onClick={handleOpenAwardModal}
-              className="col-span-2 py-2 px-2.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-black rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md border border-amber-300/60 transition-all cursor-pointer"
+              onClick={() => handleOpenAwardModal()}
+              className="col-span-2 py-2 px-2.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-black rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md border border-amber-300/60 transition-all cursor-pointer ring-2 ring-amber-400/60 animate-pulse"
             >
               <Award className="w-3.5 h-3.5 text-slate-950" />
               {t('awardPotBtn', { amount: formatChips(totalPot) })}
@@ -245,69 +256,16 @@ export const HostPanel: React.FC<HostPanelProps> = React.memo(({
       </div>
       )}
 
-      {showAwardModal && createPortal(
-        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-amber-400/50 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div>
-              <h3 className="text-lg font-black text-amber-300 flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-amber-400" />
-                {t('awardModalTitle')}
-              </h3>
-              <p className="text-xs text-slate-400 mt-1">
-                {t('awardModalDesc', { amount: formatChips(totalPot) })}
-              </p>
-            </div>
-
-            <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-              {Object.values(tableState.players).map((p) => {
-                const isSelected = selectedWinners.includes(p.seatIndex);
-                return (
-                  <button
-                    key={p.id}
-                    onClick={() => {
-                      if (isSelected) {
-                        setSelectedWinners(selectedWinners.filter((s) => s !== p.seatIndex));
-                      } else {
-                        setSelectedWinners([...selectedWinners, p.seatIndex]);
-                      }
-                    }}
-                    className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                      isSelected
-                        ? 'bg-amber-500/20 border-amber-400 text-amber-200 font-bold shadow-md'
-                        : 'bg-slate-950/70 border-slate-800 text-slate-300 hover:border-slate-700'
-                    }`}
-                  >
-                    <div>
-                      <div className="font-bold text-sm">{p.name} {p.hasFolded && <span className="text-rose-400 text-xs font-normal">{t('foldedTag')}</span>}</div>
-                      <div className="text-xs text-slate-400 font-mono">{t('seatNumber', { number: p.seatIndex + 1 })} • {t('stackLabel')}: {formatChips(p.stack)}</div>
-                    </div>
-                    <div className="text-xs font-mono font-black">
-                      {isSelected ? t('selectedWinner') : t('clickToPickWinner')}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="flex gap-2 pt-2">
-              <button
-                onClick={() => setShowAwardModal(false)}
-                className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer"
-              >
-                {t('cancel')}
-              </button>
-              <button
-                onClick={handleConfirmAward}
-                disabled={selectedWinners.length === 0}
-                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-lg disabled:opacity-40 cursor-pointer"
-              >
-                {t('confirmPayout')}
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+      <WinnerSelectionModal
+        tableState={tableState}
+        isOpen={isAwardModalOpen}
+        onClose={handleCloseAward}
+        onConfirmAward={(winners, customAmt, potWinners, customPayouts) => {
+          onAwardPot(winners, customAmt, potWinners, customPayouts);
+          handleCloseAward();
+        }}
+        initialSelectedSeat={activeAwardSeat}
+      />
 
       {showRebuyModal && createPortal(
         <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">

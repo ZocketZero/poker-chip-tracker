@@ -16,6 +16,7 @@ import {
   Trophy,
   LayoutGrid,
   List,
+  Sparkles,
 } from 'lucide-react';
 
 interface TableViewProps {
@@ -23,6 +24,7 @@ interface TableViewProps {
   localPlayerId: string;
   onSeatClick?: (seatIndex: number) => void;
   onPlayerClick?: (player: Player) => void;
+  onOpenAwardModal?: (seatIndex?: number) => void;
 }
 
 export const TableView: React.FC<TableViewProps> = React.memo(({
@@ -30,8 +32,10 @@ export const TableView: React.FC<TableViewProps> = React.memo(({
   localPlayerId,
   onSeatClick,
   onPlayerClick,
+  onOpenAwardModal,
 }) => {
   const { t } = useLanguage();
+  const isHost = localPlayerId === tableState.hostId;
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
     const saved = localStorage.getItem('poker_view_mode');
     return saved === 'list' ? 'list' : 'grid';
@@ -170,6 +174,43 @@ export const TableView: React.FC<TableViewProps> = React.memo(({
         )}
       </div>
 
+      {/* Showdown Prominent Banner */}
+      {tableState.isHandInProgress && tableState.street === 'showdown' && (
+        <div className="mb-3 p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-950/90 via-slate-900 to-amber-950/90 border-2 border-amber-400/90 shadow-2xl ring-2 ring-amber-400/30 flex flex-col md:flex-row items-center justify-between gap-3 animate-pop-in">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-300 text-slate-950 flex items-center justify-center shadow-lg shrink-0">
+              <Trophy className="w-5 h-5 stroke-[2.5]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h4 className="text-sm sm:text-base font-black text-amber-200">
+                  {t('showdownTitle')}
+                </h4>
+                <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/40 font-bold">
+                  {formatChips(totalPot)} {t('chipsUnit')}
+                </span>
+              </div>
+              <p className="text-xs text-slate-300 mt-0.5">
+                {isHost ? t('showdownPromptHost') : t('showdownWaitingHost')}
+              </p>
+            </div>
+          </div>
+
+          {isHost && (
+            <div className="flex items-center gap-2 flex-wrap justify-end w-full md:w-auto">
+              <button
+                type="button"
+                onClick={() => onOpenAwardModal?.()}
+                className="px-4 py-2 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-black rounded-xl text-xs sm:text-sm flex items-center gap-1.5 shadow-lg active:scale-95 transition-all cursor-pointer ring-2 ring-amber-300"
+              >
+                <Trophy className="w-4 h-4 text-slate-950" />
+                <span>{t('showdownAwardBtn', { amount: formatChips(totalPot) })}</span>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Grid or List View of Players / Seats */}
       <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3" : "flex flex-col gap-2"}>
         {Array.from({ length: totalSeats }).map((_, seatIdx) => {
@@ -191,6 +232,12 @@ export const TableView: React.FC<TableViewProps> = React.memo(({
             : 0;
 
           const isLocalDealerOnly = tableState.players[localPlayerId]?.isDealerOnly;
+          const isContender =
+            tableState.isHandInProgress &&
+            tableState.street === 'showdown' &&
+            !!player &&
+            !player.hasFolded &&
+            !player.isDealerOnly;
 
           // EMPTY SEAT
           if (!player) {
@@ -264,6 +311,8 @@ export const TableView: React.FC<TableViewProps> = React.memo(({
                 className={`relative flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl cursor-pointer transition-all duration-150 border gap-2 sm:gap-4 ${
                   isWinner
                     ? 'bg-gradient-to-r from-amber-950/90 via-slate-900 to-amber-950/90 border-amber-300 ring-2 ring-amber-400 animate-winner z-20'
+                    : isContender
+                    ? 'bg-gradient-to-r from-amber-950/40 via-slate-900 to-amber-950/40 border-amber-400/80 ring-2 ring-amber-400/40 shadow-lg'
                     : isTurn
                     ? 'bg-slate-900 border-amber-400 ring-1 ring-amber-400 animate-turn shadow-lg'
                     : player.hasFolded
@@ -342,6 +391,11 @@ export const TableView: React.FC<TableViewProps> = React.memo(({
                           <X className="w-2.5 h-2.5" />
                           {t('foldedBadge')}
                         </span>
+                      ) : isContender ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-400/60 shadow-sm animate-pulse">
+                          <Sparkles className="w-2.5 h-2.5 text-amber-400" />
+                          {t('contenderBadge')}
+                        </span>
                       ) : player.isAllIn ? (
                         <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-600/50 shadow-sm">
                           <Flame className="w-2.5 h-2.5 text-amber-400" />
@@ -374,7 +428,7 @@ export const TableView: React.FC<TableViewProps> = React.memo(({
                   </div>
                 </div>
 
-                {/* Right section: Stack & Bet */}
+                {/* Right section: Stack & Bet & Host Pick Action */}
                 <div className="flex items-center gap-3 shrink-0 text-right">
                   {tableState.isHandInProgress && player.currentBet > 0 && (
                     <div>
@@ -391,6 +445,21 @@ export const TableView: React.FC<TableViewProps> = React.memo(({
                       {formatChips(player.stack)}
                     </span>
                   </div>
+
+                  {isHost && isContender && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onOpenAwardModal?.(player.seatIndex);
+                      }}
+                      className="px-2.5 py-1.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black rounded-lg text-xs shadow-md flex items-center gap-1 cursor-pointer transition-all active:scale-95 ml-1"
+                      title={t('pickThisPlayer')}
+                    >
+                      <Trophy className="w-3.5 h-3.5 text-slate-950" />
+                      <span className="hidden sm:inline">{t('pickThisPlayer')}</span>
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -404,6 +473,8 @@ export const TableView: React.FC<TableViewProps> = React.memo(({
               className={`relative flex flex-col justify-between p-2.5 sm:p-3.5 rounded-2xl cursor-pointer transition-all duration-150 border ${
                 isWinner
                   ? 'bg-gradient-to-b from-amber-950/90 via-slate-900 to-amber-950/90 border-amber-300 ring-2 ring-amber-400 animate-winner z-20'
+                  : isContender
+                  ? 'bg-gradient-to-b from-amber-950/40 via-slate-900 to-amber-950/40 border-amber-400/80 ring-2 ring-amber-400/40 shadow-lg'
                   : isTurn
                   ? 'bg-slate-900 border-amber-400 ring-1 ring-amber-400 animate-turn shadow-lg'
                   : player.hasFolded
@@ -485,6 +556,11 @@ export const TableView: React.FC<TableViewProps> = React.memo(({
                       <X className="w-2.5 h-2.5" />
                       {t('foldedBadge')}
                     </span>
+                  ) : isContender ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-400/60 shadow-sm animate-pulse">
+                      <Sparkles className="w-2.5 h-2.5 text-amber-400" />
+                      {t('contenderBadge')}
+                    </span>
                   ) : player.isAllIn ? (
                     <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-600/50 shadow-sm">
                       <Flame className="w-2.5 h-2.5 text-amber-400" />
@@ -534,6 +610,21 @@ export const TableView: React.FC<TableViewProps> = React.memo(({
                   </div>
                 )}
               </div>
+
+              {/* Host Quick Pick Button in Grid mode */}
+              {isHost && isContender && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenAwardModal?.(player.seatIndex);
+                  }}
+                  className="mt-2 w-full py-1.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black rounded-lg text-xs shadow-md flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95"
+                >
+                  <Trophy className="w-3.5 h-3.5 text-slate-950" />
+                  <span>{t('pickThisPlayer')}</span>
+                </button>
+              )}
             </div>
           );
         })}

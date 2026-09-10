@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useP2PPoker } from './hooks/useP2PPoker';
 import { TableView } from './components/TableView';
 import { ActionControls } from './components/ActionControls';
@@ -21,7 +21,7 @@ import {
   LogOut,
   Play
 } from 'lucide-react';
-import type { PlayerActionType, TableState } from './types/poker';
+import type { PlayerActionType, TableState, PotWinnerSelection } from './types/poker';
 
 export function App() {
   const { t } = useLanguage();
@@ -124,16 +124,53 @@ export function App() {
     sendToHost({ type: 'HOST_NEXT_STREET' });
   }, [sendToHost]);
 
+  const [awardModalOpen, setAwardModalOpen] = useState(false);
+  const [awardSelectedSeat, setAwardSelectedSeat] = useState<number | null>(null);
+
+  const handleOpenAwardModal = useCallback((seatIndex?: number) => {
+    setAwardSelectedSeat(seatIndex ?? null);
+    setAwardModalOpen(true);
+  }, []);
+
+  const handleCloseAwardModal = useCallback(() => {
+    setAwardModalOpen(false);
+    setAwardSelectedSeat(null);
+  }, []);
+
   const handleAwardPot = useCallback(
-    (winners: number[], amt?: number) => {
+    (
+      winners: number[],
+      amt?: number,
+      potWinners?: PotWinnerSelection[],
+      customPayouts?: Record<string, number>
+    ) => {
       sendToHost({
         type: 'HOST_AWARD_POT',
         winnerSeatIndexes: winners,
         customAmount: amt,
+        potWinners,
+        customPayouts,
       });
     },
     [sendToHost]
   );
+
+  // Auto-open winner selection for Host when entering showdown
+  const prevShowdownHandRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (
+      isHost &&
+      tableState.isHandInProgress &&
+      tableState.street === 'showdown' &&
+      tableState.handNumber !== prevShowdownHandRef.current
+    ) {
+      prevShowdownHandRef.current = tableState.handNumber;
+      const timer = setTimeout(() => {
+        handleOpenAwardModal();
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, [isHost, tableState.isHandInProgress, tableState.street, tableState.handNumber, handleOpenAwardModal]);
 
   const handleRebuy = useCallback(
     (pId: string, amt: number) => {
@@ -426,6 +463,7 @@ export function App() {
           tableState={tableState}
           localPlayerId={localPlayerId}
           onSeatClick={handleSeatClick}
+          onOpenAwardModal={handleOpenAwardModal}
         />
       </main>
 
@@ -466,6 +504,9 @@ export function App() {
                   onUpdateSettings={handleUpdateSettings}
                   onKickPlayer={handleKickPlayer}
                   onToggleDealerOnly={handleToggleDealerOnly}
+                  externalAwardModalOpen={awardModalOpen}
+                  onCloseExternalAwardModal={handleCloseAwardModal}
+                  externalSelectedSeat={awardSelectedSeat}
                 />
               </div>
             </div>
