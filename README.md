@@ -17,7 +17,7 @@ A real-time, **serverless Peer-to-Peer (P2P)** Poker Chip Counter and Pot Manage
   - **Role Switching**: Host can toggle Dealer-Only mode at table creation, in practice mode, or inside the Settings menu (with explicit Save confirmation). Sitting down at empty seats is automatically disabled when in Dealer-Only mode.
 
 - **🌍 Multi-Language Support (i18n)**:
-  - Instant localization toggle between **English (EN)**, **Thai (TH)**, and **Japanese (JA)**.
+  - Instant localization toggle between **English (EN)**, **Thai (TH)**, and **Japanese (JA)** via the unified Tools dropdown.
   - Persistent language preference using a lightweight custom React context without heavy dependencies.
 
 - **🧮 Live Pot & Side-Pot Calculator**:
@@ -25,10 +25,26 @@ A real-time, **serverless Peer-to-Peer (P2P)** Poker Chip Counter and Pot Manage
   - Interactive **Pot Math breakdown modal** explaining who is eligible for which side pot and total chips invested per player.
   - Handles **split pots** and awards odd chip remainders to the player closest to the dealer button (standard poker rules).
 
+- **🏆 Winner Selection Modal**:
+  - Dedicated full-featured modal for awarding the pot with four flexible payout modes:
+    - **Solo** – Award the entire pot to a single winner.
+    - **Split** – Divide the pot equally among multiple winners.
+    - **Side Pots** – Assign individual side pots to separate winners when players are all-in.
+    - **Custom** – Enter exact payout amounts per player for complete manual control.
+  - Displays active contenders vs. folded players, with chip stack context for each.
+
+- **📖 Hand Rankings Reference**:
+  - Built-in **Hand Rankings Modal** with all 10 Texas Hold'em hand ranks, illustrated example card combinations, tier badges (High / Mid / Low), alternate names, tie-breaker rules, and a searchable/filterable interface.
+  - Fully localized (EN / TH / JA).
+
+- **⚙️ Unified Tools Dropdown**:
+  - Single consolidated toolbar button combining language selection, Hand Rankings reference, and Pot Calculator access — keeping the header uncluttered on mobile and desktop.
+
 - **🎯 Interactive Poker Felt Table**:
   - Visual oval felt table with customizable seat capacities (2 to 10 players) and position badges (Dealer `D`, Small Blind `SB`, Big Blind `BB`, Winner `🏆`).
   - Real-time active bet placement in front of each seated player.
   - Visual **3D Casino Chip Stacks** rendered with authentic denominations ($1, $5, $25, $100, $500, $1,000).
+  - **Grid / List view toggle** — switch between the oval table layout and a compact list view, with preference persisted to `localStorage`.
 
 - **⚡ Turn-Based Action Controls**:
   - Smart buttons for **Fold**, **Check**, **Call**, **Raise**, and **All-In**.
@@ -41,7 +57,7 @@ A real-time, **serverless Peer-to-Peer (P2P)** Poker Chip Counter and Pot Manage
 - **👑 Comprehensive Host Administration**:
   - **Deal New Hand**: Rotates dealer button, collects blinds & optional antes, and triggers preflop action.
   - **Next Street**: Advance betting rounds with optional host confirmation or auto-advance toggle.
-  - **Award Pot**: Select single or multiple winners to split the pot, triggering celebratory confetti and win banner overlays.
+  - **Award Pot**: Opens the Winner Selection Modal to choose solo, split, side-pot, or custom payout — triggering celebratory confetti and win banner overlays.
   - **Rebuys & Chip Top-ups**: Inject chips into any player's stack mid-game.
   - **Player Management**: Kick disconnected or non-responsive players from the table.
   - **Customizable Blinds & Seats**: Adjust Small Blind, Big Blind, Ante, and Table Capacity (2–10 seats) on the fly.
@@ -108,13 +124,13 @@ Production assets are generated in the `dist/` folder and can be deployed to any
 1. The **Host** clicks **"DEAL NEW HAND"**.
 2. Blinds are posted automatically, and the action highlights the player whose turn it is.
 3. Seated players take turns choosing **Fold**, **Check/Call**, or **Raise**.
-4. When betting completes for the street, the Host progresses to the next street or awards the pot to the winner(s).
+4. When betting completes for the street, the Host progresses to the next street or awards the pot via the **Winner Selection Modal**.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Framework**: React 19 + TypeScript
+- **Framework**: React 19 + TypeScript 7
 - **Styling**: Tailwind CSS v4 + Lucide Icons
 - **P2P Networking**: WebRTC (PeerJS) + BroadcastChannel API
 - **Build Tool**: Vite 8
@@ -136,12 +152,15 @@ poker-chip-tracker/
 │   │   ├── ActionControls.tsx       # Player betting controls (Fold, Call, Raise, All-In)
 │   │   ├── ChipStack.tsx            # 3D Casino chip stack visualizer & breakdown
 │   │   ├── GameLog.tsx              # Activity history feed
+│   │   ├── HandRankingsModal.tsx    # Interactive hand rankings reference (EN/TH/JA)
 │   │   ├── HostPanel.tsx            # Dealer & table administration controls
-│   │   ├── LanguageToggle.tsx       # Language selector component (EN/TH/JA)
+│   │   ├── LanguageToggle.tsx       # Standalone language selector (legacy/fallback)
 │   │   ├── PotCalculatorModal.tsx   # Side-pot and chip math inspection modal
 │   │   ├── StreetAnnouncement.tsx   # Stage / street transition popup banners
-│   │   ├── TableView.tsx            # Felt oval table layout & seated players
-│   │   └── WinnerCelebration.tsx    # Winner celebration banner & animation overlay
+│   │   ├── TableView.tsx            # Felt oval table layout, grid/list toggle & seated players
+│   │   ├── ToolsDropdown.tsx        # Unified toolbar: language switcher + tools menu
+│   │   ├── WinnerCelebration.tsx    # Winner celebration banner & animation overlay
+│   │   └── WinnerSelectionModal.tsx # Award pot modal (solo / split / side-pots / custom)
 │   ├── hooks/
 │   │   └── useP2PPoker.ts           # Hybrid P2P network state manager & rules dispatch
 │   ├── i18n/
@@ -152,6 +171,7 @@ poker-chip-tracker/
 │   ├── utils/
 │   │   └── pokerRules.ts            # Pure pot, side pot, and betting calculations
 │   ├── App.tsx                      # Main layout, lobby coordinator & reload protector
+│   ├── App.css                      # Component-scoped styles
 │   ├── index.css                    # Tailwind styles & custom casino animations
 │   └── main.tsx                     # Application entry point wrapped in LanguageProvider
 ├── package.json
