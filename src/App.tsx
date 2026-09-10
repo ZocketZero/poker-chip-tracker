@@ -11,6 +11,7 @@ import { StreetAnnouncement } from './components/StreetAnnouncement';
 import { LanguageToggle } from './components/LanguageToggle';
 import { ToolsDropdown } from './components/ToolsDropdown';
 import { useLanguage } from './i18n/LanguageContext';
+import { useTheme, THEMES } from './i18n/ThemeContext';
 import {
   Coins,
   Copy,
@@ -26,6 +27,7 @@ import type { PlayerActionType, TableState, PotWinnerSelection } from './types/p
 
 export function App() {
   const { t } = useLanguage();
+  const { theme, setTheme } = useTheme();
   const {
     isHost,
     isConnected,
@@ -222,13 +224,40 @@ export function App() {
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4 relative overflow-hidden">
-        {/* Top Right Language Switcher */}
-        <div className="absolute top-4 right-4 z-20">
+        {/* Top Right: Theme + Language controls */}
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+          {/* Theme swatches */}
+          <div className="flex items-center gap-1 bg-slate-900/80 border border-slate-700/60 rounded-xl px-2 py-1.5 shadow-md backdrop-blur-sm">
+            {THEMES.map((item) => {
+              const isSelected = item.id === theme;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setTheme(item.id)}
+                  title={item.label}
+                  className="relative w-6 h-6 rounded-lg flex items-center justify-center transition-all cursor-pointer active:scale-90"
+                  style={
+                    isSelected
+                      ? {
+                          background: 'var(--accent-bg)',
+                          outline: '2px solid var(--accent)',
+                          outlineOffset: '1px',
+                        }
+                      : { background: 'transparent' }
+                  }
+                >
+                  <span className="text-sm leading-none select-none">{item.emoji}</span>
+                </button>
+              );
+            })}
+          </div>
+
           <LanguageToggle variant="full" />
         </div>
 
         {/* Ambient Casino Lighting */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-amber-500/10 blur-[80px] rounded-full pointer-events-none" />
+
 
         <div className="max-w-md w-full z-10 space-y-5">
           {/* Logo & Header */}
