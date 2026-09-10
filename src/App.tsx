@@ -221,7 +221,7 @@ export function App() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-[#060911] text-slate-100 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4 relative overflow-hidden">
         {/* Top Right Language Switcher */}
         <div className="absolute top-4 right-4 z-20">
           <LanguageToggle variant="full" />
@@ -418,7 +418,7 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#060911] text-slate-100 flex flex-col justify-between p-2 sm:p-4 max-w-7xl mx-auto select-none pb-48 sm:pb-40">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between p-2 sm:p-4 max-w-7xl mx-auto select-none pb-48 sm:pb-40">
       {/* Top Navbar */}
       <header className="z-50 flex items-center justify-between gap-2 bg-slate-900 border border-slate-800 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl mb-2 shadow-xl ring-1 ring-white/5">
         <div className="flex items-center gap-2 min-w-0">

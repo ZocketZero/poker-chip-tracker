@@ -1,8 +1,146 @@
 @import "tailwindcss";
 
+/* ─── Typography ──────────────────────────────────────────────── */
 :root {
   font-family: 'Plus Jakarta Sans', 'Noto Sans Thai', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color-scheme: dark;
+
+  /* Body gradient glows (updated per theme below) */
+  --glow1: rgba(16, 185, 129, 0.05);
+  --glow2: rgba(245, 158, 11, 0.04);
+}
+
+/* ── Dark (default — no overrides needed, Tailwind defaults are dark) */
+.theme-dark {
+  color-scheme: dark;
+  --glow1: rgba(16, 185, 129, 0.05);
+  --glow2: rgba(245, 158, 11, 0.04);
+}
+
+/* ── Light ───────────────────────────────────────────────────── */
+.theme-light {
+  color-scheme: light;
+  --glow1: rgba(16, 185, 129, 0.05);
+  --glow2: rgba(210, 120, 6, 0.08);
+
+  /* ── Slate: invert scale — backgrounds go light, text goes dark ── */
+  --color-slate-50:  oklch(8%  .03 265);    /* near-black (text-slate-50) */
+  --color-slate-100: oklch(11% .03 265);    /* primary text ← was 900 */
+  --color-slate-200: oklch(18% .03 263);    /* secondary text ← was 800 */
+  --color-slate-300: oklch(28% .03 260);    /* label text ← was 700 */
+  --color-slate-400: oklch(40% .03 258);    /* muted text ← was 600 */
+  --color-slate-500: oklch(52% .03 257);    /* placeholder ← was 500 */
+  --color-slate-600: oklch(66% .025 257);   /* very muted ← was 400 */
+  --color-slate-700: oklch(88% .012 255);   /* border/divider ← was 300 */
+  --color-slate-800: oklch(93% .007 252);   /* card surface ← was 200 */
+  --color-slate-900: oklch(96% .004 250);   /* panel surface ← was 100 */
+  --color-slate-950: oklch(98.5% .002 250); /* page background ← was 50 */
+
+  /* white → near-black so text-white reads dark on light surfaces */
+  --color-white: oklch(8% .03 265);
+
+  /* ── Amber → dark warm gold (readable on light bg) ── */
+  --color-amber-200: oklch(44% .14 52);   /* dark amber — was near-white yellow */
+  --color-amber-300: oklch(38% .15 51);   /* richer dark gold */
+  --color-amber-400: oklch(33% .14 50);   /* deep amber/brown-gold */
+  --color-amber-500: oklch(28% .12 49);   /* very deep */
+  --color-amber-600: oklch(24% .10 48);
+  --color-amber-950: oklch(10% .05 48);
+
+  /* ── Cyan → deep teal (readable on light bg) ── */
+  --color-cyan-200: oklch(40% .12 210);
+  --color-cyan-300: oklch(35% .13 210);
+  --color-cyan-400: oklch(30% .13 210);
+  --color-cyan-500: oklch(26% .11 210);
+
+  /* ── Emerald → deep green (readable on light bg) ── */
+  --color-emerald-300: oklch(36% .13 155);
+  --color-emerald-400: oklch(31% .14 155);
+  --color-emerald-500: oklch(27% .12 155);
+}
+
+/* ── Soft (purple-dark) ──────────────────────────────────────── */
+.theme-soft {
+  color-scheme: dark;
+  --glow1: rgba(232, 121, 249, 0.07);
+  --glow2: rgba(192, 132, 252, 0.04);
+
+  /* Remap slate to a purple-dark family */
+  --color-slate-50:  oklch(9%  .05 310);
+  --color-slate-100: oklch(92% .04 310);   /* lightest text */
+  --color-slate-200: oklch(83% .06 310);
+  --color-slate-300: oklch(72% .07 310);
+  --color-slate-400: oklch(60% .07 310);
+  --color-slate-500: oklch(48% .07 310);
+  --color-slate-600: oklch(37% .07 310);
+  --color-slate-700: oklch(27% .07 310);   /* borders */
+  --color-slate-800: oklch(20% .06 310);   /* cards */
+  --color-slate-900: oklch(15% .05 310);   /* panels */
+  --color-slate-950: oklch(9%  .05 310);   /* inputs / darkest bg */
+
+  /* Swap amber accent → fuchsia */
+  --color-amber-200: oklch(87% .16 330);
+  --color-amber-300: oklch(78% .18 330);
+  --color-amber-400: oklch(68% .22 330);
+  --color-amber-500: oklch(58% .24 330);
+  --color-amber-600: oklch(48% .22 330);
+  --color-amber-950: oklch(18% .10 330);
+}
+
+/* ── Neon (cyan-dark) ────────────────────────────────────────── */
+.theme-neon {
+  color-scheme: dark;
+  --glow1: rgba(34, 211, 238, 0.08);
+  --glow2: rgba(14, 165, 233, 0.05);
+
+  /* Remap slate to a deep-teal family */
+  --color-slate-50:  oklch(8%  .05 210);
+  --color-slate-100: oklch(90% .07 210);
+  --color-slate-200: oklch(80% .09 210);
+  --color-slate-300: oklch(68% .10 210);
+  --color-slate-400: oklch(55% .09 210);
+  --color-slate-500: oklch(42% .08 210);
+  --color-slate-600: oklch(32% .08 210);
+  --color-slate-700: oklch(24% .08 210);
+  --color-slate-800: oklch(18% .07 210);
+  --color-slate-900: oklch(13% .06 210);
+  --color-slate-950: oklch(8%  .05 210);
+
+  /* Swap amber accent → cyan */
+  --color-amber-200: oklch(89% .11 200);
+  --color-amber-300: oklch(80% .14 200);
+  --color-amber-400: oklch(70% .17 200);
+  --color-amber-500: oklch(60% .18 200);
+  --color-amber-600: oklch(50% .16 200);
+  --color-amber-950: oklch(18% .08 200);
+}
+
+/* ── Royal (indigo-dark) ─────────────────────────────────────── */
+.theme-royal {
+  color-scheme: dark;
+  --glow1: rgba(129, 140, 248, 0.07);
+  --glow2: rgba(167, 139, 250, 0.04);
+
+  /* Remap slate to a deep-indigo family */
+  --color-slate-50:  oklch(8%  .05 270);
+  --color-slate-100: oklch(90% .04 270);
+  --color-slate-200: oklch(80% .06 270);
+  --color-slate-300: oklch(68% .08 270);
+  --color-slate-400: oklch(57% .10 270);
+  --color-slate-500: oklch(47% .11 270);
+  --color-slate-600: oklch(38% .10 270);
+  --color-slate-700: oklch(28% .10 270);
+  --color-slate-800: oklch(19% .08 270);
+  --color-slate-900: oklch(13% .06 270);
+  --color-slate-950: oklch(8%  .05 270);
+
+  /* Swap amber accent → indigo-violet */
+  --color-amber-200: oklch(85% .09 280);
+  --color-amber-300: oklch(74% .13 280);
+  --color-amber-400: oklch(63% .17 280);
+  --color-amber-500: oklch(53% .19 280);
+  --color-amber-600: oklch(44% .17 280);
+  --color-amber-950: oklch(17% .08 280);
 }
 
 .font-mono {
@@ -15,15 +153,13 @@
 
 body {
   margin: 0;
-  background-color: #060911;
-  color: #f1f5f9;
   min-height: 100vh;
   min-height: 100dvh;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  background-image: 
-    radial-gradient(circle at 50% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 60%),
-    radial-gradient(circle at 80% 80%, rgba(245, 158, 11, 0.04) 0%, transparent 50%);
+  background-image:
+    radial-gradient(circle at 50% 20%, var(--glow1) 0%, transparent 60%),
+    radial-gradient(circle at 80% 80%, var(--glow2) 0%, transparent 50%);
 }
 
 /* Mobile Touch Optimization & Instant Tap Response */
@@ -45,7 +181,7 @@ button, select, input, a, [role="button"] {
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(245, 158, 11, 0.6);
+  background: var(--color-amber-400, rgba(245, 158, 11, 0.6));
 }
 
 @keyframes pulse-gold {
@@ -140,5 +276,8 @@ button, select, input, a, [role="button"] {
   }
 }
 
-
+/* Smooth theme color transitions (excluding animations) */
+*:not(.animate-turn):not(.animate-float):not(.animate-winner):not(.animate-victory):not(.animate-shimmer):not(.animate-pop-in) {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
 

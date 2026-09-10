@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { type Language } from '../i18n/translations';
+import { useTheme, THEMES } from '../i18n/ThemeContext';
 import {
   ChevronDown,
   Check,
@@ -8,8 +9,18 @@ import {
   Trophy,
   Calculator,
   Settings2,
+  Palette,
 } from 'lucide-react';
 import { formatChips } from '../utils/pokerRules';
+
+// Accent color dots per theme for visual preview
+const THEME_DOTS: Record<string, string> = {
+  dark:  'bg-amber-400',
+  light: 'bg-amber-500',
+  soft:  'bg-fuchsia-400',
+  neon:  'bg-cyan-400',
+  royal: 'bg-indigo-400',
+};
 
 interface ToolsDropdownProps {
   pot: number;
@@ -26,6 +37,7 @@ const LANGUAGES: { code: Language; label: string; flag: string; short: string }[
 export const ToolsDropdown: React.FC<ToolsDropdownProps> = React.memo(
   ({ pot, onOpenRankings, onOpenCalculator }) => {
     const { language, setLanguage, t } = useLanguage();
+    const { theme, setTheme } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -47,6 +59,11 @@ export const ToolsDropdown: React.FC<ToolsDropdownProps> = React.memo(
 
     const handleSelectLanguage = (code: Language) => {
       setLanguage(code);
+      setIsOpen(false);
+    };
+
+    const handleSelectTheme = (id: typeof theme) => {
+      setTheme(id);
       setIsOpen(false);
     };
 
@@ -82,7 +99,7 @@ export const ToolsDropdown: React.FC<ToolsDropdownProps> = React.memo(
 
         {/* Dropdown panel */}
         {isOpen && (
-          <div className="absolute right-0 mt-1.5 w-48 bg-slate-900 border border-slate-700/90 rounded-xl shadow-2xl z-50 py-1 overflow-hidden ring-1 ring-white/10">
+          <div className="absolute right-0 mt-1.5 w-52 bg-slate-900 border border-slate-700/90 rounded-xl shadow-2xl z-50 py-1 overflow-hidden ring-1 ring-white/10">
 
             {/* Tools section header */}
             <div className="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-800">
@@ -111,6 +128,36 @@ export const ToolsDropdown: React.FC<ToolsDropdownProps> = React.memo(
                 {formatChips(pot)}
               </span>
             </button>
+
+            {/* Theme section header */}
+            <div className="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1 border-t border-slate-800 mt-1">
+              <Palette className="w-3 h-3 text-amber-400" />
+              <span>Theme</span>
+            </div>
+
+            {THEMES.map((item) => {
+              const isSelected = item.id === theme;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleSelectTheme(item.id)}
+                  className={`w-full flex items-center justify-between px-3 py-1.5 text-xs transition-colors cursor-pointer text-left ${
+                    isSelected
+                      ? 'bg-amber-500/15 text-amber-300 font-bold'
+                      : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                  }`}
+                  role="option"
+                  aria-selected={isSelected}
+                >
+                  <span className="flex items-center gap-2">
+                    <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${THEME_DOTS[item.id]}`} />
+                    <span className="text-sm leading-none">{item.emoji}</span>
+                    <span>{item.label}</span>
+                  </span>
+                  {isSelected && <Check className="w-3.5 h-3.5 text-amber-400" />}
+                </button>
+              );
+            })}
 
             {/* Language section header */}
             <div className="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1 border-t border-slate-800 mt-1">
